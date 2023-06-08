@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "sourceMap": true,
+      "types": [
+        "node",
+        "phaser"
+      ]
+    },
+    "include": [
+        "src/**/*"
+    ]
+  }

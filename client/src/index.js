@@ -1,6 +1,5 @@
 import * as Phaser from "phaser";
-import Game from "./scenes/game"
-
+import Game from "./scenes/game";
 const config = {
     type: Phaser.AUTO,
     parent: "phaser-example",
@@ -10,5 +9,5 @@ const config = {
         Game
     ]
 };
-
 const game = new Phaser.Game(config);
+//# sourceMappingURL=index.js.map
