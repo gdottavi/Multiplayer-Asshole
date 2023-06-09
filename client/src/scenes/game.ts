@@ -2,6 +2,8 @@
 import * as Phaser from "phaser";
 import Card from "../helpers/card";
 import Zone from "../helpers/zone"; 
+const io = require('socket.io-client');
+
 
 export default class Game extends Phaser.Scene {
     zone!: Zone;
@@ -9,7 +11,8 @@ export default class Game extends Phaser.Scene {
     outline!: void;
     dealCards!: () => void;
     dealText!: Phaser.GameObjects.Text;
-    
+    socket: any;
+    isPlayerA: boolean; 
 
     constructor(t: any){
         super({
@@ -21,7 +24,6 @@ export default class Game extends Phaser.Scene {
     preload() {
 
         //load card images
-
         this.load.image('cyanCardFront', require('../assets/CyanCardFront.png').default);
         this.load.image('cyanCardBack', require('../assets/CyanCardBack.png').default);
         this.load.image('magentaCardFront', require('../assets/MagentaCardFront.png').default);
@@ -32,12 +34,19 @@ export default class Game extends Phaser.Scene {
     //populate needed items for game
     create() {
         let self = this;
-      
+        
+        this.isPlayerA = false; 
 
         //play zone
         this.zone = new Zone(this);
         this.dropZone = this.zone.renderZone();
-        this.outline = this.zone.renderOutline(this.dropZone); 
+        this.outline = this.zone.renderOutline(this.dropZone);         
+
+        //server connection
+        this.socket = io('http://localhost:3000');      
+        this.socket.on('connect', function(){
+            console.log("Game Connected!");
+        })
 
         //Deal hand of cards to a player
         this.dealCards = () => {

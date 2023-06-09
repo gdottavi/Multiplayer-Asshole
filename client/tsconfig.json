@@ -2,6 +2,7 @@
     "compilerOptions": {
       "target": "ES6",
       "sourceMap": true,
+      "esModuleInterop": true,
       "types": [
         "node",
         "phaser"
