@@ -1,9 +1,14 @@
-import Card from "../helpers/card";
-import Zone from "../helpers/zone";
-import Dealer from "../helpers/dealer";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const card_1 = __importDefault(require("../helpers/card"));
+const zone_1 = __importDefault(require("../helpers/zone"));
+const dealer_1 = __importDefault(require("../helpers/dealer"));
 const io = require('socket.io-client');
-import { Scene } from "phaser";
-export default class Game extends Scene {
+const phaser_1 = require("phaser");
+class Game extends phaser_1.Scene {
     constructor(t) {
         super({
             key: 'Game',
@@ -23,10 +28,10 @@ export default class Game extends Scene {
         //setup players and dealer
         this.isPlayerA = false;
         this.opponentCards = [];
-        this.dealer = new Dealer(this);
+        this.dealer = new dealer_1.default(this);
         console.log(this.opponentCards);
         //play zone
-        this.zone = new Zone(this);
+        this.zone = new zone_1.default(this);
         this.dropZone = this.zone.renderZone();
         this.outline = this.zone.renderOutline(this.dropZone);
         //server connection
@@ -79,7 +84,7 @@ export default class Game extends Scene {
             if (isPlayerA !== self.isPlayerA) {
                 self.opponentCards.pop(); //simply removes one item from cards 
                 self.dropZone.data.values.cards++;
-                let card = new Card(self);
+                let card = new card_1.default(self);
                 card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey).disableInteractive();
             }
         });
@@ -88,4 +93,5 @@ export default class Game extends Scene {
     update() {
     }
 }
+exports.default = Game;
 //# sourceMappingURL=game.js.map

@@ -1,5 +1,7 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 //Playing Cards
-export default class Card {
+class Card {
     constructor(scene) {
         this.render = (x, y, image_key) => {
             let card = scene.add.image(x, y, image_key).setScale(0.3, 0.3).setInteractive();
@@ -8,4 +10,5 @@ export default class Card {
         };
     }
 }
+exports.default = Card;
 //# sourceMappingURL=card.js.map

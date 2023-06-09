@@ -36,5 +36,5 @@ io.on('connection', function(socket){
 })
 
 http.listen(3000, function(){
-    console.log('Asshole server started'); 
+    console.log('Asshole server is started'); 
 })
