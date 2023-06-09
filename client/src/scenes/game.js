@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
-import Card from "../helpers/card";
 import Zone from "../helpers/zone";
+import Dealer from "../helpers/dealer";
 const io = require('socket.io-client');
 export default class Game extends Phaser.Scene {
     constructor(t) {
@@ -19,7 +19,10 @@ export default class Game extends Phaser.Scene {
     //populate needed items for game
     create() {
         let self = this;
+        //setup players and dealer
         this.isPlayerA = false;
+        this.opponentCards = [];
+        this.dealer = new Dealer(this);
         //play zone
         this.zone = new Zone(this);
         this.dropZone = this.zone.renderZone();
@@ -29,17 +32,17 @@ export default class Game extends Phaser.Scene {
         this.socket.on('connect', function () {
             console.log("Game Connected!");
         });
-        //Deal hand of cards to a player
-        this.dealCards = () => {
-            for (let i = 0; i < 5; i++) {
-                let playerCard = new Card(this);
-                playerCard.render(475 + (i * 100), 650, 'cyanCardFront');
-            }
-        };
+        this.socket.on('isPlayerA', function () {
+            self.isPlayerA = true;
+        });
+        this.socket.on('dealCards', function () {
+            self.dealer.dealCards();
+            self.dealText.disableInteractive();
+        });
         //Deal Cards
         this.dealText = this.add.text(75, 350, ['DEAL Boner']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
         this.dealText.on('pointerdown', function () {
-            self.dealCards();
+            self.socket.emit('dealCards');
         });
         this.dealText.on('pointerover', function () {
             self.dealText.setColor('#ff69b4');
