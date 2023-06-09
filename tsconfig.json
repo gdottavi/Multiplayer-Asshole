@@ -14,8 +14,8 @@
     ],
     "include": [
         "**/*.ts"
-, "server.js"    ],
+       ],
     "files": [
-        "server.js"
+        "server.ts"
     ]
 }

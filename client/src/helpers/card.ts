@@ -1,7 +1,10 @@
 
 //Playing Cards
 export default class Card {
-    render: (x: any, y: any, image_key: string) => any;
+
+    image_key: string; 
+
+    render: (x: number, y: number, image_key: string) => any;
 
     constructor(scene: Phaser.Scene) {
         this.render = (x,y,image_key) => {

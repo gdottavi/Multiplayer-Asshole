@@ -1,8 +1,9 @@
-import * as Phaser from "phaser";
+import Card from "../helpers/card";
 import Zone from "../helpers/zone";
 import Dealer from "../helpers/dealer";
 const io = require('socket.io-client');
-export default class Game extends Phaser.Scene {
+import { Scene } from "phaser";
+export default class Game extends Scene {
     constructor(t) {
         super({
             key: 'Game',
@@ -23,34 +24,35 @@ export default class Game extends Phaser.Scene {
         this.isPlayerA = false;
         this.opponentCards = [];
         this.dealer = new Dealer(this);
+        console.log(this.opponentCards);
         //play zone
         this.zone = new Zone(this);
         this.dropZone = this.zone.renderZone();
         this.outline = this.zone.renderOutline(this.dropZone);
         //server connection
         this.socket = io('http://localhost:3000');
-        this.socket.on('connect', function () {
+        this.socket.on('connect', () => {
             console.log("Game Connected!");
         });
-        this.socket.on('isPlayerA', function () {
+        this.socket.on('isPlayerA', () => {
             self.isPlayerA = true;
         });
-        this.socket.on('dealCards', function () {
+        //Deal Cards
+        this.socket.on('dealCards', () => {
             self.dealer.dealCards();
             self.dealText.disableInteractive();
         });
-        //Deal Cards
         this.dealText = this.add.text(75, 350, ['DEAL Boner']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-        this.dealText.on('pointerdown', function () {
+        this.dealText.on('pointerdown', () => {
             self.socket.emit('dealCards');
         });
-        this.dealText.on('pointerover', function () {
+        this.dealText.on('pointerover', () => {
             self.dealText.setColor('#ff69b4');
         });
-        this.dealText.on('pointerout', function () {
+        this.dealText.on('pointerout', () => {
             self.dealText.setColor('#00ffff');
         });
-        //Dragging Cards Functionality
+        //Playing Cards Functionality - dragging and dropping
         this.input.on('dragstart', function (pointer, gameObject) {
             gameObject.setTint(0xff69b4);
             self.children.bringToTop(gameObject);
@@ -71,6 +73,15 @@ export default class Game extends Phaser.Scene {
             gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
             gameObject.y = dropZone.y;
             gameObject.disableInteractive();
+            self.socket.emit('cardPlayed', gameObject.texture.key, self.isPlayerA);
+        });
+        this.socket.on('cardPlayed', (cardKey, isPlayerA) => {
+            if (isPlayerA !== self.isPlayerA) {
+                self.opponentCards.pop(); //simply removes one item from cards 
+                self.dropZone.data.values.cards++;
+                let card = new Card(self);
+                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey).disableInteractive();
+            }
         });
     }
     //make updates to game
