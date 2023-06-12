@@ -4,6 +4,9 @@ import Dealer from "../helpers/dealer";
 const io = require('socket.io-client');
 import { Scene } from "phaser";
 import InteractiveHandler from "../helpers/interactiveHandler";
+//server is for production deploy local is for testing
+const localURL = 'http://localhost:3000';
+const serverURL = 'https://asshole-server.onrender.com';
 export default class Game extends Scene {
     constructor(t) {
         super({
@@ -30,7 +33,7 @@ export default class Game extends Scene {
         this.dropZone = this.zone.renderZone();
         this.outline = this.zone.renderOutline(this.dropZone);
         //server connection
-        this.socket = io();
+        this.socket = io(serverURL);
         this.socket.on('connect', () => {
             console.log("Game Connected!");
         });
