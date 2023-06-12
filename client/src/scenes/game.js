@@ -1,13 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = __importDefault(require("../helpers/card"));
+const card_1 = __importStar(require("../helpers/card"));
 const zone_1 = __importDefault(require("../helpers/zone"));
 const dealer_1 = __importDefault(require("../helpers/dealer"));
 const io = require('socket.io-client');
 const phaser_1 = require("phaser");
+const interactiveHandler_1 = __importDefault(require("../helpers/interactiveHandler"));
 class Game extends phaser_1.Scene {
     constructor(t) {
         super({
@@ -29,7 +53,6 @@ class Game extends phaser_1.Scene {
         this.isPlayerA = false;
         this.opponentCards = [];
         this.dealer = new dealer_1.default(this);
-        console.log(this.opponentCards);
         //play zone
         this.zone = new zone_1.default(this);
         this.dropZone = this.zone.renderZone();
@@ -58,34 +81,13 @@ class Game extends phaser_1.Scene {
             self.dealText.setColor('#00ffff');
         });
         //Playing Cards Functionality - dragging and dropping
-        this.input.on('dragstart', function (pointer, gameObject) {
-            gameObject.setTint(0xff69b4);
-            self.children.bringToTop(gameObject);
-        });
-        this.input.on('dragend', function (pointer, gameObject, dropped) {
-            gameObject.setTint();
-            if (!dropped) {
-                gameObject.x = gameObject.input.dragStartX;
-                gameObject.y = gameObject.input.dragStartY;
-            }
-        });
-        this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
-        });
-        this.input.on('drop', function (pointer, gameObject, dropZone) {
-            dropZone.data.values.cards++;
-            gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-            gameObject.y = dropZone.y;
-            gameObject.disableInteractive();
-            self.socket.emit('cardPlayed', gameObject.texture.key, self.isPlayerA);
-        });
+        this.InteractiveHandler = new interactiveHandler_1.default(this);
         this.socket.on('cardPlayed', (cardKey, isPlayerA) => {
             if (isPlayerA !== self.isPlayerA) {
                 self.opponentCards.pop(); //simply removes one item from cards 
                 self.dropZone.data.values.cards++;
                 let card = new card_1.default(self);
-                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey).disableInteractive();
+                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey, card_1.cardType.opponent);
             }
         });
     }

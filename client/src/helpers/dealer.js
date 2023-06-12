@@ -1,10 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = __importDefault(require("./card"));
-class Dealer {
+import Card, { cardType } from "./card";
+export default class Dealer {
     constructor(scene) {
         this.dealCards = () => {
             let playerSprite, opponentSprite;
@@ -18,13 +13,12 @@ class Dealer {
                 opponentSprite = 'cyanCardBack';
             }
             for (let i = 0; i < 5; i++) {
-                let playerCard = new card_1.default(scene);
-                playerCard.render(475 + (i * 100), 650, playerSprite);
-                let opponentCard = new card_1.default(scene);
-                scene.opponentCards.push(opponentCard.render(475 + (i * 100), 125, opponentSprite).disableInteractive());
+                let playerCard = new Card(scene);
+                playerCard.render(475 + (i * 100), 650, playerSprite, cardType.player);
+                let opponentCard = new Card(scene);
+                scene.opponentCards.push(opponentCard.render(475 + (i * 100), 125, opponentSprite, cardType.opponent));
             }
         };
     }
 }
-exports.default = Dealer;
 //# sourceMappingURL=dealer.js.map

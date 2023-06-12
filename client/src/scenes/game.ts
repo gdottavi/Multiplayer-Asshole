@@ -1,8 +1,9 @@
-import Card from "../helpers/card";
+import Card, { cardType } from "../helpers/card";
 import Zone from "../helpers/zone"; 
 import Dealer from "../helpers/dealer";
 const io = require('socket.io-client');
 import {GameObjects, Input, Scene} from "phaser";
+import InteractiveHandler from "../helpers/interactiveHandler";
 
 
 
@@ -16,6 +17,7 @@ export default class Game extends Scene {
     isPlayerA: boolean; 
     opponentCards: Card[];
     dealer: Dealer;
+    InteractiveHandler: InteractiveHandler;
 
     constructor(t: any){
         super({
@@ -42,7 +44,6 @@ export default class Game extends Scene {
         this.isPlayerA = false; 
         this.opponentCards = [];
         this.dealer = new Dealer(this); 
-        console.log(this.opponentCards)
 
         //play zone
         this.zone = new Zone(this);
@@ -78,39 +79,15 @@ export default class Game extends Scene {
 
 
         //Playing Cards Functionality - dragging and dropping
-        this.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
-            gameObject.setTint(0xff69b4);
-            self.children.bringToTop(gameObject);
-        })
+        this.InteractiveHandler = new InteractiveHandler(this); 
 
-        this.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
-            gameObject.setTint();
-            if (!dropped) {
-                gameObject.x = gameObject.input.dragStartX;
-                gameObject.y = gameObject.input.dragStartY;
-            }
-        })
-
-        this.input.on('drag', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dragX: any, dragY: any) {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
-        })
-
-        this.input.on('drop', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropZone: GameObjects.Zone) {
-            dropZone.data.values.cards++;
-            gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-            gameObject.y = dropZone.y;
-            gameObject.disableInteractive();
-            self.socket.emit('cardPlayed', gameObject.texture.key, self.isPlayerA);
-
-        })
 
         this.socket.on('cardPlayed', (cardKey: string, isPlayerA: boolean) => {
             if(isPlayerA !== self.isPlayerA){
                 self.opponentCards.pop();  //simply removes one item from cards 
                 self.dropZone.data.values.cards++;
                 let card = new Card(self);
-                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey).disableInteractive();
+                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey, cardType.opponent);
             }
         })
 

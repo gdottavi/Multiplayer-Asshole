@@ -1,5 +1,5 @@
 import Game from "../scenes/game";
-import Card from "./card";
+import Card, { cardType } from "./card";
 
 export default class Dealer {
     dealCards: () => void;
@@ -19,10 +19,10 @@ export default class Dealer {
             }
             for (let i=0; i<5; i++){
                 let playerCard = new Card(scene);
-                playerCard.render(475+(i*100), 650, playerSprite);
+                playerCard.render(475+(i*100), 650, playerSprite, cardType.player);
 
                 let opponentCard = new Card(scene);
-                scene.opponentCards.push(opponentCard.render(475 + (i *100), 125, opponentSprite).disableInteractive());
+                scene.opponentCards.push(opponentCard.render(475 + (i *100), 125, opponentSprite, cardType.opponent));
             }
         }
     }
