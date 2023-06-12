@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const server = require('express')();
 const http = require('http').createServer(server);
+const PORT = process.env.PORT || 3000;
 const io = require('socket.io')(http, {
     cors: {
         origin: '*'
@@ -23,13 +24,13 @@ io.on('connection', function (socket) {
     socket.on('cardPlayed', (cardKey, isPlayerA) => {
         io.emit('cardPlayed', cardKey, isPlayerA);
     });
+    //remove players as they disconnect
     socket.on('disconnect', function () {
         console.log('An idiot disconnected: ' + socket.id);
-        //remove player 
         players = players.filter(player => player !== socket.id);
     });
 });
-http.listen(3000, function () {
-    console.log('Asshole server is started');
+http.listen(PORT, function () {
+    console.log(`Asshole server started on port ${PORT}`);
 });
 //# sourceMappingURL=server.js.map

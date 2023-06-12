@@ -51,7 +51,7 @@ export default class Game extends Scene {
         this.outline = this.zone.renderOutline(this.dropZone);         
 
         //server connection
-        this.socket = io('http://localhost:3000');      
+        this.socket = io();      
         this.socket.on('connect', () => {
             console.log("Game Connected!");
         })

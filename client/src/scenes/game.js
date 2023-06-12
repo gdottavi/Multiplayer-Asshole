@@ -1,38 +1,10 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = __importStar(require("../helpers/card"));
-const zone_1 = __importDefault(require("../helpers/zone"));
-const dealer_1 = __importDefault(require("../helpers/dealer"));
+import Card, { cardType } from "../helpers/card";
+import Zone from "../helpers/zone";
+import Dealer from "../helpers/dealer";
 const io = require('socket.io-client');
-const phaser_1 = require("phaser");
-const interactiveHandler_1 = __importDefault(require("../helpers/interactiveHandler"));
-class Game extends phaser_1.Scene {
+import { Scene } from "phaser";
+import InteractiveHandler from "../helpers/interactiveHandler";
+export default class Game extends Scene {
     constructor(t) {
         super({
             key: 'Game',
@@ -52,13 +24,13 @@ class Game extends phaser_1.Scene {
         //setup players and dealer
         this.isPlayerA = false;
         this.opponentCards = [];
-        this.dealer = new dealer_1.default(this);
+        this.dealer = new Dealer(this);
         //play zone
-        this.zone = new zone_1.default(this);
+        this.zone = new Zone(this);
         this.dropZone = this.zone.renderZone();
         this.outline = this.zone.renderOutline(this.dropZone);
         //server connection
-        this.socket = io('http://localhost:3000');
+        this.socket = io();
         this.socket.on('connect', () => {
             console.log("Game Connected!");
         });
@@ -81,13 +53,13 @@ class Game extends phaser_1.Scene {
             self.dealText.setColor('#00ffff');
         });
         //Playing Cards Functionality - dragging and dropping
-        this.InteractiveHandler = new interactiveHandler_1.default(this);
+        this.InteractiveHandler = new InteractiveHandler(this);
         this.socket.on('cardPlayed', (cardKey, isPlayerA) => {
             if (isPlayerA !== self.isPlayerA) {
                 self.opponentCards.pop(); //simply removes one item from cards 
                 self.dropZone.data.values.cards++;
-                let card = new card_1.default(self);
-                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey, card_1.cardType.opponent);
+                let card = new Card(self);
+                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey, cardType.opponent);
             }
         });
     }
@@ -95,5 +67,4 @@ class Game extends phaser_1.Scene {
     update() {
     }
 }
-exports.default = Game;
 //# sourceMappingURL=game.js.map
