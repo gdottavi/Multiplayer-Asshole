@@ -30,7 +30,7 @@ io.on('connection', function (socket) {
         players = players.filter(player => player !== socket.id);
     });
 });
-http.listen(PORT, function () {
+http.listen(PORT, () => {
     console.log(`Asshole server started on port ${PORT}`);
 });
 //# sourceMappingURL=server.js.map

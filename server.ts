@@ -37,6 +37,6 @@ io.on('connection', function(socket){
     })
 })
 
-http.listen(PORT, function(){
+http.listen(PORT, () => {
     console.log(`Asshole server started on port ${PORT}`); 
 })
