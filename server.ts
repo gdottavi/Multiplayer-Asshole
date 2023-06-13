@@ -1,16 +1,26 @@
 import { GameObjects } from "phaser";
+import { Server } from "socket.io";
+import {createServer} from 'http'; 
+import express from 'express'
 
-const server = require('express')(); 
-const http = require('http').createServer(server);
+
+const server = express(); 
+const http = createServer(server);
 const PORT = process.env.PORT || 3000; 
 let gameState = "Initializing";
 
-const io = require('socket.io')(http, {
+const io = new Server(http, {
     cors: {
         origin: '*',
         methods: ["GET", "POST"]
     }
-}); 
+})
+/* const io = require('socket.io')(http, {
+    cors: {
+        origin: '*',
+        methods: ["GET", "POST"]
+    }
+});  */
 
 
 let players = [];

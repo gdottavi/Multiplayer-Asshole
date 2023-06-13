@@ -1,14 +1,18 @@
-const io = require('socket.io-client');
-import { Scene } from "phaser";
-import InteractiveHandler from "../helpers/interactiveHandler";
-import SocketHandler from "../helpers/socketHandler";
-import UIHandler from "../helpers/uiHandler";
-import GameHandler from "../helpers/gameHandler";
-import DeckHandler from "../helpers/deckHandler";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const phaser_1 = require("phaser");
+const interactiveHandler_1 = __importDefault(require("../helpers/interactiveHandler"));
+const socketHandler_1 = __importDefault(require("../helpers/socketHandler"));
+const uiHandler_1 = __importDefault(require("../helpers/uiHandler"));
+const gameHandler_1 = __importDefault(require("../helpers/gameHandler"));
+const deckHandler_1 = __importDefault(require("../helpers/deckHandler"));
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
 const serverURL = 'https://asshole-server.onrender.com';
-export default class Game extends Scene {
+class Game extends phaser_1.Scene {
     constructor(t) {
         super({
             key: 'Game',
@@ -24,14 +28,15 @@ export default class Game extends Scene {
     }
     //populate needed items for game
     create() {
-        this.UIHandler = new UIHandler(this);
-        this.GameHandler = new GameHandler(this);
-        this.InteractiveHandler = new InteractiveHandler(this);
-        this.SocketHandler = new SocketHandler(this);
-        this.DeckHandler = new DeckHandler(this);
+        this.UIHandler = new uiHandler_1.default(this);
+        this.GameHandler = new gameHandler_1.default(this);
+        this.InteractiveHandler = new interactiveHandler_1.default(this);
+        this.SocketHandler = new socketHandler_1.default(this);
+        this.DeckHandler = new deckHandler_1.default(this);
     }
     //make updates to game
     update() {
     }
 }
+exports.default = Game;
 //# sourceMappingURL=game.js.map

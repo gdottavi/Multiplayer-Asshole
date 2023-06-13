@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const io = require('socket.io-client');
+const socket_io_client_1 = require("socket.io-client");
 const card_1 = __importStar(require("./card"));
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -34,7 +34,7 @@ const serverURL = 'https://asshole-server.onrender.com';
 class SocketHandler {
     constructor(scene) {
         //server connection
-        scene.socket = io(localURL);
+        scene.socket = (0, socket_io_client_1.io)(localURL);
         scene.socket.on('connect', () => {
             console.log("Game Connected!");
         });

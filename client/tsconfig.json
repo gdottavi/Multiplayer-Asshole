@@ -3,6 +3,8 @@
       "target": "ES6",
       "sourceMap": true,
       "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
       "types": [
         "node",
         "phaser"

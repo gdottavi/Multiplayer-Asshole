@@ -1,7 +1,6 @@
-const io = require('socket.io-client');
+import {io} from "socket.io-client"; 
 import Game from "../scenes/game";
 import Card, {cardType} from './card';
-
 
 
 //server is for production deploy local is for testing
@@ -12,7 +11,6 @@ const serverURL = 'https://asshole-server.onrender.com';
  * Handles socket events for multiplayer functionality
  */
 export default class SocketHandler {
-    socket: any;
 
     constructor(scene: Game) {
 
@@ -51,7 +49,7 @@ export default class SocketHandler {
         });
         
         //Card Played
-        scene.socket.on('cardPlayed', (cardKey: string, socketId: any) => {
+        scene.socket.on('cardPlayed', (cardKey: string, socketId: string) => {
             if(socketId !== scene.socket.id){
                 scene.GameHandler.opponentHand.pop();
                 let card = new Card(scene);

@@ -1,13 +1,11 @@
-import Card, { cardType } from "../helpers/card";
 import Zone from "../helpers/zone"; 
-import Dealer from "../helpers/deckHandler";
-const io = require('socket.io-client');
 import {GameObjects, Input, Scene} from "phaser";
 import InteractiveHandler from "../helpers/interactiveHandler";
 import SocketHandler from "../helpers/socketHandler";
 import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
+import {Socket} from "socket.io-client" ; 
 
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -16,7 +14,7 @@ const serverURL = 'https://asshole-server.onrender.com';
 
 
 export default class Game extends Scene {
-    socket: any;
+    socket: Socket;
     isPlayerA: boolean; 
     InteractiveHandler: InteractiveHandler;
     SocketHandler: SocketHandler;
