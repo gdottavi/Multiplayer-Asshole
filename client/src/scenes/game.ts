@@ -1,9 +1,13 @@
 import Card, { cardType } from "../helpers/card";
 import Zone from "../helpers/zone"; 
-import Dealer from "../helpers/dealer";
+import Dealer from "../helpers/deckHandler";
 const io = require('socket.io-client');
 import {GameObjects, Input, Scene} from "phaser";
 import InteractiveHandler from "../helpers/interactiveHandler";
+import SocketHandler from "../helpers/socketHandler";
+import UIHandler from "../helpers/uiHandler";
+import GameHandler from "../helpers/gameHandler";
+import DeckHandler from "../helpers/deckHandler";
 
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -12,16 +16,17 @@ const serverURL = 'https://asshole-server.onrender.com';
 
 
 export default class Game extends Scene {
-    zone: Zone;
-    dropZone: GameObjects.Zone;
-    outline!: void;
-    dealCards!: () => void;
-    dealText!: GameObjects.Text;
     socket: any;
     isPlayerA: boolean; 
-    opponentCards: Card[];
-    dealer: Dealer;
     InteractiveHandler: InteractiveHandler;
+    SocketHandler: SocketHandler;
+    UIHandler: UIHandler;
+    GameHandler: GameHandler;
+    DeckHandler: DeckHandler;
+    zone: Zone;
+    dropZone: any;
+    outline: any;
+    dealText: GameObjects.Text;
 
     constructor(t: any){
         super({
@@ -42,59 +47,11 @@ export default class Game extends Scene {
 
     //populate needed items for game
     create() {
-        let self = this;
-
-        //setup players and dealer
-        this.isPlayerA = false; 
-        this.opponentCards = [];
-        this.dealer = new Dealer(this); 
-
-        //play zone
-        this.zone = new Zone(this);
-        this.dropZone = this.zone.renderZone();
-        this.outline = this.zone.renderOutline(this.dropZone);         
-
-        //server connection
-        this.socket = io(serverURL);      
-        this.socket.on('connect', () => {
-            console.log("Game Connected!");
-        })
-        this.socket.on('isPlayerA', () => {
-            self.isPlayerA = true;
-        })
-
-
-        //Deal Cards
-        this.socket.on('dealCards', () => {
-            self.dealer.dealCards();
-            self.dealText.disableInteractive(); 
-        })
-        
-        this.dealText = this.add.text(75, 350, ['DEAL Boner']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-        this.dealText.on('pointerdown', () =>  {
-                self.socket.emit('dealCards'); 
-            })
-        this.dealText.on('pointerover', () => {
-            self.dealText.setColor('#ff69b4');
-        })
-        this.dealText.on('pointerout', () => {
-            self.dealText.setColor('#00ffff'); 
-        })
-
-
-        //Playing Cards Functionality - dragging and dropping
+        this.UIHandler = new UIHandler(this); 
+        this.GameHandler = new GameHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 
-
-
-        this.socket.on('cardPlayed', (cardKey: string, isPlayerA: boolean) => {
-            if(isPlayerA !== self.isPlayerA){
-                self.opponentCards.pop();  //simply removes one item from cards 
-                self.dropZone.data.values.cards++;
-                let card = new Card(self);
-                card.render(((self.dropZone.x - 350) + (self.dropZone.data.values.cards * 50)), (self.dropZone.y), cardKey, cardType.opponent);
-            }
-        })
-
+        this.SocketHandler = new SocketHandler(this); 
+        this.DeckHandler = new DeckHandler(this);
     }
 
     //make updates to game

@@ -1,5 +1,14 @@
-export default class InteractiveHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Interactive functionality for card game
+ */
+class InteractiveHandler {
     constructor(scene) {
+        //deal cards on click
+        scene.dealText.on('pointerdown', () => {
+            scene.socket.emit('dealCards');
+        });
         scene.input.on('dragstart', function (pointer, gameObject) {
             gameObject.setTint(0xff69b4);
             scene.children.bringToTop(gameObject);
@@ -15,13 +24,28 @@ export default class InteractiveHandler {
             gameObject.x = dragX;
             gameObject.y = dragY;
         });
-        scene.input.on('drop', function (pointer, gameObject, dropZone) {
-            dropZone.data.values.cards++;
-            gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-            gameObject.y = dropZone.y;
-            gameObject.disableInteractive();
-            scene.socket.emit('cardPlayed', gameObject.texture.key, scene.isPlayerA);
+        //Card Played
+        scene.input.on('drop', (pointer, gameObject, dropZone) => {
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
+                gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+                gameObject.y = dropZone.y;
+                scene.dropZone.data.values.cards++;
+                scene.input.setDraggable(gameObject, false);
+                scene.socket.emit('cardPlayed', gameObject.texture.key, scene.socket.id);
+            }
+            else {
+                gameObject.x = gameObject.input.dragStartX;
+                gameObject.y = gameObject.input.dragStartY;
+            }
+        });
+        //hover for deal text
+        scene.dealText.on('pointerover', () => {
+            scene.dealText.setColor('#ff69b4');
+        });
+        scene.dealText.on('pointerout', () => {
+            scene.dealText.setColor('#00ffff');
         });
     }
 }
+exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

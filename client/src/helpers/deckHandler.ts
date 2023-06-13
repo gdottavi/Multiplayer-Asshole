@@ -1,10 +1,15 @@
 import Game from "../scenes/game";
 import Card, { cardType } from "./card";
 
-export default class Dealer {
+/**
+ * Handles dealing cards to start game
+ */
+export default class DeckHandler {
+
     dealCards: () => void;
 
     constructor(scene: Game){
+        
         this.dealCards = () => {
             let playerSprite: string, opponentSprite: string;
 
@@ -19,10 +24,10 @@ export default class Dealer {
             }
             for (let i=0; i<5; i++){
                 let playerCard = new Card(scene);
-                playerCard.render(475+(i*100), 650, playerSprite, cardType.player);
+                scene.GameHandler.playerHand.push(playerCard.render(475+(i*100), 650, playerSprite, cardType.player));
 
                 let opponentCard = new Card(scene);
-                scene.opponentCards.push(opponentCard.render(475 + (i *100), 125, opponentSprite, cardType.opponent));
+                scene.GameHandler.opponentHand.push(opponentCard.render(475 + (i *100), 125, opponentSprite, cardType.opponent));
             }
         }
     }

@@ -1,10 +1,9 @@
-//Not yet used
-export default class GameHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class GameHandler {
     constructor(scene) {
-        this.gameState = 0 /* gameState.Initializing */;
+        this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
-        this.playerDeck = [];
-        this.opponentDeck = [];
         this.playerHand = [];
         this.opponentHand = [];
         this.changeTurn = () => {
@@ -15,4 +14,5 @@ export default class GameHandler {
         };
     }
 }
+exports.default = GameHandler;
 //# sourceMappingURL=gameHandler.js.map

@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Area where cards can be set
  */
-class Zone {
+export default class Zone {
     constructor(scene) {
         this.renderZone = () => {
             let dropZone = scene.add.zone(700, 375, 900, 250).setRectangleDropZone(900, 250);
@@ -17,5 +15,4 @@ class Zone {
         };
     }
 }
-exports.default = Zone;
 //# sourceMappingURL=zone.js.map
