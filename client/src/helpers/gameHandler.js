@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class GameHandler {
+export default class GameHandler {
     constructor(scene) {
         this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
@@ -14,5 +12,4 @@ class GameHandler {
         };
     }
 }
-exports.default = GameHandler;
 //# sourceMappingURL=gameHandler.js.map

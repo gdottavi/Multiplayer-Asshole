@@ -1,6 +1,6 @@
-import {io} from "socket.io-client"; 
+import { io } from "socket.io-client";
 import Game from "../scenes/game";
-import Card, {cardType} from './card';
+import Card, { cardType } from './card';
 
 
 //server is for production deploy local is for testing
@@ -14,21 +14,21 @@ export default class SocketHandler {
 
     constructor(scene: Game) {
 
-         //server connection
-         scene.socket = io(localURL);      
-         scene.socket.on('connect', () => {
-             console.log("Game Connected!");
-         })
-         scene.socket.on('isPlayerA', () => {
-             scene.isPlayerA = true;
-         })
+        //server connection
+        scene.socket = io(localURL);
+        scene.socket.on('connect', () => {
+            console.log("Game Connected!");
+        })
+        scene.socket.on('isPlayerA', () => {
+            scene.isPlayerA = true;
+        })
 
 
-         //Deal Cards
+        //Deal Cards
         scene.socket.on('dealCards', () => {
-       
+
             scene.DeckHandler.dealCards();
-            scene.dealText.disableInteractive(); 
+            scene.dealText.disableInteractive();
         })
 
         //Advance Turn
@@ -47,17 +47,17 @@ export default class SocketHandler {
                 scene.dealText.setColor('#00ffff');
             }
         });
-        
+
         //Card Played
         scene.socket.on('cardPlayed', (cardKey: string, socketId: string) => {
-            if(socketId !== scene.socket.id){
+            if (socketId !== scene.socket.id) {
                 scene.GameHandler.opponentHand.pop();
                 let card = new Card(scene);
                 card.render(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), cardKey, cardType.opponent);
                 scene.dropZone.data.values.cards++;
             }
         })
-         
- 
+
+
     }
 }

@@ -7,12 +7,6 @@ import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
 
-//server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
-
-
-
 export default class Game extends Scene {
     socket: Socket;
     isPlayerA: boolean; 
@@ -22,11 +16,12 @@ export default class Game extends Scene {
     GameHandler: GameHandler;
     DeckHandler: DeckHandler;
     zone: Zone;
-    dropZone: any;
-    outline: any;
+    dropZone: Phaser.GameObjects.Zone;
     dealText: GameObjects.Text;
+    outline: any; 
+    resetText: GameObjects.Text;
 
-    constructor(t: any){
+    constructor(){
         super({
             key: 'Game',
         })

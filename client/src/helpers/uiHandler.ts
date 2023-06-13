@@ -6,17 +6,25 @@ import Zone from "./zone";
  */
 export default class UIHandler {
 
-    constructor(scene: Game){
+    constructor(scene: Game) {
 
-        //play zone
-        scene.zone = new Zone(scene);
-        scene.dropZone = scene.zone.renderZone();
-        scene.outline = scene.zone.renderOutline(scene.dropZone);         
+        //Create drop zone for cards
+        scene.dropZone = scene.add.zone(700, 375, 900, 250).setRectangleDropZone(900, 250);
+        //initialize middle to have zero cards
+        scene.dropZone.setData({
+            "cards": 0
+        })
+        let dropZoneOutline = scene.add.graphics();
+        dropZoneOutline.lineStyle(4, 0xff69b4);
+        dropZoneOutline.strokeRect(scene.dropZone.x - scene.dropZone.input.hitArea.width / 2,
+            scene.dropZone.y - scene.dropZone.input.hitArea.height / 2, scene.dropZone.input.hitArea.width, scene.dropZone.input.hitArea.height);
 
-       
-        scene.dealText = scene.add.text(75, 350, ['DEAL Boner']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-       
- 
+
+        //menu options for game
+        scene.dealText = scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
+        scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff')
+
+
 
     }
 }

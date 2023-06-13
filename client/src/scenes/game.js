@@ -9,11 +9,8 @@ const socketHandler_1 = __importDefault(require("../helpers/socketHandler"));
 const uiHandler_1 = __importDefault(require("../helpers/uiHandler"));
 const gameHandler_1 = __importDefault(require("../helpers/gameHandler"));
 const deckHandler_1 = __importDefault(require("../helpers/deckHandler"));
-//server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
 class Game extends phaser_1.Scene {
-    constructor(t) {
+    constructor() {
         super({
             key: 'Game',
         });
