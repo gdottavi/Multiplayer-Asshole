@@ -5,7 +5,7 @@ export enum cardType {
     opponent 
 }
 
-export enum suites {
+export enum suitesEnum {
     hearts,
     diamonds,
     spades,
@@ -28,20 +28,24 @@ export enum values {
     ace = 14,
 }
 
+export const suites = ['H', 'C', 'D', 'S'];
+export const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
-export default class Card {
+
+/* export default class Card {
 
     image_key: string; 
     id: string;
     card_type: cardType;
-    suite: suites; 
+    suite: suitesEnum; 
     value: values;
 
     render: (x: number, y: number, image_key: string, card_type: cardType, suite?: suites, value?: values) => any;
 
     constructor(scene: Phaser.Scene) {
+
         this.render = (x,y,image_key, card_type, suite, value) => {
-            let card = scene.add.image(x, y, image_key).setScale(0.3, 0.3).setInteractive().setData({
+            let card = scene.add.image(x, y, image_key, 5).setScale(0.3, 0.3).setInteractive().setData({
                 "id": this.id,
                 "suite": suite,
                 "value": value,
@@ -56,5 +60,29 @@ export default class Card {
             return card;
 
         }
+
+
+        
     }
-}
+} */
+
+export class Card {
+    render(arg0: number, arg1: number, playerSprite: string, player: cardType): typeof Card {
+        throw new Error("Method not implemented.");
+    }
+    value: string;
+    suite: string;
+    FrontImageSprite: string;
+    BackImageSprite: string;
+
+    constructor(rank: string, suite: string) {
+        this.value = rank;
+        this.suite = suite; 
+    
+        this.FrontImageSprite = suite+rank; 
+        this.BackImageSprite = 'CardBack';
+    }
+  
+
+   }
+

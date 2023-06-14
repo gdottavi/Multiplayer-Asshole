@@ -1,4 +1,3 @@
-import Zone from "../helpers/zone"; 
 import {GameObjects, Input, Scene} from "phaser";
 import InteractiveHandler from "../helpers/interactiveHandler";
 import SocketHandler from "../helpers/socketHandler";
@@ -6,6 +5,9 @@ import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
+import { Card } from "../helpers/card";
+import { Player } from "../helpers/player";
+import { Deck } from "../model/deck";
 
 export default class Game extends Scene {
     socket: Socket;
@@ -15,11 +17,13 @@ export default class Game extends Scene {
     UIHandler: UIHandler;
     GameHandler: GameHandler;
     DeckHandler: DeckHandler;
-    zone: Zone;
+    zone: any;
     dropZone: Phaser.GameObjects.Zone;
     dealText: GameObjects.Text;
     outline: any; 
     resetText: GameObjects.Text;
+    deck: Deck; 
+    players: Player[]; 
 
     constructor(){
         super({
@@ -30,6 +34,8 @@ export default class Game extends Scene {
     //load everything needed for game 
     preload() {
 
+        //load spritesheet of playing cards
+        //this.load.spritesheet("cards", require('../assets/Cards.png').default);
         //load card images
         this.load.image('cyanCardFront', require('../assets/CyanCardFront.png').default);
         this.load.image('cyanCardBack', require('../assets/CyanCardBack.png').default);
@@ -45,6 +51,10 @@ export default class Game extends Scene {
         this.InteractiveHandler = new InteractiveHandler(this); 
         this.SocketHandler = new SocketHandler(this); 
         this.DeckHandler = new DeckHandler(this);
+        this.deck = new Deck(); 
+        this.players = []; 
+
+        this.GameHandler.addPlayers(); 
     }
 
     //make updates to game

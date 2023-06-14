@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import Game from "../scenes/game";
-import Card, { cardType } from './card';
+import { Card, cardType } from './card';
 
 
 //server is for production deploy local is for testing
@@ -26,7 +26,6 @@ export default class SocketHandler {
 
         //Deal Cards
         scene.socket.on('dealCards', () => {
-
             scene.DeckHandler.dealCards();
             scene.dealText.disableInteractive();
         })
@@ -50,12 +49,12 @@ export default class SocketHandler {
 
         //Card Played
         scene.socket.on('cardPlayed', (cardKey: string, socketId: string) => {
-            if (socketId !== scene.socket.id) {
+           /*  if (socketId !== scene.socket.id) {
                 scene.GameHandler.opponentHand.pop();
                 let card = new Card(scene);
                 card.render(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), cardKey, cardType.opponent);
                 scene.dropZone.data.values.cards++;
-            }
+            } */
         })
 
 

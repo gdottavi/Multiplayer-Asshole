@@ -1,7 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Interactive functionality for card game
  */
-export default class InteractiveHandler {
+class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -45,4 +47,5 @@ export default class InteractiveHandler {
         });
     }
 }
+exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

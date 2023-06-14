@@ -1,5 +1,4 @@
 import Game from "../scenes/game";
-import Zone from "./zone";
 
 /**
  * Basic layout and UI for game
