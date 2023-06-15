@@ -1,14 +1,16 @@
-import { Card, suites, ranks } from "../model/card";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const card_1 = require("../model/card");
 /**
  * Handles dealing cards to start game
  */
-export default class DeckHandler {
+class DeckHandler {
     constructor(scene) {
         //create deck
         this.createDeck = () => {
             for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
                 for (let rankCounter = 0; rankCounter < 13; rankCounter++) {
-                    let card = new Card(suites[suiteCounter], ranks[rankCounter]);
+                    let card = new card_1.Card(card_1.suites[suiteCounter], card_1.ranks[rankCounter]);
                     scene.deck.cards.push(card);
                 }
             }
@@ -46,7 +48,7 @@ export default class DeckHandler {
                 let player = scene.players[j];
                 for (let i = 0; i < player.cardHand.length; i++) {
                     //current player
-                    if (scene.socket.id === socketId) {
+                    if (scene.socket.id === player.socketId) {
                         this.renderCard(200 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true);
                     }
                     else {
@@ -70,4 +72,5 @@ export default class DeckHandler {
         };
     }
 }
+exports.default = DeckHandler;
 //# sourceMappingURL=deckHandler.js.map

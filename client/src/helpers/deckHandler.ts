@@ -69,7 +69,7 @@ export default class DeckHandler {
                 let player = scene.players[j]; 
                 for(let i=0; i < player.cardHand.length; i++){
                     //current player
-                    if(scene.socket.id === socketId){
+                    if(scene.socket.id === player.socketId){
                         this.renderCard(200+(i*100), 650, 0.15, player.cardHand[i].FrontImageSprite, true)
                     }
                     else{
