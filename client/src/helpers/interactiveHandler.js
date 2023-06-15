@@ -1,7 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Interactive functionality for card game
  */
-export default class InteractiveHandler {
+class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -28,11 +30,13 @@ export default class InteractiveHandler {
         });
         //Card Played
         scene.input.on('drop', (pointer, gameObject, dropZone) => {
+            console.log("is my turn: ", scene.GameHandler.isMyTurn);
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
                 gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
                 gameObject.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
                 scene.input.setDraggable(gameObject, false);
+                console.log('dropped ', gameObject);
                 scene.socket.emit('cardPlayed', gameObject.texture.key, scene.socket.id);
             }
             else {
@@ -47,6 +51,14 @@ export default class InteractiveHandler {
         scene.dealText.on('pointerout', () => {
             scene.dealText.setColor('#00ffff');
         });
+        //hover for deal text
+        scene.readyText.on('pointerover', () => {
+            scene.dealText.setColor('#ff69b4');
+        });
+        scene.readyText.on('pointerout', () => {
+            scene.dealText.setColor('#00ffff');
+        });
     }
 }
+exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

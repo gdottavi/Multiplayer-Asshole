@@ -40,11 +40,13 @@ export default class InteractiveHandler {
 
     //Card Played
     scene.input.on('drop', (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropZone: GameObjects.Zone) => {
+        console.log("is my turn: ", scene.GameHandler.isMyTurn)
         if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready) {
             gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
             gameObject.y = dropZone.y;
             scene.dropZone.data.values.cards++;
             scene.input.setDraggable(gameObject, false);
+            console.log('dropped ', gameObject)
             scene.socket.emit('cardPlayed', gameObject.texture.key, scene.socket.id);
         }
         else {
@@ -58,6 +60,13 @@ export default class InteractiveHandler {
         scene.dealText.setColor('#ff69b4');
     })
     scene.dealText.on('pointerout', () => {
+        scene.dealText.setColor('#00ffff'); 
+    })
+      //hover for deal text
+      scene.readyText.on('pointerover', () => {
+        scene.dealText.setColor('#ff69b4');
+    })
+    scene.readyText.on('pointerout', () => {
         scene.dealText.setColor('#00ffff'); 
     })
 

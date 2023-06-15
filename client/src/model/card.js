@@ -13,6 +13,7 @@ class Card {
     constructor(suite, rank) {
         this.value = rank;
         this.suite = suite;
+        this.key = suite + rank;
         this.FrontImageSprite = suite + rank;
         this.BackImageSprite = 'CardBack';
     }

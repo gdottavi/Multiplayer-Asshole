@@ -1,3 +1,5 @@
+import Phaser from "phaser";
+
 
 //Playing Cards
 export enum cardType {
@@ -9,17 +11,22 @@ export const suites = ['H', 'C', 'D', 'S'];
 export const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 
-export class Card {
+export class Card  {
     value: string;
     suite: string;
     FrontImageSprite: string;
     BackImageSprite: string;
+    readonly key: string; 
 
     constructor(suite: string, rank: string) {
         this.value = rank;
         this.suite = suite; 
+        this.key = suite+rank; 
         this.FrontImageSprite = suite+rank; 
         this.BackImageSprite = 'CardBack';
     } 
+
    }
 
+
+   

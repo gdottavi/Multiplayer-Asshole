@@ -53,13 +53,13 @@ export default class Game extends Scene {
 
     //populate needed items for game
     create() {
+        this.deck = new Deck(); 
+        this.players = []; 
         this.UIHandler = new UIHandler(this); 
         this.GameHandler = new GameHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 
         this.SocketHandler = new SocketHandler(this); 
         this.DeckHandler = new DeckHandler(this);
-        this.deck = new Deck(); 
-        this.players = []; 
     }
 
     //make updates to game

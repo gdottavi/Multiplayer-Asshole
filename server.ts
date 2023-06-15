@@ -4,6 +4,7 @@ import {createServer} from 'http';
 import express from 'express'
 import { Player } from "./client/src/model/player";
 import { Players } from "./client/src/model/players";
+import { Card } from "./client/src/model/card";
 
 
 const server = express(); 
@@ -60,8 +61,8 @@ io.on('connection', function(socket){
     })
 
     //card played
-    socket.on('cardPlayed', (cardKey: string, socketId) => {
-        io.emit('cardPlayed', cardKey, socketId);
+    socket.on('cardPlayed', (cardPlayed: Card, socketId) => {
+        io.emit('cardPlayed', cardPlayed, socketId);
         io.emit('changeTurn');
     })
 

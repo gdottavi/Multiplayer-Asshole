@@ -1,15 +1,17 @@
-import { io } from "socket.io-client";
-import { Player } from "../model/player";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const socket_io_client_1 = require("socket.io-client");
+const player_1 = require("../model/player");
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
 const serverURL = 'https://asshole-server.onrender.com';
 /**
  * Handles socket events for multiplayer functionality
  */
-export default class SocketHandler {
+class SocketHandler {
     constructor(scene) {
         //server connection
-        scene.socket = io(localURL);
+        scene.socket = (0, socket_io_client_1.io)(localURL);
         scene.socket.on('connect', () => {
             console.log("Game Connected!");
         });
@@ -22,10 +24,13 @@ export default class SocketHandler {
             players.forEach(p => {
                 //if player already exists with socketID delete first - TODO
                 //
-                let newPlayer = new Player(p, "Greg" + scene.players.length);
+                let newPlayer = new player_1.Player(p, "Greg" + scene.players.length);
                 scene.players.push(newPlayer);
             });
             console.log(scene.players);
+            //set first turn
+            scene.GameHandler.setMyTurn(scene);
+            console.log(scene.GameHandler.currentTurnPlayer);
         });
         //Deal Cards
         scene.socket.on('dealCards', (socketId, players) => {
@@ -34,10 +39,10 @@ export default class SocketHandler {
         });
         //Advance Turn
         scene.socket.on('changeTurn', () => {
-            scene.GameHandler.changeTurn();
+            scene.GameHandler.changeTurn(scene);
         });
         scene.socket.on('firstTurn', () => {
-            scene.GameHandler.changeTurn();
+            scene.GameHandler.changeTurn(scene);
         });
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {
@@ -47,15 +52,19 @@ export default class SocketHandler {
                 scene.dealText.setColor('#00ffff');
             }
         });
-        //Card Played
-        scene.socket.on('cardPlayed', (cardKey, socketId) => {
-            /*  if (socketId !== scene.socket.id) {
-                 scene.GameHandler.opponentHand.pop();
-                 let card = new Card(scene);
-                 card.render(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), cardKey, cardType.opponent);
-                 scene.dropZone.data.values.cards++;
-             } */
+        /**
+         * Card Played - show on all clients and remove cards from hand
+         */
+        scene.socket.on('cardPlayed', (cardPlayed, socketId) => {
+            //only perform on clients that did not play the card
+            if (socketId !== scene.socket.id) {
+                //scene.GameHandler.opponentHand.pop();
+                //find which player played the card and remove from their hand - TODO
+                scene.DeckHandler.renderCard(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
+                scene.dropZone.data.values.cards++;
+            }
         });
     }
 }
+exports.default = SocketHandler;
 //# sourceMappingURL=socketHandler.js.map

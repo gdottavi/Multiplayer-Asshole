@@ -35,6 +35,10 @@ export default class SocketHandler {
                 scene.players.push(newPlayer)
             })
             console.log(scene.players)
+
+            //set first turn
+            scene.GameHandler.setMyTurn(scene); 
+            console.log(scene.GameHandler.currentTurnPlayer)
         })
 
         //Deal Cards
@@ -45,10 +49,10 @@ export default class SocketHandler {
 
         //Advance Turn
         scene.socket.on('changeTurn', () => {
-            scene.GameHandler.changeTurn();
+            scene.GameHandler.changeTurn(scene);
         })
         scene.socket.on('firstTurn', () => {
-            scene.GameHandler.changeTurn();
+            scene.GameHandler.changeTurn(scene);
         })
 
         //Change Game State
@@ -60,14 +64,19 @@ export default class SocketHandler {
             }
         });
 
-        //Card Played
-        scene.socket.on('cardPlayed', (cardKey: string, socketId: string) => {
-           /*  if (socketId !== scene.socket.id) {
-                scene.GameHandler.opponentHand.pop();
-                let card = new Card(scene);
-                card.render(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), cardKey, cardType.opponent);
-                scene.dropZone.data.values.cards++;
-            } */
+        /**
+         * Card Played - show on all clients and remove cards from hand
+         */
+        scene.socket.on('cardPlayed', (cardPlayed: Card, socketId: string) => {
+            //only perform on clients that did not play the card
+           if (socketId !== scene.socket.id) {
+                //scene.GameHandler.opponentHand.pop();
+                //find which player played the card and remove from their hand - TODO
+                scene.DeckHandler.renderCard(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15,
+                    cardPlayed.FrontImageSprite, false); 
+
+                scene.dropZone.data.values.cards++; 
+            } 
         })
 
 

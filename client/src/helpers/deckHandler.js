@@ -6,6 +6,15 @@ const card_1 = require("../model/card");
  */
 class DeckHandler {
     constructor(scene) {
+        /**
+    * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
+    */
+        this.dealCards = (socketId) => {
+            this.createDeck();
+            this.shuffleDeck();
+            this.createHands();
+            this.displayCards(socketId);
+        };
         //create deck
         this.createDeck = () => {
             for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
@@ -32,30 +41,25 @@ class DeckHandler {
             }
         };
         /**
-         * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
-         */
-        this.dealCards = (socketId) => {
-            this.createDeck();
-            this.shuffleDeck();
-            this.createHands();
-            this.displayCards(socketId);
-        };
-        /**
          * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front.
          */
         this.displayCards = (socketId) => {
-            for (let j = 0; j < scene.players.length; j++) {
-                let player = scene.players[j];
+            let opponentPos = 0;
+            scene.players.forEach(player => {
+                if (scene.socket.id !== player.socketId) {
+                    opponentPos++;
+                }
+                ;
                 for (let i = 0; i < player.cardHand.length; i++) {
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(200 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true);
+                        this.renderCard(100 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true);
                     }
                     else {
-                        this.renderCard(j * 100 + (i * 25), 125, 0.075, player.cardHand[i].BackImageSprite, false);
+                        this.renderCard(100 + (i * 25), 10 + (opponentPos * 80), 0.075, player.cardHand[i].BackImageSprite, false);
                     }
                 }
-            }
+            });
         };
         /**
          * TODO

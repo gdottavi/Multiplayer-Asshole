@@ -51,8 +51,8 @@ io.on('connection', function (socket) {
         io.emit('changeGameState', "Ready");
     });
     //card played
-    socket.on('cardPlayed', (cardKey, socketId) => {
-        io.emit('cardPlayed', cardKey, socketId);
+    socket.on('cardPlayed', (cardPlayed, socketId) => {
+        io.emit('cardPlayed', cardPlayed, socketId);
         io.emit('changeTurn');
     });
     //remove players as they disconnect

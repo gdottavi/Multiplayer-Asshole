@@ -11,16 +11,25 @@ export default class DeckHandler {
     dealCards: (socketId: string) => void;
     dealDeck: () => void;
     renderCard: (x: number, y: number, scale: number, image_key: string, draggable?: boolean) => void;
-    resetDeck: () => void; 
+    resetDeck: () => void;
 
     private createHands: () => void;
     private createDeck: () => void;
     private shuffleDeck: () => void;
     private displayCards: (socketId: string) => void;
-    
+
 
     constructor(scene: Game) {
 
+        /**
+    * Creates deck, shuffles deck, deals deck and displays initial card hands on board. 
+    */
+        this.dealCards = (socketId) => {
+            this.createDeck();
+            this.shuffleDeck();
+            this.createHands();
+            this.displayCards(socketId);
+        }
 
         //create deck
         this.createDeck = () => {
@@ -37,8 +46,9 @@ export default class DeckHandler {
 
         }
 
+        
         this.createHands = () => {
-            let playerIndex = 0; 
+            let playerIndex = 0;
             for (let i = 0; i < 52; i++) {
                 let card = scene.deck.cards[i];
                 scene.players[playerIndex].cardHand.push(card);
@@ -51,32 +61,27 @@ export default class DeckHandler {
             }
         }
 
-        /**
-         * Creates deck, shuffles deck, deals deck and displays initial card hands on board. 
-         */
-        this.dealCards = (socketId) => {
-            this.createDeck();
-            this.shuffleDeck();
-            this.createHands();
-            this.displayCards(socketId); 
-        }
+
 
         /**
          * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front. 
          */
         this.displayCards = (socketId) => {
-            for(let j=0; j < scene.players.length; j++){
-                let player = scene.players[j]; 
-                for(let i=0; i < player.cardHand.length; i++){
+            let opponentPos = 0;
+            scene.players.forEach(player => {
+
+                if (scene.socket.id !== player.socketId) { opponentPos++ };
+
+                for (let i = 0; i < player.cardHand.length; i++) {
                     //current player
-                    if(scene.socket.id === player.socketId){
-                        this.renderCard(200+(i*100), 650, 0.15, player.cardHand[i].FrontImageSprite, true)
+                    if (scene.socket.id === player.socketId) {
+                        this.renderCard(100 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true)
                     }
-                    else{
-                        this.renderCard(j*100+(i*25), 125, 0.075, player.cardHand[i].BackImageSprite, false)
+                    else {
+                        this.renderCard(100 + (i * 25), 10 + (opponentPos * 80), 0.075, player.cardHand[i].BackImageSprite, false)
                     }
                 }
-            }
+            })
         }
 
         /**
@@ -89,11 +94,11 @@ export default class DeckHandler {
          * Displays card at specified location
          */
         this.renderCard = (x, y, scale, image_key, draggable) => {
-            
+
             let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
-            if(draggable) scene.input.setDraggable(card); 
+            if (draggable) scene.input.setDraggable(card);
         }
-        
+
     }
 
 
