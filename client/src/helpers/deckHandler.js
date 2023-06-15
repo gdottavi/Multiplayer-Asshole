@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const card_1 = require("../model/card");
+const cardSprite_1 = __importDefault(require("../model/cardSprite"));
 /**
  * Handles dealing cards to start game
  */
@@ -51,12 +55,13 @@ class DeckHandler {
                 }
                 ;
                 for (let i = 0; i < player.cardHand.length; i++) {
+                    let currentCard = player.cardHand[i];
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(100 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true);
+                        this.renderCard(scene, currentCard, 100 + (i * 100), 650, 0.15, currentCard.FrontImageSprite, true);
                     }
                     else {
-                        this.renderCard(100 + (i * 25), 10 + (opponentPos * 80), 0.075, player.cardHand[i].BackImageSprite, false);
+                        this.renderCard(scene, currentCard, 100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.BackImageSprite, false);
                     }
                 }
             });
@@ -69,10 +74,12 @@ class DeckHandler {
         /**
          * Displays card at specified location
          */
-        this.renderCard = (x, y, scale, image_key, draggable) => {
-            let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive();
+        this.renderCard = (scene, card, x, y, scale, image_key, draggable) => {
+            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale).setInteractive();
             if (draggable)
-                scene.input.setDraggable(card);
+                scene.input.setDraggable(cardSprite);
+            //let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
+            //if (draggable) scene.input.setDraggable(card);
         };
     }
 }

@@ -60,7 +60,7 @@ class SocketHandler {
             if (socketId !== scene.socket.id) {
                 //scene.GameHandler.opponentHand.pop();
                 //find which player played the card and remove from their hand - TODO
-                scene.DeckHandler.renderCard(((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
+                scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
                 scene.dropZone.data.values.cards++;
             }
         });

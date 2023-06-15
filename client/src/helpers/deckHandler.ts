@@ -1,6 +1,7 @@
 import Game from "../scenes/game";
 import { Card, cardType, suites, ranks } from "../model/card";
 import { Socket } from "socket.io-client";
+import CardSprite from "../model/cardSprite";
 
 /**
  * Handles dealing cards to start game
@@ -10,7 +11,7 @@ export default class DeckHandler {
 
     dealCards: (socketId: string) => void;
     dealDeck: () => void;
-    renderCard: (x: number, y: number, scale: number, image_key: string, draggable?: boolean) => void;
+    renderCard: (scene: Phaser.Scene,card: Card, x: number, y: number, scale: number, image_key: string, draggable?: boolean) => void;
     resetDeck: () => void;
 
     private createHands: () => void;
@@ -46,7 +47,7 @@ export default class DeckHandler {
 
         }
 
-        
+
         this.createHands = () => {
             let playerIndex = 0;
             for (let i = 0; i < 52; i++) {
@@ -73,12 +74,13 @@ export default class DeckHandler {
                 if (scene.socket.id !== player.socketId) { opponentPos++ };
 
                 for (let i = 0; i < player.cardHand.length; i++) {
+                    let currentCard = player.cardHand[i]; 
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(100 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true)
+                        this.renderCard(scene,currentCard, 100 + (i * 100), 650, 0.15, currentCard.FrontImageSprite, true)
                     }
                     else {
-                        this.renderCard(100 + (i * 25), 10 + (opponentPos * 80), 0.075, player.cardHand[i].BackImageSprite, false)
+                        this.renderCard(scene,currentCard,100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.BackImageSprite, false)
                     }
                 }
             })
@@ -93,10 +95,12 @@ export default class DeckHandler {
         /**
          * Displays card at specified location
          */
-        this.renderCard = (x, y, scale, image_key, draggable) => {
+        this.renderCard = (scene,card, x, y, scale, image_key, draggable) => {
 
-            let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
-            if (draggable) scene.input.setDraggable(card);
+            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale).setInteractive(); 
+            if(draggable) scene.input.setDraggable(cardSprite); 
+            //let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
+            //if (draggable) scene.input.setDraggable(card);
         }
 
     }

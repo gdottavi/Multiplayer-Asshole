@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Interactive functionality for card game
  */
-class InteractiveHandler {
+export default class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -29,19 +27,19 @@ class InteractiveHandler {
             gameObject.y = dragY;
         });
         //Card Played
-        scene.input.on('drop', (pointer, gameObject, dropZone) => {
+        scene.input.on('drop', (pointer, card, dropZone) => {
             console.log("is my turn: ", scene.GameHandler.isMyTurn);
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
-                gameObject.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-                gameObject.y = dropZone.y;
+                card.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+                card.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
-                scene.input.setDraggable(gameObject, false);
-                console.log('dropped ', gameObject);
-                scene.socket.emit('cardPlayed', gameObject.texture.key, scene.socket.id);
+                scene.input.setDraggable(card, false);
+                console.log('dropped ', card);
+                scene.socket.emit('cardPlayed', card, scene.socket.id);
             }
             else {
-                gameObject.x = gameObject.input.dragStartX;
-                gameObject.y = gameObject.input.dragStartY;
+                card.x = card.input.dragStartX;
+                card.y = card.input.dragStartY;
             }
         });
         //hover for deal text
@@ -60,5 +58,4 @@ class InteractiveHandler {
         });
     }
 }
-exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map
