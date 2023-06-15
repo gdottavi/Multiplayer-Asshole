@@ -56,6 +56,7 @@ class SocketHandler {
          * Card Played - show on all clients and remove cards from hand
          */
         scene.socket.on('cardPlayed', (cardPlayed, socketId) => {
+            console.log("card played received :", cardPlayed);
             //only perform on clients that did not play the card
             if (socketId !== scene.socket.id) {
                 //scene.GameHandler.opponentHand.pop();

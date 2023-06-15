@@ -40,19 +40,19 @@ export default class InteractiveHandler {
     })
 
     //Card Played
-    scene.input.on('drop', (pointer: Input.Pointer, card: CardSprite, dropZone: GameObjects.Zone) => {
-        console.log("is my turn: ", scene.GameHandler.isMyTurn)
+    scene.input.on('drop', (pointer: Input.Pointer, cardSprite: CardSprite, dropZone: GameObjects.Zone) => {
+
         if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready) {
-            card.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-            card.y = dropZone.y;
+            cardSprite.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+            cardSprite.y = dropZone.y;
             scene.dropZone.data.values.cards++;
-            scene.input.setDraggable(card, false);
-            console.log('dropped ', card)
-            scene.socket.emit('cardPlayed', card, scene.socket.id);
+            scene.input.setDraggable(cardSprite, false);
+            console.log('dropped ', cardSprite.card)
+            scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
         }
         else {
-            card.x = card.input.dragStartX;
-            card.y = card.input.dragStartY;
+            cardSprite.x = cardSprite.input.dragStartX;
+            cardSprite.y = cardSprite.input.dragStartY;
         }
     })
 

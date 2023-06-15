@@ -5,6 +5,7 @@ import express from 'express'
 import { Player } from "./client/src/model/player";
 import { Players } from "./client/src/model/players";
 import { Card } from "./client/src/model/card";
+import CardSprite from "./client/src/model/cardSprite";
 
 
 const server = express(); 
@@ -34,7 +35,6 @@ const getPlayers = () => {
 io.on('connection', function(socket){
     console.log('An idiot connected: ' + socket.id);
 
-    //players[socket.id] = socket.id;
     players.push(socket.id); 
 
     //add players as they connect
@@ -62,6 +62,7 @@ io.on('connection', function(socket){
 
     //card played
     socket.on('cardPlayed', (cardPlayed: Card, socketId) => {
+        console.log("card played", cardPlayed);
         io.emit('cardPlayed', cardPlayed, socketId);
         io.emit('changeTurn');
     })

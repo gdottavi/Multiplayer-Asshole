@@ -27,19 +27,18 @@ export default class InteractiveHandler {
             gameObject.y = dragY;
         });
         //Card Played
-        scene.input.on('drop', (pointer, card, dropZone) => {
-            console.log("is my turn: ", scene.GameHandler.isMyTurn);
+        scene.input.on('drop', (pointer, cardSprite, dropZone) => {
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
-                card.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
-                card.y = dropZone.y;
+                cardSprite.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+                cardSprite.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
-                scene.input.setDraggable(card, false);
-                console.log('dropped ', card);
-                scene.socket.emit('cardPlayed', card, scene.socket.id);
+                scene.input.setDraggable(cardSprite, false);
+                console.log('dropped ', cardSprite.card);
+                scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
             }
             else {
-                card.x = card.input.dragStartX;
-                card.y = card.input.dragStartY;
+                cardSprite.x = cardSprite.input.dragStartX;
+                cardSprite.y = cardSprite.input.dragStartY;
             }
         });
         //hover for deal text
