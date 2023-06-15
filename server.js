@@ -10,6 +10,7 @@ const server = (0, express_1.default)();
 const http = (0, http_1.createServer)(server);
 const PORT = process.env.PORT || 3000;
 let gameState = "Initializing";
+let players = [];
 const io = new socket_io_1.Server(http, {
     cors: {
         origin: '*',
@@ -22,23 +23,30 @@ const io = new socket_io_1.Server(http, {
         methods: ["GET", "POST"]
     }
 });  */
-let players = [];
+const getPlayers = () => {
+    let clients = io.sockets.fetchSockets;
+};
 io.on('connection', function (socket) {
     console.log('An idiot connected: ' + socket.id);
-    players[socket.id] = {
-        inDeck: [],
-        inHand: [],
-        isPlayerA: false
-    };
-    //add players as they connect
+    //players[socket.id] = socket.id;
     players.push(socket.id);
-    if (players.length === 1) {
-        io.emit('isPlayerA');
-        io.emit('firstTurn');
-    }
+    //add players as they connect
+    //players.push(socket.id);
+    /*    if(players.length === 1){
+           io.emit('isPlayerA');
+           io.emit('firstTurn');
+       } */
+    // io.emit('newPlayer', socket.id); 
+    //ready to play
+    socket.on('ready', () => {
+        console.log("server players: ");
+        console.log(players);
+        io.emit('ready', players);
+    });
     //cards dealt
-    socket.on('dealCards', () => {
-        io.emit('dealCards');
+    socket.on('dealCards', (socketId) => {
+        console.log(players);
+        io.emit('dealCards', socketId);
         gameState = "Ready";
         io.emit('changeGameState', "Ready");
     });

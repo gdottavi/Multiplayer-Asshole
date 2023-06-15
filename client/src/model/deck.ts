@@ -1,4 +1,4 @@
-import { Card } from "../helpers/card";
+import { Card } from "./card";
 
 export class Deck {
     

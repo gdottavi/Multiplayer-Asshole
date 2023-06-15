@@ -5,8 +5,8 @@ import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
-import { Card } from "../helpers/card";
-import { Player } from "../helpers/player";
+import { Card, ranks, suites } from "../model/card";
+import { Player } from "../model/player";
 import { Deck } from "../model/deck";
 
 export default class Game extends Scene {
@@ -19,11 +19,13 @@ export default class Game extends Scene {
     DeckHandler: DeckHandler;
     zone: any;
     dropZone: Phaser.GameObjects.Zone;
+    currentPlayerZone: Phaser.GameObjects.Zone; 
     dealText: GameObjects.Text;
     outline: any; 
     resetText: GameObjects.Text;
     deck: Deck; 
     players: Player[]; 
+    readyText: GameObjects.Text;
 
     constructor(){
         super({
@@ -34,15 +36,20 @@ export default class Game extends Scene {
     //load everything needed for game 
     preload() {
 
-        //load spritesheet of playing cards
-        //this.load.spritesheet("cards", require('../assets/Cards.png').default);
-        //load card images
-        this.load.image('cyanCardFront', require('../assets/CyanCardFront.png').default);
-        this.load.image('cyanCardBack', require('../assets/CyanCardBack.png').default);
-        this.load.image('magentaCardFront', require('../assets/MagentaCardFront.png').default);
-        this.load.image('magentaCardBack', require('../assets/MagentaCardBack.png').default);
-       
+        //load all playing card images
+        let path = '../assets/white/';
+        let suite,rank;
+
+        this.load.image('CardBack', require('../assets/CardBack.png').default); 
+        for(suite in suites){
+            for(rank in ranks){
+                let key = suites[suite]+ranks[rank]; 
+                this.load.image(key, require(`../assets/white/${suites[suite]}${ranks[rank]}.png`).default);
+            }
+        }
     }
+       
+    
 
     //populate needed items for game
     create() {
@@ -53,8 +60,6 @@ export default class Game extends Scene {
         this.DeckHandler = new DeckHandler(this);
         this.deck = new Deck(); 
         this.players = []; 
-
-        this.GameHandler.addPlayers(); 
     }
 
     //make updates to game

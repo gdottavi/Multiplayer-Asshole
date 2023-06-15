@@ -1,13 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Interactive functionality for card game
  */
-class InteractiveHandler {
+export default class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
-            scene.socket.emit('dealCards');
+            scene.socket.emit('dealCards', scene.socket.id);
+        });
+        //ready on click
+        scene.readyText.on('pointerdown', () => {
+            scene.socket.emit('ready');
         });
         scene.input.on('dragstart', function (pointer, gameObject) {
             gameObject.setTint(0xff69b4);
@@ -47,5 +49,4 @@ class InteractiveHandler {
         });
     }
 }
-exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

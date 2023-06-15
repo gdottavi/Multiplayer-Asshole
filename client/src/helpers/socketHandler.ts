@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import Game from "../scenes/game";
-import { Card, cardType } from './card';
+import { Card, cardType } from '../model/card';
+import { Player } from "../model/player";
 
 
 //server is for production deploy local is for testing
@@ -24,9 +25,21 @@ export default class SocketHandler {
         })
 
 
+        //Ready - Create Players
+        scene.socket.on('ready', (players) => { 
+            console.log("ready on client: ", players); 
+            players.forEach(p => {
+                //if player already exists with socketID delete first - TODO
+                //
+                let newPlayer = new Player(p, "Greg" + scene.players.length);
+                scene.players.push(newPlayer)
+            })
+            console.log(scene.players)
+        })
+
         //Deal Cards
-        scene.socket.on('dealCards', () => {
-            scene.DeckHandler.dealCards();
+        scene.socket.on('dealCards', (socketId: string, players: []) => {
+            scene.DeckHandler.dealCards(socketId);
             scene.dealText.disableInteractive();
         })
 

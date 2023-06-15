@@ -1,67 +1,73 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = require("./card");
+import { Card, suites, ranks } from "../model/card";
 /**
  * Handles dealing cards to start game
  */
-class DeckHandler {
+export default class DeckHandler {
     constructor(scene) {
-        /* this.dealCards = () => {
-            let playerSprite: string, opponentSprite: string;
-
-            //only show cards to current player
-            if(scene.isPlayerA) {
-                playerSprite = 'cyanCardFront';
-                //playerSprite = 'cards';
-                opponentSprite = 'magentaCardBack';
-            }
-            else{
-                playerSprite = 'magentaCardFront';
-                opponentSprite = 'cyanCardBack';
-            }
-            for (let i=0; i<5; i++){
-                let playerCard = new Card(scene);
-                scene.GameHandler.playerHand.push(playerCard.render(475+(i*100), 650, playerSprite, cardType.player));
-
-                let opponentCard = new Card(scene);
-                scene.GameHandler.opponentHand.push(opponentCard.render(475 + (i *100), 125, opponentSprite, cardType.opponent));
-            }
-        } */
         //create deck
         this.createDeck = () => {
             for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
                 for (let rankCounter = 0; rankCounter < 13; rankCounter++) {
-                    let card = new card_1.Card(card_1.suites[suiteCounter], card_1.ranks[rankCounter]);
+                    let card = new Card(suites[suiteCounter], ranks[rankCounter]);
                     scene.deck.cards.push(card);
                 }
             }
         };
-        //shuffle deck
+        //shuffle deck - TODO
         this.shuffleDeck = () => {
         };
-        this.dealCards = () => {
-            this.createDeck();
-            this.shuffleDeck();
+        this.createHands = () => {
             let playerIndex = 0;
-            for (let i = 0; i < 51; i++) {
-                console.log(scene.deck.cards[i]);
-                console.log(scene.players[playerIndex]);
-                scene.players[playerIndex].cardHand.push(scene.deck.cards[i]);
-                if (playerIndex < scene.GameHandler.numberPlayers - 1) {
+            for (let i = 0; i < 52; i++) {
+                let card = scene.deck.cards[i];
+                scene.players[playerIndex].cardHand.push(card);
+                if (playerIndex < scene.players.length - 1) {
                     playerIndex++;
                 }
                 else {
                     playerIndex = 0;
                 }
             }
-            console.log("Cards Dealt: ");
-            console.log(scene.players);
         };
-        this.resetDeck = () => {
+        /**
+         * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
+         */
+        this.dealCards = (socketId) => {
             this.createDeck();
             this.shuffleDeck();
+            this.createHands();
+            this.displayCards(socketId);
+        };
+        /**
+         * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front.
+         */
+        this.displayCards = (socketId) => {
+            for (let j = 0; j < scene.players.length; j++) {
+                let player = scene.players[j];
+                for (let i = 0; i < player.cardHand.length; i++) {
+                    //current player
+                    if (scene.socket.id === socketId) {
+                        this.renderCard(200 + (i * 100), 650, 0.15, player.cardHand[i].FrontImageSprite, true);
+                    }
+                    else {
+                        this.renderCard(j * 100 + (i * 25), 125, 0.075, player.cardHand[i].BackImageSprite, false);
+                    }
+                }
+            }
+        };
+        /**
+         * TODO
+         */
+        this.resetDeck = () => {
+        };
+        /**
+         * Displays card at specified location
+         */
+        this.renderCard = (x, y, scale, image_key, draggable) => {
+            let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive();
+            if (draggable)
+                scene.input.setDraggable(card);
         };
     }
 }
-exports.default = DeckHandler;
 //# sourceMappingURL=deckHandler.js.map

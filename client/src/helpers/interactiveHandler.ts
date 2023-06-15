@@ -12,7 +12,12 @@ export default class InteractiveHandler {
     
     //deal cards on click
     scene.dealText.on('pointerdown', () =>  {
-            scene.socket.emit('dealCards'); 
+            scene.socket.emit('dealCards', scene.socket.id); 
+    })
+
+    //ready on click
+    scene.readyText.on('pointerdown', () => {
+        scene.socket.emit('ready')
     })
 
     scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {

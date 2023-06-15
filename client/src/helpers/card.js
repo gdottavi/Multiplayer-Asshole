@@ -66,9 +66,6 @@ exports.ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A
     }
 } */
 class Card {
-    render(arg0, arg1, playerSprite, player) {
-        throw new Error("Method not implemented.");
-    }
     constructor(rank, suite) {
         this.value = rank;
         this.suite = suite;
