@@ -96,11 +96,8 @@ export default class DeckHandler {
          * Displays card at specified location
          */
         this.renderCard = (scene,card, x, y, scale, image_key, draggable) => {
-
             let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale).setInteractive(); 
             if(draggable) scene.input.setDraggable(cardSprite); 
-            //let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
-            //if (draggable) scene.input.setDraggable(card);
         }
 
     }

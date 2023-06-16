@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-class GameHandler {
+export default class GameHandler {
     constructor(scene) {
         this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
@@ -18,14 +16,12 @@ class GameHandler {
         let nextPlayerPos = 0;
         //find index of current player in active players
         let currentPlayerPosition = scene.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
-        console.log("current player position ", currentPlayerPosition);
+        //set back to first player if at end
         if (currentPlayerPosition >= (scene.players.length - 1) || currentPlayerPosition == -1) {
-            currentPlayerPosition = 0; //set back to beginning
+            currentPlayerPosition = 0;
         }
-        else {
+        else
             currentPlayerPosition++;
-        }
-        console.log("next player position ", nextPlayerPos);
         this.currentTurnPlayer = scene.players[currentPlayerPosition];
         this.setMyTurn(scene);
     }
@@ -45,5 +41,4 @@ class GameHandler {
         }
     }
 }
-exports.default = GameHandler;
 //# sourceMappingURL=gameHandler.js.map

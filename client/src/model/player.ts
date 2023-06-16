@@ -32,7 +32,7 @@ export class Player{
     }
 
     removeCard(card: Card): void{
-        this.cardHand.filter(c => c !== card)
+        this.cardHand.filter(c => c.key !== card.key)
     }
 
 }

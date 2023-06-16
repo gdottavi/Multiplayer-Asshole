@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = require("../model/card");
-const cardSprite_1 = __importDefault(require("../model/cardSprite"));
+import { Card, suites, ranks } from "../model/card";
+import CardSprite from "../model/cardSprite";
 /**
  * Handles dealing cards to start game
  */
-class DeckHandler {
+export default class DeckHandler {
     constructor(scene) {
         /**
     * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
@@ -23,7 +18,7 @@ class DeckHandler {
         this.createDeck = () => {
             for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
                 for (let rankCounter = 0; rankCounter < 13; rankCounter++) {
-                    let card = new card_1.Card(card_1.suites[suiteCounter], card_1.ranks[rankCounter]);
+                    let card = new Card(suites[suiteCounter], ranks[rankCounter]);
                     scene.deck.cards.push(card);
                 }
             }
@@ -75,13 +70,10 @@ class DeckHandler {
          * Displays card at specified location
          */
         this.renderCard = (scene, card, x, y, scale, image_key, draggable) => {
-            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale).setInteractive();
+            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale).setInteractive();
             if (draggable)
                 scene.input.setDraggable(cardSprite);
-            //let card = scene.add.image(x, y, image_key).setScale(scale).setInteractive()
-            //if (draggable) scene.input.setDraggable(card);
         };
     }
 }
-exports.default = DeckHandler;
 //# sourceMappingURL=deckHandler.js.map
