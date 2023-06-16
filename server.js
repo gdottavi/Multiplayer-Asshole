@@ -17,29 +17,11 @@ const io = new socket_io_1.Server(http, {
         methods: ["GET", "POST"]
     }
 });
-/* const io = require('socket.io')(http, {
-    cors: {
-        origin: '*',
-        methods: ["GET", "POST"]
-    }
-});  */
-const getPlayers = () => {
-    let clients = io.sockets.fetchSockets;
-};
 io.on('connection', function (socket) {
     console.log('An idiot connected: ' + socket.id);
     players.push(socket.id);
-    //add players as they connect
-    //players.push(socket.id);
-    /*    if(players.length === 1){
-           io.emit('isPlayerA');
-           io.emit('firstTurn');
-       } */
-    // io.emit('newPlayer', socket.id); 
     //ready to play
     socket.on('ready', () => {
-        console.log("server players: ");
-        console.log(players);
         io.emit('ready', players);
     });
     //cards dealt

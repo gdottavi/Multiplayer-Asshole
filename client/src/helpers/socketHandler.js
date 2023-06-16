@@ -15,13 +15,9 @@ class SocketHandler {
         scene.socket.on('connect', () => {
             console.log("Game Connected!");
         });
-        scene.socket.on('isPlayerA', () => {
-            scene.isPlayerA = true;
-        });
         //Ready - Create Players
         scene.socket.on('ready', (players) => {
-            console.log("ready on client: ", players);
-            players.forEach(p => {
+            players.forEach((p) => {
                 //if player already exists with socketID delete first - TODO
                 //
                 let newPlayer = new player_1.Player(p, "Greg" + scene.players.length);
@@ -39,9 +35,7 @@ class SocketHandler {
         });
         //Advance Turn
         scene.socket.on('changeTurn', () => {
-            scene.GameHandler.changeTurn(scene);
-        });
-        scene.socket.on('firstTurn', () => {
+            console.log("changing turn");
             scene.GameHandler.changeTurn(scene);
         });
         //Change Game State

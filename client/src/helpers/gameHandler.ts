@@ -44,17 +44,18 @@ export default class GameHandler {
 
         let nextPlayerPos = 0; 
         //find index of current player in active players
-        let currentPlayerPosition = scene.players.findIndex(p => {
-            p.getId() === this.currentTurnPlayer.getId()
-        });
+        let currentPlayerPosition = scene.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
 
-        if(currentPlayerPosition < scene.players.length){
-            nextPlayerPos = currentPlayerPosition++; 
+        console.log("current player position ", currentPlayerPosition); 
+
+        if(currentPlayerPosition >= (scene.players.length - 1)|| currentPlayerPosition == -1){
+            currentPlayerPosition = 0; //set back to beginning
         }
         else{
-            nextPlayerPos = 0; //set back to beginning
+            currentPlayerPosition++; 
         }
-
+        console.log("next player position ", nextPlayerPos);
+        this.currentTurnPlayer = scene.players[currentPlayerPosition]
         this.setMyTurn(scene)
 
     }

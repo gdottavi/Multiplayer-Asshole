@@ -65,10 +65,10 @@ export default class InteractiveHandler {
     })
       //hover for deal text
       scene.readyText.on('pointerover', () => {
-        scene.dealText.setColor('#ff69b4');
+        scene.readyText.setColor('#ff69b4');
     })
     scene.readyText.on('pointerout', () => {
-        scene.dealText.setColor('#00ffff'); 
+        scene.readyText.setColor('#00ffff'); 
     })
 
 }
