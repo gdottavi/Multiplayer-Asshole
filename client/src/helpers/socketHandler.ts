@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import Game from "../scenes/game";
-import { Card, cardType } from '../model/card';
+import { Card } from '../model/card';
 import { Player } from "../model/player";
 import CardSprite from "../model/cardSprite";
 
@@ -61,24 +61,21 @@ export default class SocketHandler {
          */
         scene.socket.on('cardPlayed', (cardPlayed: Card, socketId: string) => {
 
-            console.log("card played received :", cardPlayed)
-            console.log("scene", scene);
             //only perform on clients that did not play the card
             if (socketId !== scene.socket.id) {
 
-                //find which player played the card and remove from their hand - TODO
+                //find which player played the card and remove from their hand
                 let player = scene.players.find(p => p.getId() === socketId);
                 player.cardHand.filter(c => c.key !== cardPlayed.key)
                 player.removeCard(cardPlayed);
-                //find sprite and destroy 
-               let spriteToDestroy = scene.children.list.find(obj => {
-                    if(obj instanceof CardSprite){
+                //find sprite associated with the card played and remove it
+                let spriteToDestroy = scene.children.list.find(obj => {
+                    if (obj instanceof CardSprite) {
                         return obj?.card?.key === cardPlayed.key
                     }
                 })
-                console.log("sprite to destroy: ",spriteToDestroy); 
-                spriteToDestroy.destroy(true); 
- 
+                spriteToDestroy.destroy(true);
+
                 //show card played in middle for everyone
                 scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15,
                     cardPlayed.FrontImageSprite, false);

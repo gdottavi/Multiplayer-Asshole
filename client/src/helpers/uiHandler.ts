@@ -1,5 +1,12 @@
 import Game from "../scenes/game";
 
+
+export enum themeColors {
+    black, 
+    teal = '#00ffff',
+    magenta = '#ff69b4'
+}
+
 /**
  * Basic layout and UI for game
  */
@@ -19,7 +26,7 @@ export default class UIHandler {
             scene.dropZone.y - scene.dropZone.input.hitArea.height / 2, scene.dropZone.input.hitArea.width, scene.dropZone.input.hitArea.height);
 
 
-        /* //Create current player card zone
+        /* //Create current player card zone - TODO
         scene.currentPlayerZone = scene.add.zone(700, 135, 900, 250).setRectangleDropZone(900, 250);
         //initialize middle to have zero cards
         scene.currentPlayerZone.setData({
@@ -30,6 +37,10 @@ export default class UIHandler {
         currentPlayerZoneOutline.strokeRect(scene.currentPlayerZone.x - scene.currentPlayerZone.input.hitArea.width / 2,
             scene.currentPlayerZone.y - scene.currentPlayerZone.input.hitArea.height / 2, scene.currentPlayerZone.input.hitArea.width, scene.currentPlayerZone.input.hitArea.height);
  */
+
+        //TODO - create zones for all opponent hands
+
+
         //menu options for game
         //TODO - don't allow dealing until ready is pushed
         scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();

@@ -1,4 +1,7 @@
-export class Player {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Player = void 0;
+class Player {
     constructor(socketId, name) {
         this.name = name;
         this.socketId = socketId;
@@ -19,4 +22,5 @@ export class Player {
         this.cardHand.filter(c => c.key !== card.key);
     }
 }
+exports.Player = Player;
 //# sourceMappingURL=player.js.map

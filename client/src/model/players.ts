@@ -7,4 +7,8 @@ export class Players {
     constructor() {
       this.players = [];
     }
+
+    removePlayer(){
+        
+    }
 }

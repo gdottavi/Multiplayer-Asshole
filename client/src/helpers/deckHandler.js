@@ -1,9 +1,14 @@
-import { Card, suites, ranks } from "../model/card";
-import CardSprite from "../model/cardSprite";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const card_1 = require("../model/card");
+const cardSprite_1 = __importDefault(require("../model/cardSprite"));
 /**
  * Handles dealing cards to start game
  */
-export default class DeckHandler {
+class DeckHandler {
     constructor(scene) {
         /**
     * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
@@ -16,15 +21,19 @@ export default class DeckHandler {
         };
         //create deck
         this.createDeck = () => {
-            for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
-                for (let rankCounter = 0; rankCounter < 13; rankCounter++) {
-                    let card = new Card(suites[suiteCounter], ranks[rankCounter]);
-                    scene.deck.cards.push(card);
-                }
-            }
+            card_1.suites.forEach(suite => {
+                card_1.values.forEach(value => {
+                    let card = new card_1.Card(suite, value);
+                    scene.deck.addCard(card);
+                });
+            });
         };
         //shuffle deck - TODO
         this.shuffleDeck = () => {
+            console.log("before shuffle: ", scene.deck);
+            scene.deck.shuffleDeck();
+            //Phaser.Utils.Array.Shuffle(scene.deck);
+            console.log("after shuffle", scene.deck);
         };
         this.createHands = () => {
             let playerIndex = 0;
@@ -42,7 +51,7 @@ export default class DeckHandler {
         /**
          * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front.
          */
-        this.displayCards = (socketId) => {
+        this.displayCards = () => {
             let opponentPos = 0;
             scene.players.forEach(player => {
                 if (scene.socket.id !== player.socketId) {
@@ -70,10 +79,11 @@ export default class DeckHandler {
          * Displays card at specified location
          */
         this.renderCard = (scene, card, x, y, scale, image_key, draggable) => {
-            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale).setInteractive();
+            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale).setInteractive();
             if (draggable)
                 scene.input.setDraggable(cardSprite);
         };
     }
 }
+exports.default = DeckHandler;
 //# sourceMappingURL=deckHandler.js.map

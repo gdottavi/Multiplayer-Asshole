@@ -5,6 +5,8 @@ class Players {
     constructor() {
         this.players = [];
     }
+    removePlayer() {
+    }
 }
 exports.Players = Players;
 //# sourceMappingURL=players.js.map

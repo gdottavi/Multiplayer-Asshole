@@ -5,7 +5,7 @@ import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
-import { Card, ranks, suites } from "../model/card";
+import { Card, suites, values } from "../model/card";
 import { Player } from "../model/player";
 import { Deck } from "../model/deck";
 
@@ -26,6 +26,7 @@ export default class Game extends Scene {
     deck: Deck; 
     players: Player[]; 
     readyText: GameObjects.Text;
+    currentCardsPlayed: Deck;
 
     constructor(){
         super({
@@ -37,16 +38,14 @@ export default class Game extends Scene {
     preload() {
 
         //load all playing card images
-        let path = '../assets/white/';
-        let suite,rank;
-
         this.load.image('CardBack', require('../assets/CardBack.png').default); 
-        for(suite in suites){
-            for(rank in ranks){
-                let key = suites[suite]+ranks[rank]; 
-                this.load.image(key, require(`../assets/white/${suites[suite]}${ranks[rank]}.png`).default);
-            }
-        }
+        suites.forEach(suite => {
+            values.forEach(value => {
+                let key = suite+value; 
+                this.load.image(key, require('../assets/white/'+key+'.png').default);
+            })
+        })
+
     }
        
     

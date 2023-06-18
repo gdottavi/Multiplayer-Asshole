@@ -1,5 +1,5 @@
 import Game from "../scenes/game";
-import { Card, cardType, suites, ranks } from "../model/card";
+import { Card, suites, values } from "../model/card";
 import { Socket } from "socket.io-client";
 import CardSprite from "../model/cardSprite";
 
@@ -34,17 +34,20 @@ export default class DeckHandler {
 
         //create deck
         this.createDeck = () => {
-            for (let suiteCounter = 0; suiteCounter < 4; suiteCounter++) {
-                for (let rankCounter = 0; rankCounter < 13; rankCounter++) {
-                    let card = new Card(suites[suiteCounter], ranks[rankCounter])
-                    scene.deck.cards.push(card);
-                }
-            }
+            suites.forEach(suite => {
+                values.forEach(value => {
+                    let card = new Card(suite,value);
+                    scene.deck.addCard(card); 
+                })
+            })
         }
 
         //shuffle deck - TODO
         this.shuffleDeck = () => {
-
+            console.log("before shuffle: ",scene.deck);
+            scene.deck.shuffleDeck(); 
+            //Phaser.Utils.Array.Shuffle(scene.deck);
+            console.log("after shuffle", scene.deck);
         }
 
 
@@ -67,7 +70,7 @@ export default class DeckHandler {
         /**
          * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front. 
          */
-        this.displayCards = (socketId) => {
+        this.displayCards = () => {
             let opponentPos = 0;
             scene.players.forEach(player => {
 
