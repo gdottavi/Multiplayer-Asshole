@@ -1,4 +1,7 @@
-export class Deck extends Array {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Deck = void 0;
+class Deck extends Array {
     constructor() {
         super();
         this.cards = [];
@@ -24,5 +27,13 @@ export class Deck extends Array {
     shuffleDeck() {
         Phaser.Utils.Array.Shuffle(this.cards);
     }
+    /**
+     *
+     * @returns number of cards in the deck
+     */
+    getNumberCards() {
+        return this.cards.length;
+    }
 }
+exports.Deck = Deck;
 //# sourceMappingURL=deck.js.map

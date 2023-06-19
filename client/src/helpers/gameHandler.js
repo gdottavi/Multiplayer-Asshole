@@ -8,7 +8,6 @@ export default class GameHandler {
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         };
-        this.currentPlayedCards = new Deck();
     }
     /**
      * Advances turn to next eligible player
@@ -34,6 +33,7 @@ export default class GameHandler {
      * @param cardPlayed
      */
     playCard(socketId, scene, cardPlayed) {
+        this.lastPlayedHand = new Deck();
         if (socketId !== scene.socket.id) {
             //find which player played the card and remove from their hand
             let player = scene.currentPlayers.players.find(p => p.getId() === socketId);
@@ -48,11 +48,16 @@ export default class GameHandler {
             });
             spriteToDestroy.destroy(true);
             //show card played in middle for everyone
-            scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
+            console.log(scene.currentPlayedCards.getNumberCards());
+            scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
         }
-        //add cards to cards played array
-        this.currentPlayedCards.addCard(cardPlayed);
-        console.log("cards played", this.currentPlayedCards);
+        //add cards to all cards played
+        scene.currentPlayedCards.addCard(cardPlayed);
+        console.log("cards played", scene.currentPlayedCards);
+        //add card to last hand to beat unless a 4
+        if (cardPlayed.value !== '4') {
+            this.lastPlayedHand.addCard(cardPlayed);
+        }
     }
     /**
      * sets currently client turn
@@ -74,7 +79,17 @@ export default class GameHandler {
      * @param cardPlayed
      */
     canPlay(cardPlayed) {
-        return false;
+        if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0) {
+            return true;
+        }
+        //check if card value is higher than last card played
+        if (cardPlayed.value < this.lastPlayedHand.cards[0].value) {
+            alert("Card value not high enough to beat previous play");
+            return false;
+        }
+        //check if 2 and clear
+        //check if 4 or double and set skip
+        return true;
     }
 }
 //# sourceMappingURL=gameHandler.js.map

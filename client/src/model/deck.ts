@@ -32,4 +32,12 @@ export class Deck extends Array {
     shuffleDeck(): void{
       Phaser.Utils.Array.Shuffle(this.cards);
     }
+
+    /**
+     * 
+     * @returns number of cards in the deck
+     */
+    getNumberCards(): number{
+      return this.cards.length; 
+    }
 }

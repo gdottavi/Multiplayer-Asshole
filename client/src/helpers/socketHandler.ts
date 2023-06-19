@@ -30,7 +30,7 @@ export default class SocketHandler {
                 //
                 let newPlayer = new Player(p, "Greg" + scene.currentPlayers.numberPlayers());
 
-                scene.currentPlayers.addPlayer(newPlayer); 
+                scene.currentPlayers.addPlayer(newPlayer);
             })
 
             //set first turn

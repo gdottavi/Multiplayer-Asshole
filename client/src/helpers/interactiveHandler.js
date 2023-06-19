@@ -1,7 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Interactive functionality for card game
  */
-export default class InteractiveHandler {
+class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -28,9 +30,8 @@ export default class InteractiveHandler {
         });
         //Card Played
         scene.input.on('drop', (pointer, cardSprite, dropZone) => {
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
-                //TODO - check if card is valid to be played.
-                cardSprite.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */ && scene.GameHandler.canPlay(cardSprite.card)) {
+                cardSprite.x = (dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50);
                 cardSprite.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
                 scene.input.setDraggable(cardSprite, false);
@@ -60,4 +61,5 @@ export default class InteractiveHandler {
         });
     }
 }
+exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

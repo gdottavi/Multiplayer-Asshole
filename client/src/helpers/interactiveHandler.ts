@@ -42,9 +42,8 @@ export default class InteractiveHandler {
         //Card Played
         scene.input.on('drop', (pointer: Input.Pointer, cardSprite: CardSprite, dropZone: GameObjects.Zone) => {
 
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready) {
-                //TODO - check if card is valid to be played.
-                cardSprite.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardSprite.card)) {
+                cardSprite.x = (dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50);
                 cardSprite.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
                 scene.input.setDraggable(cardSprite, false);
