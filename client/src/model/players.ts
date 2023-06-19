@@ -13,6 +13,10 @@ export class Players extends Array {
 
     }
 
+    addPlayer(player: Player): void {
+        this.players.push(player); 
+    }
+
     numberPlayers(): number {
         return this.players.length; 
     }

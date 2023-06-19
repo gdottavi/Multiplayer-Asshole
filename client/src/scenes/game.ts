@@ -5,9 +5,9 @@ import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
-import { Card, suites, values } from "../model/card";
-import { Player } from "../model/player";
 import { Deck } from "../model/deck";
+import { Players } from "../model/players";
+import { suites, values } from "../model/card";
 
 export default class Game extends Scene {
     socket: Socket;
@@ -24,7 +24,7 @@ export default class Game extends Scene {
     outline: any; 
     resetText: GameObjects.Text;
     deck: Deck; 
-    players: Player[]; 
+    currentPlayers: Players; 
     readyText: GameObjects.Text;
 
     constructor(){
@@ -49,10 +49,10 @@ export default class Game extends Scene {
        
     
 
-    //populate needed items for game
+    //populate needed items for game - "this" is a scene of type Game
     create() {
         this.deck = new Deck(); 
-        this.players = []; 
+        this.currentPlayers = new Players(); 
         this.UIHandler = new UIHandler(this); 
         this.GameHandler = new GameHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 

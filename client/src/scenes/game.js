@@ -4,8 +4,9 @@ import SocketHandler from "../helpers/socketHandler";
 import UIHandler from "../helpers/uiHandler";
 import GameHandler from "../helpers/gameHandler";
 import DeckHandler from "../helpers/deckHandler";
-import { suites, values } from "../model/card";
 import { Deck } from "../model/deck";
+import { Players } from "../model/players";
+import { suites, values } from "../model/card";
 export default class Game extends Scene {
     constructor() {
         super({
@@ -23,10 +24,10 @@ export default class Game extends Scene {
             });
         });
     }
-    //populate needed items for game
+    //populate needed items for game - "this" is a scene of type Game
     create() {
         this.deck = new Deck();
-        this.players = [];
+        this.currentPlayers = new Players();
         this.UIHandler = new UIHandler(this);
         this.GameHandler = new GameHandler(this);
         this.InteractiveHandler = new InteractiveHandler(this);

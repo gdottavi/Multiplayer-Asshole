@@ -6,6 +6,7 @@ import { Card } from "../model/card";
 import { Player } from "../model/player";
 import { Deck } from "../model/deck";
 import CardSprite from "../model/cardSprite";
+import { Players } from "../model/players";
 
 
 
@@ -21,16 +22,13 @@ export default class GameHandler {
     isMyTurn: boolean;
     changeGameState: (gameState: any) => void;
     gameState: gameState;
-    numberPlayers: number;
     currentTurnPlayer: Player;  //ID of current player who is currently up to play
     currentPlayedCards: Deck;
-
 
     constructor(scene: Game) {
         this.gameState = gameState.Initializing;
         this.isMyTurn = false;
-        console.log("game handler constructor", scene.players)
-        this.currentTurnPlayer = scene.players[0];
+        this.currentTurnPlayer = scene.currentPlayers.players[0];
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         }
@@ -45,15 +43,15 @@ export default class GameHandler {
 
         let nextPlayerPos = 0;
         //find index of current player in active players
-        let currentPlayerPosition = scene.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
+        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
 
         //set back to first player if at end
-        if (currentPlayerPosition >= (scene.players.length - 1) || currentPlayerPosition == -1) {
+        if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
             currentPlayerPosition = 0;
         }
         else currentPlayerPosition++;
 
-        this.currentTurnPlayer = scene.players[currentPlayerPosition]
+        this.currentTurnPlayer = scene.currentPlayers.players[currentPlayerPosition]
         this.setMyTurn(scene)
 
     }
@@ -68,7 +66,7 @@ export default class GameHandler {
         if (socketId !== scene.socket.id) {
 
             //find which player played the card and remove from their hand
-            let player = scene.players.find(p => p.getId() === socketId);
+            let player = scene.currentPlayers.players.find(p => p.getId() === socketId);
             player.cardHand.filter(c => c.key !== cardPlayed.key);
             player.removeCard(cardPlayed);
 
@@ -101,7 +99,7 @@ export default class GameHandler {
     setMyTurn(scene: Game): void {
 
         if (this.currentTurnPlayer == null) {
-            this.currentTurnPlayer = scene.players[0];
+            this.currentTurnPlayer = scene.currentPlayers.players[0];
         }
 
         if (this.currentTurnPlayer.getId() === scene.socket.id) {

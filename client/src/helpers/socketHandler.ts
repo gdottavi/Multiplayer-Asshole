@@ -28,8 +28,9 @@ export default class SocketHandler {
             players.forEach((p: string) => {
                 //if player already exists with socketID delete first - TODO
                 //
-                let newPlayer = new Player(p, "Greg" + scene.players.length);
-                scene.players.push(newPlayer)
+                let newPlayer = new Player(p, "Greg" + scene.currentPlayers.numberPlayers());
+
+                scene.currentPlayers.addPlayer(newPlayer); 
             })
 
             //set first turn
@@ -37,7 +38,7 @@ export default class SocketHandler {
         })
 
         //Deal Cards
-        scene.socket.on('dealCards', (socketId: string, players: []) => {
+        scene.socket.on('dealCards', (socketId: string) => {
             scene.DeckHandler.dealCards(socketId);
             scene.dealText.disableInteractive();
         })

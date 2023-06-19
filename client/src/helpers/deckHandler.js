@@ -39,8 +39,8 @@ class DeckHandler {
             let playerIndex = 0;
             for (let i = 0; i < 52; i++) {
                 let card = scene.deck.cards[i];
-                scene.players[playerIndex].cardHand.push(card);
-                if (playerIndex < scene.players.length - 1) {
+                scene.currentPlayers.players[playerIndex].cardHand.push(card);
+                if (playerIndex < scene.currentPlayers.numberPlayers() - 1) {
                     playerIndex++;
                 }
                 else {
@@ -53,7 +53,7 @@ class DeckHandler {
          */
         this.displayCards = () => {
             let opponentPos = 0;
-            scene.players.forEach(player => {
+            scene.currentPlayers.players.forEach(player => {
                 if (scene.socket.id !== player.socketId) {
                     opponentPos++;
                 }

@@ -5,6 +5,9 @@ export class Players extends Array {
     }
     removePlayer() {
     }
+    addPlayer(player) {
+        this.players.push(player);
+    }
     numberPlayers() {
         return this.players.length;
     }

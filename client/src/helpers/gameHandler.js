@@ -4,8 +4,7 @@ export default class GameHandler {
     constructor(scene) {
         this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
-        console.log("game handler constructor", scene.players);
-        this.currentTurnPlayer = scene.players[0];
+        this.currentTurnPlayer = scene.currentPlayers.players[0];
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         };
@@ -18,14 +17,14 @@ export default class GameHandler {
     changeTurn(scene) {
         let nextPlayerPos = 0;
         //find index of current player in active players
-        let currentPlayerPosition = scene.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
+        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
         //set back to first player if at end
-        if (currentPlayerPosition >= (scene.players.length - 1) || currentPlayerPosition == -1) {
+        if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
             currentPlayerPosition = 0;
         }
         else
             currentPlayerPosition++;
-        this.currentTurnPlayer = scene.players[currentPlayerPosition];
+        this.currentTurnPlayer = scene.currentPlayers.players[currentPlayerPosition];
         this.setMyTurn(scene);
     }
     /**
@@ -37,7 +36,7 @@ export default class GameHandler {
     playCard(socketId, scene, cardPlayed) {
         if (socketId !== scene.socket.id) {
             //find which player played the card and remove from their hand
-            let player = scene.players.find(p => p.getId() === socketId);
+            let player = scene.currentPlayers.players.find(p => p.getId() === socketId);
             player.cardHand.filter(c => c.key !== cardPlayed.key);
             player.removeCard(cardPlayed);
             //find sprite associated with the card played and remove it
@@ -61,7 +60,7 @@ export default class GameHandler {
      */
     setMyTurn(scene) {
         if (this.currentTurnPlayer == null) {
-            this.currentTurnPlayer = scene.players[0];
+            this.currentTurnPlayer = scene.currentPlayers.players[0];
         }
         if (this.currentTurnPlayer.getId() === scene.socket.id) {
             this.isMyTurn = true;
