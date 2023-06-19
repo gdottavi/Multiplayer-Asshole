@@ -1,13 +1,16 @@
-export var themeColors;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.themeColors = void 0;
+var themeColors;
 (function (themeColors) {
     themeColors[themeColors["black"] = 0] = "black";
     themeColors["teal"] = "#00ffff";
     themeColors["magenta"] = "#ff69b4";
-})(themeColors || (themeColors = {}));
+})(themeColors || (exports.themeColors = themeColors = {}));
 /**
  * Basic layout and UI for game
  */
-export default class UIHandler {
+class UIHandler {
     constructor(scene) {
         //Create drop zone for cards
         scene.dropZone = scene.add.zone(700, 375, 900, 250).setRectangleDropZone(900, 250);
@@ -37,4 +40,5 @@ export default class UIHandler {
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff');
     }
 }
+exports.default = UIHandler;
 //# sourceMappingURL=uiHandler.js.map

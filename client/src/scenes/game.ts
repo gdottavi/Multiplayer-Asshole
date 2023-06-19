@@ -26,7 +26,6 @@ export default class Game extends Scene {
     deck: Deck; 
     players: Player[]; 
     readyText: GameObjects.Text;
-    currentCardsPlayed: Deck;
 
     constructor(){
         super({

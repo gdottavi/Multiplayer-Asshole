@@ -60,30 +60,12 @@ export default class SocketHandler {
          * Card Played - show on all clients and remove cards from hand
          */
         scene.socket.on('cardPlayed', (cardPlayed: Card, socketId: string) => {
-
-            //only perform on clients that did not play the card
-            if (socketId !== scene.socket.id) {
-
-                //find which player played the card and remove from their hand
-                let player = scene.players.find(p => p.getId() === socketId);
-                player.cardHand.filter(c => c.key !== cardPlayed.key)
-                player.removeCard(cardPlayed);
-                //find sprite associated with the card played and remove it
-                let spriteToDestroy = scene.children.list.find(obj => {
-                    if (obj instanceof CardSprite) {
-                        return obj?.card?.key === cardPlayed.key
-                    }
-                })
-                spriteToDestroy.destroy(true);
-
-                //show card played in middle for everyone
-                scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15,
-                    cardPlayed.FrontImageSprite, false);
-
-                scene.dropZone.data.values.cards++;
-            }
+            scene.GameHandler.playCard(socketId, scene, cardPlayed);
         })
 
 
     }
+
+
+
 }

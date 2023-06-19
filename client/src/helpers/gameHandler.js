@@ -1,3 +1,5 @@
+import { Deck } from "../model/deck";
+import CardSprite from "../model/cardSprite";
 export default class GameHandler {
     constructor(scene) {
         this.gameState = "Initializing" /* gameState.Initializing */;
@@ -7,6 +9,7 @@ export default class GameHandler {
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         };
+        this.currentPlayedCards = new Deck();
     }
     /**
      * Advances turn to next eligible player
@@ -26,6 +29,33 @@ export default class GameHandler {
         this.setMyTurn(scene);
     }
     /**
+     *
+     * @param socketId
+     * @param scene
+     * @param cardPlayed
+     */
+    playCard(socketId, scene, cardPlayed) {
+        if (socketId !== scene.socket.id) {
+            //find which player played the card and remove from their hand
+            let player = scene.players.find(p => p.getId() === socketId);
+            player.cardHand.filter(c => c.key !== cardPlayed.key);
+            player.removeCard(cardPlayed);
+            //find sprite associated with the card played and remove it
+            let spriteToDestroy = scene.children.list.find(obj => {
+                var _a;
+                if (obj instanceof CardSprite) {
+                    return ((_a = obj === null || obj === void 0 ? void 0 : obj.card) === null || _a === void 0 ? void 0 : _a.key) === cardPlayed.key;
+                }
+            });
+            spriteToDestroy.destroy(true);
+            //show card played in middle for everyone
+            scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.dropZone.data.values.cards * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
+        }
+        //add cards to cards played array
+        this.currentPlayedCards.addCard(cardPlayed);
+        console.log("cards played", this.currentPlayedCards);
+    }
+    /**
      * sets currently client turn
      * @param scene
      */
@@ -39,6 +69,13 @@ export default class GameHandler {
         else {
             this.isMyTurn = false;
         }
+    }
+    /**
+     * Determines if a card played is valid and beats existing cards on table
+     * @param cardPlayed
+     */
+    canPlay(cardPlayed) {
+        return false;
     }
 }
 //# sourceMappingURL=gameHandler.js.map

@@ -1,12 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Players = void 0;
-class Players {
+export class Players extends Array {
     constructor() {
+        super();
         this.players = [];
     }
     removePlayer() {
     }
+    numberPlayers() {
+        return this.players.length;
+    }
 }
-exports.Players = Players;
 //# sourceMappingURL=players.js.map

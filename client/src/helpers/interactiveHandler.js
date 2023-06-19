@@ -29,11 +29,11 @@ export default class InteractiveHandler {
         //Card Played
         scene.input.on('drop', (pointer, cardSprite, dropZone) => {
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
+                //TODO - check if card is valid to be played.
                 cardSprite.x = (dropZone.x - 350) + (dropZone.data.values.cards * 50);
                 cardSprite.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
                 scene.input.setDraggable(cardSprite, false);
-                console.log('dropped ', cardSprite.card);
                 scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
             }
             else {
@@ -41,6 +41,9 @@ export default class InteractiveHandler {
                 cardSprite.y = cardSprite.input.dragStartY;
             }
         });
+        this.setupMenuOptions(scene);
+    }
+    setupMenuOptions(scene) {
         //hover for deal text
         scene.dealText.on('pointerover', () => {
             scene.dealText.setColor('#ff69b4');

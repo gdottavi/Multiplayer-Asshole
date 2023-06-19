@@ -1,14 +1,19 @@
 import { Player } from "./player";
 
-export class Players {
-    
+export class Players extends Array {
+
     players: Player[]
-  
+
     constructor() {
-      this.players = [];
+        super();
+        this.players = [];
     }
 
-    removePlayer(){
-        
+    removePlayer() {
+
+    }
+
+    numberPlayers(): number {
+        return this.players.length; 
     }
 }
