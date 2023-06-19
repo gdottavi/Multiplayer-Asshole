@@ -34,6 +34,9 @@ class Deck extends Array {
     getNumberCards() {
         return this.cards.length;
     }
+    clearDeck() {
+        this.cards = [];
+    }
 }
 exports.Deck = Deck;
 //# sourceMappingURL=deck.js.map

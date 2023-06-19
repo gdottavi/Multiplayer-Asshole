@@ -40,4 +40,8 @@ export class Deck extends Array {
     getNumberCards(): number{
       return this.cards.length; 
     }
+
+    clearDeck(): void {
+      this.cards = []; 
+    }
 }

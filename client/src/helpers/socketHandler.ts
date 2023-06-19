@@ -44,8 +44,8 @@ export default class SocketHandler {
         })
 
         //Advance Turn
-        scene.socket.on('changeTurn', () => {
-            scene.GameHandler.changeTurn(scene);
+        scene.socket.on('changeTurn', (cardPlayed: Card) => {
+            scene.GameHandler.changeTurn(scene, cardPlayed);
         })
 
         //Change Game State

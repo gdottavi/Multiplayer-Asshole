@@ -35,7 +35,7 @@ io.on('connection', function (socket) {
     socket.on('cardPlayed', (cardPlayed, socketId) => {
         console.log("card played", cardPlayed);
         io.emit('cardPlayed', cardPlayed, socketId);
-        io.emit('changeTurn');
+        io.emit('changeTurn', cardPlayed);
     });
     //remove players as they disconnect
     socket.on('disconnect', function () {

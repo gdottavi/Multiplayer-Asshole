@@ -32,8 +32,8 @@ class SocketHandler {
             scene.dealText.disableInteractive();
         });
         //Advance Turn
-        scene.socket.on('changeTurn', () => {
-            scene.GameHandler.changeTurn(scene);
+        scene.socket.on('changeTurn', (cardPlayed) => {
+            scene.GameHandler.changeTurn(scene, cardPlayed);
         });
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {

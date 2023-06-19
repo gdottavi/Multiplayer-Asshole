@@ -6,6 +6,7 @@ import { Card } from "../model/card";
 import { Player } from "../model/player";
 import { Deck } from "../model/deck";
 import CardSprite from "../model/cardSprite";
+import { Scene } from "phaser";
 
 
 export const enum gameState {
@@ -36,7 +37,10 @@ export default class GameHandler {
      * Advances turn to next eligible player
      * @param scene 
      */
-    changeTurn(scene: Game): void {
+    changeTurn(scene: Game, cardPlayed: Card): void {
+
+        //do not advance turn on a 2 played
+        if(cardPlayed.value == '2') return; 
 
         let nextPlayerPos = 0;
         //find index of current player in active players
@@ -46,6 +50,7 @@ export default class GameHandler {
         if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
             currentPlayerPosition = 0;
         }
+
         else currentPlayerPosition++;
 
         this.currentTurnPlayer = scene.currentPlayers.players[currentPlayerPosition]
@@ -66,17 +71,11 @@ export default class GameHandler {
         if (socketId !== scene.socket.id) {
 
             //find which player played the card and remove from their hand
-            let player = scene.currentPlayers.players.find(p => p.getId() === socketId);
-            player.cardHand.filter(c => c.key !== cardPlayed.key);
+            let player = scene.currentPlayers.getPlayerById(socketId); 
             player.removeCard(cardPlayed);
 
             //find sprite associated with the card played and remove it
-            let spriteToDestroy = scene.children.list.find(obj => {
-                if (obj instanceof CardSprite) {
-                    return obj?.card?.key === cardPlayed.key;
-                }
-            });
-            spriteToDestroy.destroy(true);
+            this.removeSprite(scene, cardPlayed);
 
             //show card played in middle for everyone
             console.log(scene.currentPlayedCards.getNumberCards())
@@ -88,10 +87,14 @@ export default class GameHandler {
 
         //add cards to all cards played
         scene.currentPlayedCards.addCard(cardPlayed)
-        console.log("cards played", scene.currentPlayedCards)
         //add card to last hand to beat unless a 4
         if(cardPlayed.value !== '4'){
             this.lastPlayedHand.addCard(cardPlayed); 
+        }
+
+        //clear cards when a 2 is played
+        if(cardPlayed.value === '2'){
+            this.clearCards(scene); 
         }
 
     }
@@ -122,10 +125,11 @@ export default class GameHandler {
      */
     canPlay(cardPlayed: Card): boolean {
 
+        //first card played
         if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0 ){return true; }
 
         //check if card value is higher than last card played
-        if(cardPlayed.value < this.lastPlayedHand.cards[0].value){
+        if(cardPlayed.rank < this.lastPlayedHand.cards[0].rank){
             alert("Card value not high enough to beat previous play"); 
             return false; 
         }
@@ -136,6 +140,41 @@ export default class GameHandler {
 
         return true;
     }
+
+    /**
+     * Clear cards played
+     * @param scene 
+     */
+    clearCards(scene: Game): void {
+        
+        console.log('clear cards', scene.currentPlayedCards.cards); 
+        scene.currentPlayedCards.cards.forEach(card => {
+            console.log("card to remove", card)
+            this.removeSprite(scene, card);
+            
+        })
+
+        scene.currentPlayedCards.clearDeck(); 
+    }
+
+
+    /**
+     * Find and remove sprite associated with a given card
+     * @param scene 
+     * @param card 
+     */
+    removeSprite(scene: Game, card: Card): void
+    {
+
+        let spriteToDestroy = scene.children.list.find(obj => {
+            if (obj instanceof CardSprite) {
+                return obj?.card?.key === card.key;
+            }
+        });
+        //TODO move sprint off of page instead of just deleting
+        spriteToDestroy.destroy(true); 
+    }
+
 
 
 }
