@@ -5,15 +5,13 @@
         "target": "ES2015",
         "moduleResolution": "node",
         "sourceMap": true,
+        "outDir": "dist",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true
     },
     "lib": [
         "es2015"
     ],
-    "include": [
-        "**/*.ts"
-       ],
     "files": [
         "server.ts"
     ]

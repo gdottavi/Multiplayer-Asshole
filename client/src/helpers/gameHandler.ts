@@ -88,7 +88,7 @@ export default class GameHandler {
 
             //show card played in middle for everyone
             scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.15,
-                cardPlayed.FrontImageSprite, false);
+                cardPlayed.frontImageSprite, false);
 
 
         }

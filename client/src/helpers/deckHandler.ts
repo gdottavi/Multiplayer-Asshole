@@ -77,10 +77,10 @@ export default class DeckHandler {
                     let currentCard = player.cardHand[i]; 
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(scene,currentCard, 100 + (i * 45), 650, 0.1, currentCard.FrontImageSprite, true)
+                        this.renderCard(scene,currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)
                     }
                     else {
-                        this.renderCard(scene,currentCard,100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.BackImageSprite, false)
+                        this.renderCard(scene,currentCard,100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.backImageSprite, false)
                     }
                 }
             })
@@ -95,8 +95,12 @@ export default class DeckHandler {
         /**
          * Displays card at specified location
          */
-        this.renderCard = (scene,card, x, y, scale, image_key, interactive) => {
+        this.renderCard = (scene: Game, card, x, y, scale, image_key, interactive) => {
             let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale); 
+
+            if(interactive){
+                //scene.InteractiveHandler.setMultipleSelectDrag(cardSprite)
+            }
             if(interactive) cardSprite.setInteractive(); 
             if(interactive) scene.input.setDraggable(cardSprite); 
             

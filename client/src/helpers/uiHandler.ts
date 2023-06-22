@@ -38,7 +38,7 @@ export default class UIHandler {
         //menu options for game
         //TODO - don't allow dealing until ready is pushed
         scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-        scene.dealText = scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
+        scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff')
         scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
         //TODO - don't allow clicking play until cards are selected 

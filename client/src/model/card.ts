@@ -5,8 +5,8 @@ export const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', '
 export class Card {
     value: string;
     suite: string;
-    FrontImageSprite: string;
-    BackImageSprite: string;
+    frontImageSprite: string;
+    backImageSprite: string;
     readonly key: string;
     readonly rank: number
 
@@ -14,8 +14,8 @@ export class Card {
         this.value = value;
         this.suite = suite;
         this.key = suite + value;
-        this.FrontImageSprite = suite + value;
-        this.BackImageSprite = 'CardBack';
+        this.frontImageSprite = suite + value;
+        this.backImageSprite = 'CardBack';
         this.rank = this.setRank(value); 
     }
 

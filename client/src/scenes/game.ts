@@ -8,6 +8,7 @@ import {Socket} from "socket.io-client" ;
 import { Deck } from "../model/deck";
 import { Players } from "../model/players";
 import { suites, values } from "../model/card";
+import CardSprite from "../model/cardSprite";
 
 export default class Game extends Scene {
     socket: Socket;
@@ -69,6 +70,6 @@ export default class Game extends Scene {
 
     //make updates to game
     update() {
-
+        
     }
 }

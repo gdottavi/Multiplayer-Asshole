@@ -1,4 +1,3 @@
-import { GameObjects } from "phaser";
 import { Server } from "socket.io";
 import {createServer} from 'http'; 
 import express from 'express'
@@ -21,11 +20,11 @@ const io = new Server(http, {
 })
 
 io.on('connection', function(socket){
-    console.log('An idiot connected: ' + socket.id);
+    console.log('A idiot connected: ' + socket.id);
 
     players.push(socket.id); 
 
-    //ready to play
+    //ready to play the game
     socket.on('ready', () => {
         io.emit('ready', players); 
     })

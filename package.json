@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon dist/server.js"
   },
   "dependencies": {
     "@babel/core": "^7.22.1",
