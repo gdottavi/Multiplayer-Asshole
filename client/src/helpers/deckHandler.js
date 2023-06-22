@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = require("../model/card");
-const cardSprite_1 = __importDefault(require("../model/cardSprite"));
+import { Card, suites, values } from "../model/card";
+import CardSprite from "../model/cardSprite";
 /**
  * Handles dealing cards to start game
  */
-class DeckHandler {
+export default class DeckHandler {
     constructor(scene) {
         /**
     * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
@@ -16,15 +11,14 @@ class DeckHandler {
         this.dealCards = () => {
             this.createDeck();
             this.shuffleDeck();
-            console.log(scene.deck.cards);
             this.createHands();
             this.displayCards();
         };
         //create deck
         this.createDeck = () => {
-            card_1.suites.forEach(suite => {
-                card_1.values.forEach(value => {
-                    let card = new card_1.Card(suite, value);
+            suites.forEach(suite => {
+                values.forEach(value => {
+                    let card = new Card(suite, value);
                     scene.deck.addCard(card);
                 });
             });
@@ -77,7 +71,7 @@ class DeckHandler {
          * Displays card at specified location
          */
         this.renderCard = (scene, card, x, y, scale, image_key, interactive) => {
-            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale);
+            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale);
             if (interactive)
                 cardSprite.setInteractive();
             if (interactive)
@@ -85,5 +79,4 @@ class DeckHandler {
         };
     }
 }
-exports.default = DeckHandler;
 //# sourceMappingURL=deckHandler.js.map

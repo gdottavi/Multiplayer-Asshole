@@ -3,9 +3,8 @@ import { Server } from "socket.io";
 import {createServer} from 'http'; 
 import express from 'express'
 import { Player } from "./client/src/model/player";
-import { Players } from "./client/src/model/players";
 import { Card } from "./client/src/model/card";
-import CardSprite from "./client/src/model/cardSprite";
+
 
 
 const server = express(); 
@@ -32,9 +31,8 @@ io.on('connection', function(socket){
     })
 
     //cards dealt
-    socket.on('dealCards', (Currentplayers: Player[]) => {
-        console.log("dealcards",Currentplayers);
-        io.emit('dealCards', Currentplayers);
+    socket.on('dealCards', (currentPlayers: Player[]) => {
+        io.emit('dealCards', currentPlayers);
         gameState = "Ready";
         io.emit('changeGameState',"Ready");
     })
@@ -54,6 +52,7 @@ io.on('connection', function(socket){
     socket.on('disconnect', function(){
         console.log('An idiot disconnected: ' + socket.id); 
         players = players.filter(player => player !== socket.id)
+        //TODO - remove player from other clients
     })
 })
 

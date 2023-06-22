@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Players = void 0;
-class Players extends Array {
+const player_1 = require("./player");
+class Players {
     constructor() {
-        super();
         this.players = [];
     }
-    removePlayer() {
+    removePlayer(socketId) {
+        this.players = this.players.filter(player => player.socketId !== socketId);
     }
     addPlayer(player) {
         this.players.push(player);
@@ -20,7 +21,7 @@ class Players extends Array {
      * @returns - player with socket ID
      */
     getPlayerById(socketId) {
-        return this.players.find(p => p.getId() === socketId);
+        return this.players.find(p => p.socketId === socketId);
     }
     /**
      * Resets all players in game
@@ -28,7 +29,13 @@ class Players extends Array {
      */
     setPlayers(newPlayers) {
         this.players = [];
-        this.players = newPlayers;
+        newPlayers.forEach(p => {
+            let newPlayer = new player_1.Player(p.socketId, p.name);
+            newPlayer.cardHand = p.cardHand;
+            newPlayer.isTurn = p.isTurn;
+            newPlayer.inGame = p.inGame;
+            this.addPlayer(newPlayer);
+        });
     }
 }
 exports.Players = Players;

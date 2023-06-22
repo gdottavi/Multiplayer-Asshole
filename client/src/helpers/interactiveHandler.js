@@ -1,18 +1,12 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const cardSprite_1 = __importDefault(require("../model/cardSprite"));
+import CardSprite from "../model/cardSprite";
 /**
  * Interactive functionality for card game
  */
-class InteractiveHandler {
+export default class InteractiveHandler {
     constructor(scene) {
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
             scene.DeckHandler.dealCards();
-            console.log("clicked deal", scene.currentPlayers);
             scene.socket.emit('dealCards', scene.currentPlayers.players);
         });
         //ready on click
@@ -43,7 +37,7 @@ class InteractiveHandler {
         //Handle selecting cards to play
         scene.input.on('gameobjectup', (pointer, gameObject) => {
             //only applies to cards clicked
-            if (gameObject instanceof cardSprite_1.default) {
+            if (gameObject instanceof CardSprite) {
                 //only applies to cards clicked for current player
                 if (!gameObject.selected) {
                     gameObject.setTint(0xff69b4);
@@ -62,15 +56,27 @@ class InteractiveHandler {
         //play cards on click
         scene.playCardsText.on('pointerdown', () => {
             let cardsToPlay = scene.GameHandler.queuedCardsToPlay;
+            if (!scene.GameHandler.isMyTurn) {
+                alert("It's not your turn idiot");
+                return;
+            }
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */ && scene.GameHandler.canPlay(cardsToPlay)) {
                 cardsToPlay.cards.forEach(card => {
+                    //move the sprite to the middle
                     let cardSprite = scene.GameHandler.findSprite(scene, card);
                     cardSprite.x = (350) + (scene.currentPlayedCards.getNumberCards() * 50);
                     cardSprite.y = 375;
+                    //set properties on card in the middle
+                    cardSprite.disableInteractive();
+                    cardSprite.setTint();
+                    //set played cards
+                    scene.currentPlayedCards.addCard(card);
+                    //TODO set players remaining cards
+                    let currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
+                    currentPlayer.removeCard(card);
+                    //TODO let other clients know the cards that were played
+                    scene.socket.emit('cardPlayed', card, scene.socket.id);
                 });
-                //scene.dropZone.data.values.cards++;
-                //scene.input.setDraggable(cardSprite, false);
-                //scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
             }
             else {
                 alert("Unable to play these cards");
@@ -81,7 +87,6 @@ class InteractiveHandler {
             if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === "Ready" /* gameState.Ready */) {
                 cardSprite.x = (dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50);
                 cardSprite.y = dropZone.y;
-                scene.dropZone.data.values.cards++;
                 scene.input.setDraggable(cardSprite, false);
                 scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
             }
@@ -124,5 +129,4 @@ class InteractiveHandler {
         scene.physics.moveTo(card, 0, 375, 500);
     }
 }
-exports.default = InteractiveHandler;
 //# sourceMappingURL=interactiveHandler.js.map

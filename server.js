@@ -25,9 +25,8 @@ io.on('connection', function (socket) {
         io.emit('ready', players);
     });
     //cards dealt
-    socket.on('dealCards', (Currentplayers) => {
-        console.log("dealcards", Currentplayers);
-        io.emit('dealCards', Currentplayers);
+    socket.on('dealCards', (currentPlayers) => {
+        io.emit('dealCards', currentPlayers);
         gameState = "Ready";
         io.emit('changeGameState', "Ready");
     });
@@ -44,6 +43,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('An idiot disconnected: ' + socket.id);
         players = players.filter(player => player !== socket.id);
+        //TODO - remove player from other clients
     });
 });
 http.listen(PORT, () => {

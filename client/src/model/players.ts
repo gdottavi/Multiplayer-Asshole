@@ -1,17 +1,17 @@
 import { Player } from "./player";
 
-export class Players extends Array {
+export class Players {
 
     players: Player[]
 
     constructor() {
-        super();
         this.players = [];
     }
 
-    removePlayer() {
-
-    }
+    removePlayer(socketId: string): void {
+        this.players = this.players.filter(player => player.socketId !== socketId);
+      }
+      
 
     addPlayer(player: Player): void {
         this.players.push(player); 
@@ -26,8 +26,8 @@ export class Players extends Array {
      * @param socketId - socket ID of player 
      * @returns - player with socket ID
      */
-    getPlayerById(socketId: string){
-        return this.players.find(p => p.getId() === socketId )
+    getPlayerById(socketId: string): Player{
+        return this.players.find(p => p.socketId === socketId )
     }
 
     /**
@@ -36,6 +36,13 @@ export class Players extends Array {
      */
     setPlayers(newPlayers: Player[]): void{
         this.players = []
-        this.players = newPlayers; 
+        newPlayers.forEach(p => {
+            let newPlayer = new Player(p.socketId, p.name)
+            newPlayer.cardHand = p.cardHand
+            newPlayer.isTurn = p.isTurn
+            newPlayer.inGame = p.inGame
+
+            this.addPlayer(newPlayer); 
+        })
     }
 }

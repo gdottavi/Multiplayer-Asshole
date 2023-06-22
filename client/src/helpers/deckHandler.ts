@@ -28,7 +28,6 @@ export default class DeckHandler {
         this.dealCards = () => {
             this.createDeck();
             this.shuffleDeck();
-            console.log(scene.deck.cards); 
             this.createHands();
             this.displayCards();
         }

@@ -40,11 +40,6 @@ export default class SocketHandler {
 
         //Deal Cards
         scene.socket.on('dealCards', (players: Player[]) => {
-            //scene.DeckHandler.createDeck(); 
-            //scene.DeckHandler.shuffleDeck(); 
-            //scene.DeckHandler.dealCards(socketId);
-            //TODO - send all the hand (scene.players info to all clients)
-            console.log("socket on",players);
             scene.currentPlayers.setPlayers(players);  //set players with data on all clients
             scene.DeckHandler.displayCards(); 
             scene.dealText.disableInteractive();

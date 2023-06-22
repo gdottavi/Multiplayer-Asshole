@@ -1,5 +1,6 @@
 import {Card} from "./card";
 
+//TODO - Change to factory style class
 
 export class Player{
     name: string;
@@ -11,28 +12,28 @@ export class Player{
     inGame: boolean;
     isTurn: boolean; 
 
-    constructor(socketId: string, name: string ){
+
+    public constructor(socketId: string, name: string ){
         this.name = name; 
         this.socketId = socketId;
         this.cardHand = []; 
         this.inGame = true; 
         this.isTurn = false; 
-    }
+    };
+
+
 
     getName(): string {
         return this.name;
-    }
-
-    getId(): string {
-        return this.socketId;
     }
 
     addCard(card: Card): void{
         this.cardHand.push(card)
     }
 
-    removeCard(card: Card): void{
-        this.cardHand.filter(c => c.key !== card.key)
+    removeCard(card: Card): void {
+        this.cardHand = this.cardHand.filter(c => c.key !== card.key);
     }
+    
 
 }

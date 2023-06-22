@@ -48,7 +48,7 @@ export default class GameHandler {
         if(cardPlayed.value == '2') return; 
 
         //find index of current player in active players
-        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
+        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
 
         //set back to first player if at end
         let nextPlayerPosition = 0; 
@@ -73,7 +73,7 @@ export default class GameHandler {
      * @param scene 
      * @param cardPlayed 
      */
-    playCard(socketId: string, scene: Game, cardPlayed: Card): void {
+   playCard(socketId: string, scene: Game, cardPlayed: Card): void {
 
         this.lastPlayedHand = new Deck(); 
 
@@ -119,7 +119,7 @@ export default class GameHandler {
             this.currentTurnPlayer = scene.currentPlayers.players[0];
         }
 
-        if (this.currentTurnPlayer.getId() === scene.socket.id) {
+        if (this.currentTurnPlayer.socketId === scene.socket.id) {
             this.isMyTurn = true;
         }
         else {
@@ -155,9 +155,8 @@ export default class GameHandler {
      */
     clearCards(scene: Game): void {
         
-        console.log('clear cards', scene.currentPlayedCards.cards); 
         scene.currentPlayedCards.cards.forEach(card => {
-            console.log("card to remove", card)
+
             //this.removeSprite(scene, card);
             scene.InteractiveHandler.moveCard(scene,this.findSprite(scene,card))
             

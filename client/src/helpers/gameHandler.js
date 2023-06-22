@@ -1,16 +1,11 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const deck_1 = require("../model/deck");
-const cardSprite_1 = __importDefault(require("../model/cardSprite"));
-class GameHandler {
+import { Deck } from "../model/deck";
+import CardSprite from "../model/cardSprite";
+export default class GameHandler {
     constructor(scene) {
         this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
-        this.queuedCardsToPlay = new deck_1.Deck();
+        this.queuedCardsToPlay = new Deck();
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         };
@@ -24,7 +19,7 @@ class GameHandler {
         if (cardPlayed.value == '2')
             return;
         //find index of current player in active players
-        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
+        let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
         //set back to first player if at end
         let nextPlayerPosition = 0;
         if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
@@ -46,7 +41,7 @@ class GameHandler {
      * @param cardPlayed
      */
     playCard(socketId, scene, cardPlayed) {
-        this.lastPlayedHand = new deck_1.Deck();
+        this.lastPlayedHand = new Deck();
         if (socketId !== scene.socket.id) {
             //find which player played the card and remove from their hand
             let player = scene.currentPlayers.getPlayerById(socketId);
@@ -75,7 +70,7 @@ class GameHandler {
         if (this.currentTurnPlayer == null) {
             this.currentTurnPlayer = scene.currentPlayers.players[0];
         }
-        if (this.currentTurnPlayer.getId() === scene.socket.id) {
+        if (this.currentTurnPlayer.socketId === scene.socket.id) {
             this.isMyTurn = true;
         }
         else {
@@ -104,9 +99,7 @@ class GameHandler {
      * @param scene
      */
     clearCards(scene) {
-        console.log('clear cards', scene.currentPlayedCards.cards);
         scene.currentPlayedCards.cards.forEach(card => {
-            console.log("card to remove", card);
             //this.removeSprite(scene, card);
             scene.InteractiveHandler.moveCard(scene, this.findSprite(scene, card));
         });
@@ -129,16 +122,15 @@ class GameHandler {
     findSprite(scene, card) {
         let sprite = scene.children.list.find(obj => {
             var _a;
-            if (obj instanceof cardSprite_1.default) {
+            if (obj instanceof CardSprite) {
                 return ((_a = obj === null || obj === void 0 ? void 0 : obj.card) === null || _a === void 0 ? void 0 : _a.key) === card.key;
             }
         });
-        if (sprite instanceof cardSprite_1.default) {
+        if (sprite instanceof CardSprite) {
             return sprite;
         }
         else
             return null;
     }
 }
-exports.default = GameHandler;
 //# sourceMappingURL=gameHandler.js.map
