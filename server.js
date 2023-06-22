@@ -25,17 +25,20 @@ io.on('connection', function (socket) {
         io.emit('ready', players);
     });
     //cards dealt
-    socket.on('dealCards', (socketId) => {
-        console.log(players);
-        io.emit('dealCards', socketId);
+    socket.on('dealCards', (Currentplayers) => {
+        console.log("dealcards", Currentplayers);
+        io.emit('dealCards', Currentplayers);
         gameState = "Ready";
         io.emit('changeGameState', "Ready");
     });
     //card played
     socket.on('cardPlayed', (cardPlayed, socketId) => {
-        console.log("card played", cardPlayed);
         io.emit('cardPlayed', cardPlayed, socketId);
         io.emit('changeTurn', cardPlayed);
+    });
+    //pass turn
+    socket.on('passTurn', () => {
+        io.emit('passTurn');
     });
     //remove players as they disconnect
     socket.on('disconnect', function () {

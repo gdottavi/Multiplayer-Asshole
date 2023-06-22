@@ -6,7 +6,7 @@ import { Card } from "../model/card";
 import { Player } from "../model/player";
 import { Deck } from "../model/deck";
 import CardSprite from "../model/cardSprite";
-import { Scene } from "phaser";
+import { Physics, Scene } from "phaser";
 
 
 export const enum gameState {
@@ -23,14 +23,19 @@ export default class GameHandler {
     gameState: gameState;
     currentTurnPlayer: Player;  //ID of current player who is currently up to play
     lastPlayedHand: Deck; 
+    queuedCardsToPlay: Deck; 
 
     constructor(scene: Game) {
         this.gameState = gameState.Initializing;
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
+        this.queuedCardsToPlay = new Deck(); 
+
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         }
+
+        
     }
 
     /**
@@ -42,19 +47,23 @@ export default class GameHandler {
         //do not advance turn on a 2 played
         if(cardPlayed.value == '2') return; 
 
-        let nextPlayerPos = 0;
         //find index of current player in active players
         let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
 
         //set back to first player if at end
+        let nextPlayerPosition = 0; 
         if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
-            currentPlayerPosition = 0;
+            nextPlayerPosition = 0;
         }
 
-        else currentPlayerPosition++;
+        //advance to next player
+        else nextPlayerPosition++;
 
-        this.currentTurnPlayer = scene.currentPlayers.players[currentPlayerPosition]
+        this.currentTurnPlayer = scene.currentPlayers.players[nextPlayerPosition]
         this.setMyTurn(scene)
+
+        //if turn advanced back to original player clear the cards
+        if(nextPlayerPosition === currentPlayerPosition) this.clearCards(scene); 
 
     }
 
@@ -78,7 +87,6 @@ export default class GameHandler {
             this.removeSprite(scene, cardPlayed);
 
             //show card played in middle for everyone
-            console.log(scene.currentPlayedCards.getNumberCards())
             scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.15,
                 cardPlayed.FrontImageSprite, false);
 
@@ -102,7 +110,7 @@ export default class GameHandler {
 
 
     /**
-     * sets currently client turn
+     * sets if current player is up or not to play
      * @param scene 
      */
     setMyTurn(scene: Game): void {
@@ -123,16 +131,16 @@ export default class GameHandler {
      * Determines if a card played is valid and beats existing cards on table
      * @param cardPlayed 
      */
-    canPlay(cardPlayed: Card): boolean {
+    canPlay(cardPlayed: Deck): boolean {
 
-        //first card played
+ /*        //first card played
         if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0 ){return true; }
 
         //check if card value is higher than last card played
         if(cardPlayed.rank < this.lastPlayedHand.cards[0].rank){
             alert("Card value not high enough to beat previous play"); 
             return false; 
-        }
+        } */
 
         //check if 2 and clear
 
@@ -150,7 +158,8 @@ export default class GameHandler {
         console.log('clear cards', scene.currentPlayedCards.cards); 
         scene.currentPlayedCards.cards.forEach(card => {
             console.log("card to remove", card)
-            this.removeSprite(scene, card);
+            //this.removeSprite(scene, card);
+            scene.InteractiveHandler.moveCard(scene,this.findSprite(scene,card))
             
         })
 
@@ -165,16 +174,27 @@ export default class GameHandler {
      */
     removeSprite(scene: Game, card: Card): void
     {
-
-        let spriteToDestroy = scene.children.list.find(obj => {
-            if (obj instanceof CardSprite) {
-                return obj?.card?.key === card.key;
-            }
-        });
-        //TODO move sprint off of page instead of just deleting
-        spriteToDestroy.destroy(true); 
+        this.findSprite(scene, card).destroy(true); 
     }
 
+    /**
+     * Find sprite associated with a given card object in the scene
+     * @param scene 
+     * @param card 
+     * @returns card sprite associated with card
+     */
+    findSprite(scene: Game, card: Card): CardSprite {
+
+        let sprite = scene.children.list.find(obj => {
+            if(obj instanceof CardSprite){
+                return obj?.card?.key === card.key;
+            }
+        })
+
+        if(sprite instanceof CardSprite){ return sprite}
+        else return null; 
+    }
+   
 
 
 }

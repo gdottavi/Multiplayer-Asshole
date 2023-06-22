@@ -10,6 +10,7 @@ class GameHandler {
         this.gameState = "Initializing" /* gameState.Initializing */;
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
+        this.queuedCardsToPlay = new deck_1.Deck();
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         };
@@ -22,17 +23,21 @@ class GameHandler {
         //do not advance turn on a 2 played
         if (cardPlayed.value == '2')
             return;
-        let nextPlayerPos = 0;
         //find index of current player in active players
         let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.getId() === this.currentTurnPlayer.getId());
         //set back to first player if at end
+        let nextPlayerPosition = 0;
         if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
-            currentPlayerPosition = 0;
+            nextPlayerPosition = 0;
         }
+        //advance to next player
         else
-            currentPlayerPosition++;
-        this.currentTurnPlayer = scene.currentPlayers.players[currentPlayerPosition];
+            nextPlayerPosition++;
+        this.currentTurnPlayer = scene.currentPlayers.players[nextPlayerPosition];
         this.setMyTurn(scene);
+        //if turn advanced back to original player clear the cards
+        if (nextPlayerPosition === currentPlayerPosition)
+            this.clearCards(scene);
     }
     /**
      *
@@ -49,7 +54,6 @@ class GameHandler {
             //find sprite associated with the card played and remove it
             this.removeSprite(scene, cardPlayed);
             //show card played in middle for everyone
-            console.log(scene.currentPlayedCards.getNumberCards());
             scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.15, cardPlayed.FrontImageSprite, false);
         }
         //add cards to all cards played
@@ -64,7 +68,7 @@ class GameHandler {
         }
     }
     /**
-     * sets currently client turn
+     * sets if current player is up or not to play
      * @param scene
      */
     setMyTurn(scene) {
@@ -83,15 +87,14 @@ class GameHandler {
      * @param cardPlayed
      */
     canPlay(cardPlayed) {
-        //first card played
-        if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0) {
-            return true;
-        }
-        //check if card value is higher than last card played
-        if (cardPlayed.rank < this.lastPlayedHand.cards[0].rank) {
-            alert("Card value not high enough to beat previous play");
-            return false;
-        }
+        /*        //first card played
+               if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0 ){return true; }
+       
+               //check if card value is higher than last card played
+               if(cardPlayed.rank < this.lastPlayedHand.cards[0].rank){
+                   alert("Card value not high enough to beat previous play");
+                   return false;
+               } */
         //check if 2 and clear
         //check if 4 or double and set skip
         return true;
@@ -104,7 +107,8 @@ class GameHandler {
         console.log('clear cards', scene.currentPlayedCards.cards);
         scene.currentPlayedCards.cards.forEach(card => {
             console.log("card to remove", card);
-            this.removeSprite(scene, card);
+            //this.removeSprite(scene, card);
+            scene.InteractiveHandler.moveCard(scene, this.findSprite(scene, card));
         });
         scene.currentPlayedCards.clearDeck();
     }
@@ -114,14 +118,26 @@ class GameHandler {
      * @param card
      */
     removeSprite(scene, card) {
-        let spriteToDestroy = scene.children.list.find(obj => {
+        this.findSprite(scene, card).destroy(true);
+    }
+    /**
+     * Find sprite associated with a given card object in the scene
+     * @param scene
+     * @param card
+     * @returns card sprite associated with card
+     */
+    findSprite(scene, card) {
+        let sprite = scene.children.list.find(obj => {
             var _a;
             if (obj instanceof cardSprite_1.default) {
                 return ((_a = obj === null || obj === void 0 ? void 0 : obj.card) === null || _a === void 0 ? void 0 : _a.key) === card.key;
             }
         });
-        //TODO move sprint off of page instead of just deleting
-        spriteToDestroy.destroy(true);
+        if (sprite instanceof cardSprite_1.default) {
+            return sprite;
+        }
+        else
+            return null;
     }
 }
 exports.default = GameHandler;

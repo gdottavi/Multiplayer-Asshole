@@ -27,13 +27,24 @@ class SocketHandler {
             scene.GameHandler.setMyTurn(scene);
         });
         //Deal Cards
-        scene.socket.on('dealCards', (socketId) => {
-            scene.DeckHandler.dealCards(socketId);
+        scene.socket.on('dealCards', (players) => {
+            //scene.DeckHandler.createDeck(); 
+            //scene.DeckHandler.shuffleDeck(); 
+            //scene.DeckHandler.dealCards(socketId);
+            //TODO - send all the hand (scene.players info to all clients)
+            console.log("socket on", players);
+            scene.currentPlayers.setPlayers(players); //set players with data on all clients
+            scene.DeckHandler.displayCards();
             scene.dealText.disableInteractive();
+            scene.readyText.disableInteractive();
         });
         //Advance Turn
         scene.socket.on('changeTurn', (cardPlayed) => {
             scene.GameHandler.changeTurn(scene, cardPlayed);
+        });
+        //Pass Turn
+        scene.socket.on('passTurn', () => {
+            scene.GameHandler.changeTurn(scene, null);
         });
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {

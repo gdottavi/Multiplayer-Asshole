@@ -13,11 +13,12 @@ class DeckHandler {
         /**
     * Creates deck, shuffles deck, deals deck and displays initial card hands on board.
     */
-        this.dealCards = (socketId) => {
+        this.dealCards = () => {
             this.createDeck();
             this.shuffleDeck();
+            console.log(scene.deck.cards);
             this.createHands();
-            this.displayCards(socketId);
+            this.displayCards();
         };
         //create deck
         this.createDeck = () => {
@@ -30,10 +31,7 @@ class DeckHandler {
         };
         //shuffle deck - TODO
         this.shuffleDeck = () => {
-            console.log("before shuffle: ", scene.deck);
             scene.deck.shuffleDeck();
-            //Phaser.Utils.Array.Shuffle(scene.deck);
-            console.log("after shuffle", scene.deck);
         };
         this.createHands = () => {
             let playerIndex = 0;
@@ -62,7 +60,7 @@ class DeckHandler {
                     let currentCard = player.cardHand[i];
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(scene, currentCard, 100 + (i * 100), 650, 0.15, currentCard.FrontImageSprite, true);
+                        this.renderCard(scene, currentCard, 100 + (i * 45), 650, 0.1, currentCard.FrontImageSprite, true);
                     }
                     else {
                         this.renderCard(scene, currentCard, 100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.BackImageSprite, false);
@@ -78,9 +76,11 @@ class DeckHandler {
         /**
          * Displays card at specified location
          */
-        this.renderCard = (scene, card, x, y, scale, image_key, draggable) => {
-            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale).setInteractive();
-            if (draggable)
+        this.renderCard = (scene, card, x, y, scale, image_key, interactive) => {
+            let cardSprite = new cardSprite_1.default(scene, card, x, y, image_key).setScale(scale);
+            if (interactive)
+                cardSprite.setInteractive();
+            if (interactive)
                 scene.input.setDraggable(cardSprite);
         };
     }

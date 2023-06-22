@@ -34,6 +34,9 @@ class Deck extends Array {
     getNumberCards() {
         return this.cards.length;
     }
+    /**
+     * removes all cards from deck
+     */
     clearDeck() {
         this.cards = [];
     }

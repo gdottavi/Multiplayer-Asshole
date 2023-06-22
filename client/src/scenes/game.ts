@@ -27,6 +27,8 @@ export default class Game extends Scene {
     currentPlayers: Players; 
     currentPlayedCards: Deck; 
     readyText: GameObjects.Text;
+    passText: GameObjects.Text;
+    playCardsText: GameObjects.Text;
 
     constructor(){
         super({
@@ -46,6 +48,7 @@ export default class Game extends Scene {
             })
         })
 
+
     }
        
     
@@ -60,6 +63,8 @@ export default class Game extends Scene {
         this.InteractiveHandler = new InteractiveHandler(this); 
         this.SocketHandler = new SocketHandler(this); 
         this.DeckHandler = new DeckHandler(this);
+
+        //handle physics
     }
 
     //make updates to game

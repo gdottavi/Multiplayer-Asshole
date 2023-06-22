@@ -39,6 +39,7 @@ class Game extends phaser_1.Scene {
         this.InteractiveHandler = new interactiveHandler_1.default(this);
         this.SocketHandler = new socketHandler_1.default(this);
         this.DeckHandler = new deckHandler_1.default(this);
+        //handle physics
     }
     //make updates to game
     update() {

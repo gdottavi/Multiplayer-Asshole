@@ -9,15 +9,15 @@ import CardSprite from "../model/cardSprite";
 export default class DeckHandler {
 
 
-    dealCards: (socketId: string) => void;
+    dealCards: () => void;
     dealDeck: () => void;
-    renderCard: (scene: Phaser.Scene,card: Card, x: number, y: number, scale: number, image_key: string, draggable?: boolean) => void;
+    renderCard: (scene: Phaser.Scene,card: Card, x: number, y: number, scale: number, image_key: string, interactive?: boolean) => void;
     resetDeck: () => void;
 
-    private createHands: () => void;
-    private createDeck: () => void;
-    private shuffleDeck: () => void;
-    private displayCards: (socketId: string) => void;
+    createHands: () => void;
+    createDeck: () => void;
+    shuffleDeck: () => void;
+    displayCards: () => void;
 
 
     constructor(scene: Game) {
@@ -25,11 +25,12 @@ export default class DeckHandler {
         /**
     * Creates deck, shuffles deck, deals deck and displays initial card hands on board. 
     */
-        this.dealCards = (socketId) => {
+        this.dealCards = () => {
             this.createDeck();
             this.shuffleDeck();
+            console.log(scene.deck.cards); 
             this.createHands();
-            this.displayCards(socketId);
+            this.displayCards();
         }
 
         //create deck
@@ -44,10 +45,7 @@ export default class DeckHandler {
 
         //shuffle deck - TODO
         this.shuffleDeck = () => {
-            console.log("before shuffle: ",scene.deck);
             scene.deck.shuffleDeck(); 
-            //Phaser.Utils.Array.Shuffle(scene.deck);
-            console.log("after shuffle", scene.deck);
         }
 
 
@@ -80,7 +78,7 @@ export default class DeckHandler {
                     let currentCard = player.cardHand[i]; 
                     //current player
                     if (scene.socket.id === player.socketId) {
-                        this.renderCard(scene,currentCard, 100 + (i * 100), 650, 0.15, currentCard.FrontImageSprite, true)
+                        this.renderCard(scene,currentCard, 100 + (i * 45), 650, 0.1, currentCard.FrontImageSprite, true)
                     }
                     else {
                         this.renderCard(scene,currentCard,100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.BackImageSprite, false)
@@ -98,9 +96,11 @@ export default class DeckHandler {
         /**
          * Displays card at specified location
          */
-        this.renderCard = (scene,card, x, y, scale, image_key, draggable) => {
-            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale).setInteractive(); 
-            if(draggable) scene.input.setDraggable(cardSprite); 
+        this.renderCard = (scene,card, x, y, scale, image_key, interactive) => {
+            let cardSprite = new CardSprite(scene, card, x, y, image_key).setScale(scale); 
+            if(interactive) cardSprite.setInteractive(); 
+            if(interactive) scene.input.setDraggable(cardSprite); 
+            
         }
 
     }

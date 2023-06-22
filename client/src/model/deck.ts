@@ -41,6 +41,9 @@ export class Deck extends Array {
       return this.cards.length; 
     }
 
+    /**
+     * removes all cards from deck
+     */
     clearDeck(): void {
       this.cards = []; 
     }

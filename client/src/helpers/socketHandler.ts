@@ -3,6 +3,7 @@ import Game from "../scenes/game";
 import { Card } from '../model/card';
 import { Player } from "../model/player";
 import CardSprite from "../model/cardSprite";
+import { Players } from "../model/players";
 
 
 //server is for production deploy local is for testing
@@ -38,14 +39,26 @@ export default class SocketHandler {
         })
 
         //Deal Cards
-        scene.socket.on('dealCards', (socketId: string) => {
-            scene.DeckHandler.dealCards(socketId);
+        scene.socket.on('dealCards', (players: Player[]) => {
+            //scene.DeckHandler.createDeck(); 
+            //scene.DeckHandler.shuffleDeck(); 
+            //scene.DeckHandler.dealCards(socketId);
+            //TODO - send all the hand (scene.players info to all clients)
+            console.log("socket on",players);
+            scene.currentPlayers.setPlayers(players);  //set players with data on all clients
+            scene.DeckHandler.displayCards(); 
             scene.dealText.disableInteractive();
+            scene.readyText.disableInteractive(); 
         })
 
         //Advance Turn
         scene.socket.on('changeTurn', (cardPlayed: Card) => {
             scene.GameHandler.changeTurn(scene, cardPlayed);
+        })
+
+        //Pass Turn
+        scene.socket.on('passTurn', () => {
+           scene.GameHandler.changeTurn(scene, null)
         })
 
         //Change Game State

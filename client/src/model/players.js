@@ -22,6 +22,14 @@ class Players extends Array {
     getPlayerById(socketId) {
         return this.players.find(p => p.getId() === socketId);
     }
+    /**
+     * Resets all players in game
+     * @param newPlayers - players to add
+     */
+    setPlayers(newPlayers) {
+        this.players = [];
+        this.players = newPlayers;
+    }
 }
 exports.Players = Players;
 //# sourceMappingURL=players.js.map

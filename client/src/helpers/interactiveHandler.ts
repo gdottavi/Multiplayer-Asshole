@@ -1,7 +1,8 @@
-import { GameObjects, Input } from "phaser";
+import { GameObjects, Input, Events } from "phaser";
 import Game from "../scenes/game";
 import GameHandler, { gameState } from "./gameHandler";
 import CardSprite from "../model/cardSprite";
+
 
 
 /**
@@ -13,7 +14,9 @@ export default class InteractiveHandler {
 
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
-            scene.socket.emit('dealCards', scene.socket.id);
+            scene.DeckHandler.dealCards()
+            console.log("clicked deal", scene.currentPlayers)
+            scene.socket.emit('dealCards', scene.currentPlayers.players);
         })
 
         //ready on click
@@ -21,11 +24,16 @@ export default class InteractiveHandler {
             scene.socket.emit('ready')
         })
 
+        //pass turn on click
+        scene.passText.on('pointerdown', () => {
+            scene.socket.emit('passTurn');
+        })
+
+        //make card active when dragging
         scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
             gameObject.setTint(0xff69b4);
             scene.children.bringToTop(gameObject);
         })
-
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
             gameObject.setTint();
             if (!dropped) {
@@ -33,16 +41,66 @@ export default class InteractiveHandler {
                 gameObject.y = gameObject.input.dragStartY;
             }
         })
-
-        scene.input.on('drag', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dragX: any, dragY: any) {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
+        //move card while dragging
+        scene.input.on('drag', function (pointer: Input.Pointer, cardSprite: CardSprite, dragX: any, dragY: any) {
+            cardSprite.x = dragX;
+            cardSprite.y = dragY;
         })
+
+
+        //Handle selecting cards to play
+        scene.input.on('gameobjectup', (pointer: Input.Pointer, gameObject: GameObjects.Sprite) => {
+
+            //only applies to cards clicked
+            if (gameObject instanceof CardSprite) {
+
+                //only applies to cards clicked for current player
+
+
+                if (!gameObject.selected) {
+                    gameObject.setTint(0xff69b4);
+                    gameObject.y = gameObject.y - 25;
+                    gameObject.selected = true;
+                    scene.GameHandler.queuedCardsToPlay.addCard(gameObject.card);  //add card to list of cards to play
+                }
+                else {
+                    gameObject.setTint();
+                    gameObject.y = gameObject.y + 25;
+                    gameObject.selected = false;
+                    scene.GameHandler.queuedCardsToPlay.removeCard(gameObject.card); 
+                }
+            }
+
+        })
+
+        //play cards on click
+        scene.playCardsText.on('pointerdown', () => {
+
+            let cardsToPlay = scene.GameHandler.queuedCardsToPlay;
+
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardsToPlay)) {
+
+                cardsToPlay.cards.forEach(card => {
+                    let cardSprite = scene.GameHandler.findSprite(scene, card); 
+                    cardSprite.x = (350) + (scene.currentPlayedCards.getNumberCards() * 50);
+                    cardSprite.y = 375;
+                })
+
+                
+                //scene.dropZone.data.values.cards++;
+                //scene.input.setDraggable(cardSprite, false);
+                //scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
+            }
+            else {
+                alert("Unable to play these cards")
+            }
+        })
+
 
         //Card Played
         scene.input.on('drop', (pointer: Input.Pointer, cardSprite: CardSprite, dropZone: GameObjects.Zone) => {
 
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardSprite.card)) {
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready) {
                 cardSprite.x = (dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50);
                 cardSprite.y = dropZone.y;
                 scene.dropZone.data.values.cards++;
@@ -54,6 +112,8 @@ export default class InteractiveHandler {
                 cardSprite.y = cardSprite.input.dragStartY;
             }
         })
+
+
 
         this.setupMenuOptions(scene);
 
@@ -75,5 +135,22 @@ export default class InteractiveHandler {
         scene.readyText.on('pointerout', () => {
             scene.readyText.setColor('#00ffff');
         })
+
+        //hover for play text
+        scene.playCardsText.on('pointerover', () => {
+            scene.playCardsText.setColor('#ff69b4');
+        })
+        scene.playCardsText.on('pointerout', () => {
+            scene.playCardsText.setColor('#00ffff');
+        })
+    }
+
+    /**
+  * Move card off of screen
+  * @param scene 
+  * @param card 
+  */
+    moveCard(scene: Game, card: CardSprite): void {
+        scene.physics.moveTo(card, 0, 375, 500)
     }
 }
