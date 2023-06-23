@@ -154,11 +154,12 @@ export default class GameHandler {
      * @param scene 
      */
     clearCards(scene: Game): void {
+
         
         scene.currentPlayedCards.cards.forEach(card => {
 
             //this.removeSprite(scene, card);
-            scene.InteractiveHandler.moveCard(scene,this.findSprite(scene,card))
+            //scene.InteractiveHandler.moveCard(scene,this.findSprite(scene,card))
             
         })
 

@@ -4,6 +4,7 @@ import GameHandler, { gameState } from "./gameHandler";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
 
+const OFFSET_X = 5;
 
 
 /**
@@ -11,11 +12,13 @@ import { Player } from "../model/player";
  */
 export default class InteractiveHandler {
 
-  
+
 
     constructor(scene: Game) {
 
-        var selectedSprites = []
+        let shouldAddToSelected = true;  //used to make sure after a drop the click event doesn't re-add cards to play and drag
+        // Define a flag to track whether the Ctrl key is held down
+        let ctrlKeyHeld = false;
 
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -32,129 +35,93 @@ export default class InteractiveHandler {
         scene.passText.on('pointerdown', () => {
             scene.socket.emit('passTurn');
         })
-
-       //make card active when dragging
+/* 
+        //make card active when dragging
         scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
 
-            console.log("selected card sprites",selectedSprites); 
-            if(!selectedSprites.includes(gameObject)){
+            const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
+
+            if (!isSelected) {
                 gameObject.setTint(0xff69b4);
                 scene.children.bringToTop(gameObject);
-                selectedSprites.push(gameObject); 
+                scene.selectedCardSprites.push(gameObject);
+
             }
-            
-        })
+
+        }) */
+
+        //finished dragging
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
-            gameObject.setTint();
-       /*    if (!dropped) {
-                gameObject.x = gameObject.input.dragStartX;
-                gameObject.y = gameObject.input.dragStartY;
-            } */
-            selectedSprites.forEach(sprite => {
-                sprite.clearTint()
-            })
-            selectedSprites = []
+
+            if (!dropped) {
+                scene.selectedCardSprites.forEach(sprite => {
+                    //sprite.clearTint()
+                    sprite.x = sprite.input.dragStartX;
+                    sprite.y = sprite.input.dragStartY;
+                })
+            }
+            /*      scene.selectedCardSprites.forEach(sprite => {
+                     sprite.clearTint()
+                 }) */
+            //scene.selectedCardSprites = []
+
         })
         //move card while dragging
         scene.input.on('drag', function (pointer: Input.Pointer, cardSprite: CardSprite, dragX: any, dragY: any) {
-            for(var i=0; i < selectedSprites.length; i++){
-                var sprite: CardSprite = selectedSprites[i]
-                sprite.x = dragX - i;
+
+            scene.selectedCardSprites.forEach((sprite, i) => {
+                sprite.x = dragX + 1 * OFFSET_X;
                 sprite.y = dragY;
-                //sprite.x += dragX - sprite.input.dragStartX;
-                //sprite.y += dragY - sprite.input.dragStartY;
-            }
+            })
             //cardSprite.x = dragX;
             //cardSprite.y = dragY;
-        }) 
+        })
 
+
+
+        // Listen for keydown and keyup events to track the state of the Ctrl key
+        scene.input.keyboard.on('keydown', (event: KeyboardEvent) => {
+
+            if (event.ctrlKey || event.metaKey) {
+                // Ctrl key is pressed
+                ctrlKeyHeld = true;
+            }
+        });
+        scene.input.keyboard.on('keyup', (event: KeyboardEvent) => {
+
+            if (event.ctrlKey || event.metaKey) {
+                // Ctrl key is pressed
+                ctrlKeyHeld = false;
+            }
+        });
+
+
+
+
+        //click up on card
         scene.input.on('gameobjectup', (pointer: Input.Pointer, gameObject: GameObjects.Sprite) => {
+
             if (gameObject instanceof CardSprite) {
 
-                let index = selectedSprites.indexOf(gameObject);
-                if(index === -1){
-                    selectedSprites.push(gameObject);
+                const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
+                let index = scene.selectedCardSprites.indexOf(gameObject);
+
+                if (!isSelected && shouldAddToSelected && ctrlKeyHeld) {
+                    scene.selectedCardSprites.push(gameObject);
                     gameObject.setTint(0xff69b4);
                     scene.children.bringToTop(gameObject);
-
                 }
-                else {
-                    selectedSprites.splice(index,1); 
-                    gameObject.clearTint(); 
+                else if (!shouldAddToSelected && isSelected && ctrlKeyHeld) {
+                    scene.selectedCardSprites.splice(index, 1);
+                    gameObject.clearTint();
                 }
 
             }
-    })
 
-
-       /*  //Handle selecting cards to play
-        scene.input.on('gameobjectup', (pointer: Input.Pointer, gameObject: GameObjects.Sprite) => {
-
-            
-
-            //only applies to cards clicked
-            if (gameObject instanceof CardSprite) {
-
-            
-
-                //only applies to cards clicked for current player
-
-
-                if (!gameObject.selected) {
-                    gameObject.setTint(0xff69b4);
-                    gameObject.y = gameObject.y - 25;
-                    gameObject.selected = true;
-                    scene.GameHandler.queuedCardsToPlay.addCard(gameObject.card);  //add card to list of cards to play
-                }
-                else {
-                    gameObject.setTint();
-                    gameObject.y = gameObject.y + 25;
-                    gameObject.selected = false;
-                    scene.GameHandler.queuedCardsToPlay.removeCard(gameObject.card); 
-                }
-            }
-
+            shouldAddToSelected = true;
         })
- */
-        //play cards on click
-        scene.playCardsText.on('pointerdown', () => {
 
-            let cardsToPlay = scene.GameHandler.queuedCardsToPlay;
 
-            if(!scene.GameHandler.isMyTurn) {
-                alert("It's not your turn idiot");
-                return; 
-            } 
-
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardsToPlay)) {
-
-                cardsToPlay.cards.forEach(card => {
-
-                    //move the sprite to the middle
-                    let cardSprite = scene.GameHandler.findSprite(scene, card); 
-                    cardSprite.x = (350) + (scene.currentPlayedCards.getNumberCards() * 50);
-                    cardSprite.y = 375;
-                    //set properties on card in the middle
-                    cardSprite.disableInteractive(); 
-                    cardSprite.setTint(); 
-
-                    //set played cards
-                    scene.currentPlayedCards.addCard(card); 
-                    //TODO set players remaining cards
-                    
-                    let currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id)
-                    currentPlayer.removeCard(card);  
-
-                     //TODO let other clients know the cards that were played
-                    scene.socket.emit('cardPlayed', card, scene.socket.id);
-                })
-
-               
-            }
-            else {
-                alert("Unable to play these cards")
-            }
-        })
 
 
         //Card Played
@@ -170,56 +137,70 @@ export default class InteractiveHandler {
                 cardSprite.x = cardSprite.input.dragStartX;
                 cardSprite.y = cardSprite.input.dragStartY;
             }
+            scene.selectedCardSprites.forEach(sprite => {
+                sprite.clearTint()
+            }
+            )
+            scene.selectedCardSprites = []
+            shouldAddToSelected = false;
+
+            //set played cards
+            //scene.currentPlayedCards.addCard(card);
+            //TODO set players remaining cards
+
+            //let currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id)
+            //currentPlayer.removeCard(card);
+
+            //TODO let other clients know the cards that were played
+            //scene.socket.emit('cardPlayed', card, scene.socket.id);
         })
 
-      
+
         this.setupMenuOptions(scene);
 
+        /* //play cards on click
+        scene.playCardsText.on('pointerdown', () => {
+
+            let cardsToPlay = scene.GameHandler.queuedCardsToPlay;
+
+            if (!scene.GameHandler.isMyTurn) {
+                alert("It's not your turn idiot");
+                return;
+            }
+
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardsToPlay)) {
+
+                cardsToPlay.cards.forEach(card => {
+
+                    //move the sprite to the middle
+                    let cardSprite = scene.GameHandler.findSprite(scene, card);
+                    cardSprite.x = (350) + (scene.currentPlayedCards.getNumberCards() * 50);
+                    cardSprite.y = 375;
+                    //set properties on card in the middle
+                    cardSprite.disableInteractive();
+                    cardSprite.setTint();
+
+                    //set played cards
+                    scene.currentPlayedCards.addCard(card);
+                    //TODO set players remaining cards
+
+                    let currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id)
+                    currentPlayer.removeCard(card);
+
+                    //TODO let other clients know the cards that were played
+                    scene.socket.emit('cardPlayed', card, scene.socket.id);
+                })
+
+
+            }
+            else {
+                alert("Unable to play these cards")
+            }
+        })
+ */
 
     }
 
-    //TEST MULTIPLE SELECT AND DRAG FUNCTIONALITY
-    setMultipleSelectDrag(scene: Game, sprite: CardSprite){
-
-        let selectedSprites: CardSprite[] = []; 
-
-        sprite.setInteractive();
-        scene.input.setDraggable(sprite); 
-
-        sprite.on('pointerdown', function(pointer: Input.Pointer) {
-            // Check if the sprite is already selected
-            var index = selectedSprites.indexOf(sprite);
-            if (index === -1) {
-              // Sprite not selected, add it to the selection
-              selectedSprites.push(sprite);
-              sprite.setTint(0x00ff00);
-            }
-            
-            // Store the initial position for dragging
-            sprite.startPosition = { x: sprite.x, y: sprite.y };
-          });
-          
-          sprite.on('pointerup', function(pointer: Input.Pointer) {
-            // Remove the sprite from the selection
-            var index = selectedSprites.indexOf(sprite);
-            if (index !== -1) {
-              selectedSprites.splice(index, 1);
-              sprite.clearTint(); 
-            }
-          });
-          
-          sprite.on('pointermove', function(pointer: Input.Pointer) {
-            if (selectedSprites.includes(sprite)) {
-              // Calculate the distance moved by the pointer
-              var dx = pointer.x - pointer.prevPosition.x;
-              var dy = pointer.y - pointer.prevPosition.y;
-              
-              // Update the position of the selected sprite
-              sprite.x += dx;
-              sprite.y += dy;
-            }
-          });
-    }
 
     /**
      * sets up all menus

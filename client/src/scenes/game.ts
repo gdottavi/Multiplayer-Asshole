@@ -30,6 +30,7 @@ export default class Game extends Scene {
     readyText: GameObjects.Text;
     passText: GameObjects.Text;
     playCardsText: GameObjects.Text;
+    selectedCardSprites: any[]; 
 
     constructor(){
         super({
@@ -58,6 +59,7 @@ export default class Game extends Scene {
     create() {
         this.deck = new Deck(); 
         this.currentPlayers = new Players(); 
+        this.selectedCardSprites = []; 
         this.currentPlayedCards = new Deck(); 
         this.UIHandler = new UIHandler(this); 
         this.GameHandler = new GameHandler(this); 
