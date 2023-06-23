@@ -38,6 +38,7 @@ io.on('connection', function(socket){
 
     //card played
     socket.on('cardPlayed', (cardPlayed: Card, socketId) => {
+        console.log("cards played ", cardPlayed)
         io.emit('cardPlayed', cardPlayed, socketId);
         io.emit('changeTurn', cardPlayed);
     })

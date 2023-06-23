@@ -61,6 +61,7 @@ export default class Game extends Scene {
         this.currentPlayers = new Players(); 
         this.selectedCardSprites = []; 
         this.currentPlayedCards = new Deck(); 
+        
         this.UIHandler = new UIHandler(this); 
         this.GameHandler = new GameHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 

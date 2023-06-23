@@ -29,7 +29,7 @@ export default class SocketHandler {
             players.forEach((p: string) => {
                 //if player already exists with socketID delete first - TODO
                 //
-                let newPlayer = new Player(p, "Greg" + scene.currentPlayers.numberPlayers());
+                let newPlayer = new Player(p, "Player " + scene.currentPlayers.numberPlayers());
 
                 scene.currentPlayers.addPlayer(newPlayer);
             })
@@ -44,6 +44,7 @@ export default class SocketHandler {
             scene.DeckHandler.displayCards(); 
             scene.dealText.disableInteractive();
             scene.readyText.disableInteractive(); 
+            scene.UIHandler.setPlayerNames(scene); 
         })
 
         //Advance Turn

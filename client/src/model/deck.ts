@@ -15,7 +15,10 @@ export class Deck extends Array {
      * @returns 
      */
     removeCard(cardToRemove: Card): void {
-      return; 
+      const index = this.cards.indexOf(cardToRemove);
+      if (index !== -1) {
+          this.cards.splice(index, 1);
+      }
     }
 
     /**

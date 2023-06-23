@@ -101,7 +101,7 @@ export default class DeckHandler {
                 //scene.InteractiveHandler.setMultipleSelectDrag(cardSprite)
             }
             if(interactive) cardSprite.setInteractive(); 
-            if(interactive) scene.input.setDraggable(cardSprite); 
+            //if(interactive) scene.input.setDraggable(cardSprite); 
             
         }
 

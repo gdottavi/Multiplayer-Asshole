@@ -22,20 +22,22 @@ export default class GameHandler {
     changeGameState: (gameState: any) => void;
     gameState: gameState;
     currentTurnPlayer: Player;  //ID of current player who is currently up to play
-    lastPlayedHand: Deck; 
-    queuedCardsToPlay: Deck; 
+    lastPlayedHand: Deck;
+    queuedCardsToPlay: Deck;
 
     constructor(scene: Game) {
         this.gameState = gameState.Initializing;
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
-        this.queuedCardsToPlay = new Deck(); 
+        this.queuedCardsToPlay = new Deck();
+        this.lastPlayedHand = new Deck();
 
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
         }
 
-        
+
+
     }
 
     /**
@@ -45,13 +47,13 @@ export default class GameHandler {
     changeTurn(scene: Game, cardPlayed: Card): void {
 
         //do not advance turn on a 2 played
-        if(cardPlayed.value == '2') return; 
+        if (cardPlayed.value == '2') return;
 
         //find index of current player in active players
         let currentPlayerPosition = scene.currentPlayers.players.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
 
         //set back to first player if at end
-        let nextPlayerPosition = 0; 
+        let nextPlayerPosition = 0;
         if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
             nextPlayerPosition = 0;
         }
@@ -62,47 +64,54 @@ export default class GameHandler {
         this.currentTurnPlayer = scene.currentPlayers.players[nextPlayerPosition]
         this.setMyTurn(scene)
 
-        //if turn advanced back to original player clear the cards
-        if(nextPlayerPosition === currentPlayerPosition) this.clearCards(scene); 
+        //if turn advanced back to original player clear the cards 
+        if (nextPlayerPosition === currentPlayerPosition) this.clearCards(scene);
 
     }
 
     /**
-     * 
+     * Plays a single card for all opponent clients
      * @param socketId 
      * @param scene 
-     * @param cardPlayed 
+     * @param cardsPlayed 
      */
-   playCard(socketId: string, scene: Game, cardPlayed: Card): void {
+    playCard(socketId: string, scene: Game, cardPlayed: Card): void {
 
-        this.lastPlayedHand = new Deck(); 
+        //if(!this.canPlay(cardsPlayed)){return;}
 
+        //reset last played hand
+        this.lastPlayedHand.clearDeck();
+
+        //update for all clients other than current
         if (socketId !== scene.socket.id) {
 
+
             //find which player played the card and remove from their hand
-            let player = scene.currentPlayers.getPlayerById(socketId); 
+            let player = scene.currentPlayers.getPlayerById(socketId);
             player.removeCard(cardPlayed);
 
             //find sprite associated with the card played and remove it
             this.removeSprite(scene, cardPlayed);
 
             //show card played in middle for everyone
-            scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.15,
+            scene.DeckHandler.renderCard(scene, cardPlayed, ((scene.dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50)), (scene.dropZone.y), 0.1,
                 cardPlayed.frontImageSprite, false);
-
+            //add cards to all cards played
+            scene.currentPlayedCards.addCard(cardPlayed)
 
         }
 
-        //add cards to all cards played
-        scene.currentPlayedCards.addCard(cardPlayed)
+
         //add card to last hand to beat unless a 4
-        if(cardPlayed.value !== '4'){
-            this.lastPlayedHand.addCard(cardPlayed); 
+
+        if (cardPlayed.value !== '4') {
+            this.lastPlayedHand.addCard(cardPlayed);
         }
+
 
         //clear cards when a 2 is played
-        if(cardPlayed.value === '2'){
-            this.clearCards(scene); 
+        if (cardPlayed.value === '2') {
+            this.clearCards(scene);
         }
 
     }
@@ -128,26 +137,81 @@ export default class GameHandler {
     }
 
     /**
-     * Determines if a card played is valid and beats existing cards on table
-     * @param cardPlayed 
+     * Main game rules. Determines if a card played is valid and beats existing cards on table
+     * @param cardsPlayed 
      */
-    canPlay(cardPlayed: Deck): boolean {
+    canPlay(cardsPlayed: Card[]): boolean {
 
- /*        //first card played
-        if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0 ){return true; }
+        //first card played
+        if (this.lastPlayedHand == null || this.lastPlayedHand.getNumberCards() === 0) return true;
 
-        //check if card value is higher than last card played
-        if(cardPlayed.rank < this.lastPlayedHand.cards[0].rank){
-            alert("Card value not high enough to beat previous play"); 
-            return false; 
-        } */
+        //single 2 or 4 played
+        if (cardsPlayed.length === 1 && (cardsPlayed[0].value === '2' || cardsPlayed[0].value === '4')) return true;
 
-        //check if 2 and clear
+        //single on double or double on triple 
+        if (cardsPlayed.length < this.lastPlayedHand.length) {
+            alert("Last play was " + this.lastPlayedHand.getNumberCards() + " of a kind.  You only played " + cardsPlayed.length + " cards.")
+            return false
+        }
 
-        //check if 4 or double and set skip
+        //multiple cards played with different values
+        if (!cardsPlayed.every(card => card.value === cardsPlayed[0].value)) {
+            alert("Cannot play multiple cards of different values.")
+            return false;
+        }
 
+        //single card played
+        if (cardsPlayed.length === 1) {
+            if (cardsPlayed[0].rank < this.lastPlayedHand.cards[0].rank) {
+                alert("Must play doubles higher than last played double")
+                return false;
+            }
+        }
+
+        //doubles played
+        if (cardsPlayed.length === 2) {
+
+            if (cardsPlayed[0].value === '2' || cardsPlayed[0].value === '4') {
+                alert("Cannot play multiple 2s or 4s")
+                return false
+            }
+
+            if (this.lastPlayedHand.length < 2) return true;
+
+            if (cardsPlayed[0].rank < this.lastPlayedHand.cards[0].rank) {
+                alert("Must play doubles higher than last played double")
+                return false;
+            }
+
+        }
+
+        //triples played
+        if (cardsPlayed.length === 3) {
+
+            if (cardsPlayed[0].value === '2' || cardsPlayed[0].value === '4') {
+                alert("Cannot play multiple 2s or 4s")
+                return false
+            }
+
+            if (this.lastPlayedHand.length < 3) return true;
+
+            if (cardsPlayed[0].rank < this.lastPlayedHand.cards[0].rank) {
+                alert("Must play triples higher than last played triple")
+                return false;
+            }
+
+        }
+
+        //four of a kind played
+        if (cardsPlayed.length === 4) return true;
+
+        //default
         return true;
+
     }
+
+
+
 
     /**
      * Clear cards played
@@ -155,15 +219,15 @@ export default class GameHandler {
      */
     clearCards(scene: Game): void {
 
-        
+
         scene.currentPlayedCards.cards.forEach(card => {
 
             //this.removeSprite(scene, card);
-            //scene.InteractiveHandler.moveCard(scene,this.findSprite(scene,card))
-            
+            scene.InteractiveHandler.moveCard(scene, this.findSprite(scene, card))
+
         })
 
-        scene.currentPlayedCards.clearDeck(); 
+        scene.currentPlayedCards.clearDeck();
     }
 
 
@@ -172,9 +236,8 @@ export default class GameHandler {
      * @param scene 
      * @param card 
      */
-    removeSprite(scene: Game, card: Card): void
-    {
-        this.findSprite(scene, card).destroy(true); 
+    removeSprite(scene: Game, card: Card): void {
+        this.findSprite(scene, card).destroy(true);
     }
 
     /**
@@ -186,15 +249,15 @@ export default class GameHandler {
     findSprite(scene: Game, card: Card): CardSprite {
 
         let sprite = scene.children.list.find(obj => {
-            if(obj instanceof CardSprite){
+            if (obj instanceof CardSprite) {
                 return obj?.card?.key === card.key;
             }
         })
 
-        if(sprite instanceof CardSprite){ return sprite}
-        else return null; 
+        if (sprite instanceof CardSprite) { return sprite }
+        else return null;
     }
-   
+
 
 
 }
