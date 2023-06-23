@@ -29,7 +29,6 @@ export default class DeckHandler {
             this.createDeck();
             this.shuffleDeck();
             this.createHands();
-            this.displayCards();
         }
 
         //create deck

@@ -35,35 +35,30 @@ export default class InteractiveHandler {
         scene.passText.on('pointerdown', () => {
             scene.socket.emit('passTurn');
         })
-/* 
-        //make card active when dragging
-        scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
-
-            const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
-
-            if (!isSelected) {
-                gameObject.setTint(0xff69b4);
-                scene.children.bringToTop(gameObject);
-                scene.selectedCardSprites.push(gameObject);
-
-            }
-
-        }) */
+        
+                //make card active when dragging
+                scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
+        
+               /*      const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
+        
+                    if (!isSelected) {
+                        gameObject.setTint(0xff69b4);
+                        scene.children.bringToTop(gameObject);
+                        scene.selectedCardSprites.push(gameObject);
+        
+                    } */
+        
+                }) 
 
         //finished dragging
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
 
             if (!dropped) {
                 scene.selectedCardSprites.forEach(sprite => {
-                    //sprite.clearTint()
                     sprite.x = sprite.input.dragStartX;
                     sprite.y = sprite.input.dragStartY;
                 })
             }
-            /*      scene.selectedCardSprites.forEach(sprite => {
-                     sprite.clearTint()
-                 }) */
-            //scene.selectedCardSprites = []
 
         })
         //move card while dragging
@@ -73,8 +68,6 @@ export default class InteractiveHandler {
                 sprite.x = dragX + 1 * OFFSET_X;
                 sprite.y = dragY;
             })
-            //cardSprite.x = dragX;
-            //cardSprite.y = dragY;
         })
 
 
