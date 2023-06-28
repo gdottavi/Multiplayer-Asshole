@@ -22,7 +22,7 @@ export class Players {
     }
 
     /**
-     * 
+     * Returns player with given unique socket ID
      * @param socketId - socket ID of player 
      * @returns - player with socket ID
      */
@@ -31,7 +31,7 @@ export class Players {
     }
 
     /**
-     * Resets all players in game
+     * Builds all players in game.  Needed after socket.io calls to create Player objects. 
      * @param newPlayers - players to add 
      */
     setPlayers(newPlayers: Player[]): void{

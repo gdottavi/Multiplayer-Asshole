@@ -4,6 +4,7 @@ import { Card } from '../model/card';
 import { Player } from "../model/player";
 import CardSprite from "../model/cardSprite";
 import { Players } from "../model/players";
+import { themeColors } from "./uiHandler";
 
 
 //server is for production deploy local is for testing
@@ -24,37 +25,41 @@ export default class SocketHandler {
             console.log("Game Connected!");
         })
 
-        //Ready - Create Players
+        //Ready - Create Players from array of socket Ids (players)
         scene.socket.on('ready', (players) => {
             players.forEach((p: string) => {
                 //if player already exists with socketID delete first - TODO
                 //
                 let newPlayer = new Player(p, "Player " + scene.currentPlayers.numberPlayers());
-
                 scene.currentPlayers.addPlayer(newPlayer);
             })
 
             //set first turn
-            scene.GameHandler.setMyTurn(scene);
+            scene.GameHandler.setTurn(scene, scene.currentPlayers.players[0]);
+            //update state of menu options
+            scene.UIHandler.setActiveText(scene.dealText); 
+            scene.UIHandler.setInactiveText(scene.readyText); 
         })
 
         //Deal Cards
         scene.socket.on('dealCards', (players: Player[]) => {
             scene.currentPlayers.setPlayers(players);  //set players with data on all clients
-            scene.DeckHandler.displayCards(); 
-            scene.dealText.disableInteractive();
-            scene.readyText.disableInteractive(); 
-            scene.UIHandler.setPlayerNames(scene); 
+            scene.DeckHandler.displayCards();
+            scene.UIHandler.setInactiveText(scene.readyText); 
+            scene.UIHandler.setInactiveText(scene.dealText)
+            scene.UIHandler.setPlayerNames(scene);
+            scene.UIHandler.updatePlayerNameColor(scene, scene.GameHandler.currentTurnPlayer.socketId, themeColors.yellow)
         })
+
 
         //Advance Turn
-        scene.socket.on('changeTurn', (cardPlayed: Card) => {
-            scene.GameHandler.changeTurn(scene, cardPlayed);
+        scene.socket.on('changeTurn', (nextPlayer: Player) => {
+            scene.GameHandler.changeTurn(scene, nextPlayer);
         })
 
-        //Pass Turn
+        //Pass Turn - TODO
         scene.socket.on('passTurn', () => {
-           scene.GameHandler.changeTurn(scene, null)
+            scene.GameHandler.changeTurn(scene, null)
         })
 
         //Change Game State
@@ -67,10 +72,10 @@ export default class SocketHandler {
         });
 
         /**
-         * Card Played - show on all clients and remove cards from hand
+         * Card Played - show on all clients, remove cards from hands and check if should clear
          */
-        scene.socket.on('cardPlayed', (cardPlayed: Card, socketId: string) => {
-            scene.GameHandler.playCard(socketId, scene, cardPlayed);
+        scene.socket.on('playCards', (cardsPlayed: Card[], socketId: string) => {
+            scene.GameHandler.playCards(socketId, scene, cardsPlayed);
         })
 
 

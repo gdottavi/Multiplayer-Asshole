@@ -1,8 +1,9 @@
 import { GameObjects, Input, Events } from "phaser";
 import Game from "../scenes/game";
-import GameHandler, { gameState } from "./gameHandler";
+import GameHandler, { gameStateEnum } from "./gameHandler";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
+import { Deck } from "../model/deck";
 
 const OFFSET_X = 20;
 
@@ -44,7 +45,6 @@ export default class InteractiveHandler {
 
         //finished dragging
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
-            console.log('dragend');
             //if not dropped in drop zone send back to starting positions
             if (!dropped) {
                 scene.selectedCardSprites.forEach(sprite => {
@@ -125,23 +125,26 @@ export default class InteractiveHandler {
         scene.input.on('drop', (pointer: Input.Pointer, sprite: CardSprite, dropZone: GameObjects.Zone) => {
 
             //array of cards from sprites
-            const cardsPlayed = scene.selectedCardSprites.map(sprite => sprite.card); 
+            const cardsTryPlayed = scene.selectedCardSprites.map(sprite => sprite.card); 
+            let cardsPlayed = []; 
 
             //card dropped in the play zone
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.gameState === gameState.Ready && scene.GameHandler.canPlay(cardsPlayed)) {
+            if (scene.GameHandler.isMyTurn && scene.GameHandler.canPlay(scene, cardsTryPlayed)) {
+
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
-                    cardSprite.x = (dropZone.x - 350) + (scene.currentPlayedCards.getNumberCards() * 50);
+                    cardSprite.x = (dropZone.x - 350) + ((scene.GameHandler.getTotalCountCardsPlayed(scene)+(i+1)) * 50);
                     cardSprite.y = dropZone.y;
                     //disable the card from being dragged again after play
                     scene.input.setDraggable(cardSprite, false);
                     //add to currently played cards
-                    scene.currentPlayedCards.addCard(cardSprite.card);
+                    cardsPlayed.push(cardSprite.card);
                     //remove from players hand
                     scene.currentPlayers.getPlayerById(scene.socket.id).removeCard(cardSprite.card);
-                    //let other players know this card was played
-                    scene.socket.emit('cardPlayed', cardSprite.card, scene.socket.id);
                 })
+                scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
+                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed)
+                scene.socket.emit('changeTurn', nextPlayer); 
 
             }
             else {

@@ -3,9 +3,11 @@ import Game from "../scenes/game";
 
 
 export enum themeColors {
-    black,
-    teal = '#00ffff',
-    magenta = '#ff69b4'
+    black = '#000000',
+    cyan = '#00ffff',
+    magenta = '#ff69b4',
+    yellow = '#ffff00',
+    inactiveGray = '#888888'
 }
 
 /**
@@ -37,15 +39,18 @@ export default class UIHandler {
 
         //menu options for game
         //TODO - don't allow dealing until ready is pushed and finished processing (add delay)
-        scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-        scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-        scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff')
-        scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff').setInteractive();
-
-
-
+        scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
+        scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS')
+        this.setInactiveText(scene.dealText); 
+        scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
+        this.setInactiveText(scene.resetText)
+        scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
     }
 
+    /**
+     * Sets initial player names on board
+     * @param scene 
+     */
     setPlayerNames(scene: Game): void {
         //display initial players names in game
         let opponentPos = 0;
@@ -53,13 +58,51 @@ export default class UIHandler {
 
             if (scene.socket.id !== player.socketId) { opponentPos++ };
             if (scene.socket.id === player.socketId) {
-                scene.add.text(100, 575, [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff')
+                scene.add.text(100, 575, [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName'); 
             }
             else {
-                scene.add.text(100, 50 + (opponentPos * 80), [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor('#00ffff')
+                scene.add.text(100, 50 + (opponentPos * 80), [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName'); 
             }
 
         })
+    }
+
+    /**
+     * Updates color of active player name
+     * @param scene 
+     * @param socketId 
+     * @param color 
+     */
+    updatePlayerNameColor(scene: Game, socketId: string, color: string){
+        scene.children.each((child) => {
+            if(child instanceof Phaser.GameObjects.Text  && child.getData('type') === 'playerName'){
+
+            if(child.getData('id') === socketId) child.setColor(color); 
+
+            else child.setColor(themeColors.cyan)
+            }
+
+        })
+    }
+
+    /**
+     * 
+     * @param text - text to set inactive
+     */
+    setInactiveText(text: Phaser.GameObjects.Text): void {
+        text.setColor(themeColors.inactiveGray); 
+        text.setFontStyle('italic'); 
+        text.disableInteractive(); 
+    }
+
+    /**
+     * 
+     * @param text - test to set active
+     */
+    setActiveText(text: Phaser.GameObjects.Text): void {
+        text.setColor(themeColors.cyan);
+        text.setFontStyle('normal');
+        text.setInteractive(); 
     }
 
 

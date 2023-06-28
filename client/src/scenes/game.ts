@@ -26,7 +26,7 @@ export default class Game extends Scene {
     resetText: GameObjects.Text;
     deck: Deck; 
     currentPlayers: Players; 
-    currentPlayedCards: Deck; 
+    currentPlayedCards: Deck[]; 
     readyText: GameObjects.Text;
     passText: GameObjects.Text;
     playCardsText: GameObjects.Text;
@@ -61,7 +61,7 @@ export default class Game extends Scene {
         this.currentPlayers = new Players(); 
         this.selectedCardSprites = []; 
         this.currentPlayedCards = new Deck(); 
-        
+
         this.UIHandler = new UIHandler(this); 
         this.GameHandler = new GameHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 
