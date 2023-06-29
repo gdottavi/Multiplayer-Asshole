@@ -53,9 +53,14 @@ export default class GameHandler {
      * Advances turn to next player
      * @param scene 
      * @param nextPlayer - player to set as current player
+     * @param shouldClear - indicates cards should be cleared from middle
      */
-    changeTurn(scene: Game, nextPlayer: Player): void {
+    async changeTurn(scene: Game, nextPlayer: Player, shouldClear?: boolean): Promise<void> {
 
+        //set if cards should be cleared for clients who did not play the cards
+        if (this.currentTurnPlayer.socketId !== scene.socket.id) {
+            this.shouldClear = shouldClear; 
+        }
 
         //current --> last and next --> current
         let lastPlayer = this.currentTurnPlayer;  
@@ -65,7 +70,7 @@ export default class GameHandler {
         //check if cards should be cleared after changing turn
         if (this.checkClear(lastPlayer, nextPlayer)) {
             this.lastHandCleared = true; 
-            this.clearCards(scene);
+            await this.clearCards(scene);
             this.shouldClear = false; 
 
         }
@@ -233,6 +238,15 @@ export default class GameHandler {
      */
     canPlay(scene: Game, cardsPlayed: Card[]): boolean {
 
+        //check if completing square before turn since this can be done out of turn
+        if(this.checkSquareCompleted(scene, cardsPlayed)) {
+            this.shouldClear = true;    
+            return true; 
+        }
+
+        //not this players turn
+        if(!this.isMyTurn) return false; 
+
         let lastPlayedHand = this.getLastPlayedHand(scene);
 
         //first card played
@@ -276,7 +290,7 @@ export default class GameHandler {
         //doubles played
         if (cardsPlayed.length === 2) {
 
-            if (cardsPlayed[0].value === '2' || cardsPlayed[0].value === four) {
+            if (cardsPlayed[0].value === two || cardsPlayed[0].value === four) {
                 alert("Cannot play multiple 2s or 4s")
                 return false
             }
@@ -293,7 +307,7 @@ export default class GameHandler {
         //triples played
         if (cardsPlayed.length === 3) {
 
-            if (cardsPlayed[0].value === '2' || cardsPlayed[0].value === four) {
+            if (cardsPlayed[0].value === two || cardsPlayed[0].value === four) {
                 alert("Cannot play multiple 2s or 4s")
                 return false
             }
@@ -376,16 +390,16 @@ export default class GameHandler {
      * Clear cards played
      * @param scene 
      */
-    clearCards(scene: Game): void {
+    async clearCards(scene: Game): Promise<void> {
+
+        //delay by 1 second
+        await new Promise(resolve => setTimeout(resolve, 1000)); 
 
         this.getAllPlayedCards(scene).forEach(card => {
-            //this.removeSprite(scene, card);
             scene.InteractiveHandler.moveCard(scene, this.findSprite(scene, card))
         })
 
         scene.currentPlayedCards.forEach(hand => hand.clearDeck())
-
-        console.log("cleared", scene.currentPlayedCards); 
     }
 
     /**

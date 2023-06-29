@@ -10,6 +10,10 @@ import { Players } from "../model/players";
 import { suites, values } from "../model/card";
 import CardSprite from "../model/cardSprite";
 
+export const soundKeys = {
+    crackBeer: 'beer-can-open',
+}
+
 export default class Game extends Scene {
     socket: Socket;
     isPlayerA: boolean; 
@@ -50,6 +54,9 @@ export default class Game extends Scene {
             })
         })
 
+        //load sounds
+        this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default); 
+
 
     }
        
@@ -68,11 +75,20 @@ export default class Game extends Scene {
         this.SocketHandler = new SocketHandler(this); 
         this.DeckHandler = new DeckHandler(this);
 
-        //handle physics
+
     }
 
     //make updates to game
     update() {
         
+    }
+
+    /**
+     * plays a sound
+     * @param key - sound key to play
+     */
+    playSound(key: string) {
+        var sound = this.sound.add(key);
+        sound.play();
     }
 }

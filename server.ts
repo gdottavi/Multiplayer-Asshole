@@ -52,10 +52,9 @@ io.on('connection', function (socket) {
         io.emit('playCards', cardsPlayed, socketId);
     })
 
-
     //turn finished - advance to next player
-    socket.on('changeTurn', (nextPlayer: Player) => {
-        io.emit('changeTurn', nextPlayer);
+    socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
+        io.emit('changeTurn', nextPlayer, shouldClear);
     })
 
     //pass turn

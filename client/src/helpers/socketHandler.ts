@@ -53,8 +53,8 @@ export default class SocketHandler {
 
 
         //Advance Turn
-        scene.socket.on('changeTurn', (nextPlayer: Player) => {
-            scene.GameHandler.changeTurn(scene, nextPlayer);
+        scene.socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
+            scene.GameHandler.changeTurn(scene, nextPlayer, shouldClear);
         })
 
         //Pass Turn - TODO

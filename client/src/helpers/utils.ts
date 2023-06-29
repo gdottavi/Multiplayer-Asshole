@@ -15,9 +15,8 @@ public areLastXValuesEqual(arr: any[], x: number): boolean {
     const lastXValues = arr.slice(arr.length - x);
 
     // Check if all values in the lastXValues array are equal
-    return lastXValues.every((value, index, array) => value === array[0]);
+    return lastXValues.every((value, index, array) => value.value === array[0].value);
 }
-  
-    // Add more generic functions as needed...
+
   }
 

@@ -1,5 +1,5 @@
 import { GameObjects, Input, Events } from "phaser";
-import Game from "../scenes/game";
+import Game, { soundKeys } from "../scenes/game";
 import GameHandler, { gameStateEnum } from "./gameHandler";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
@@ -30,6 +30,7 @@ export default class InteractiveHandler {
         //ready on click
         scene.readyText.on('pointerdown', () => {
             scene.socket.emit('ready')
+            scene.playSound(soundKeys.crackBeer); 
         })
 
         //pass turn on click
@@ -64,25 +65,6 @@ export default class InteractiveHandler {
                 sprite.y = dragY;
             })
         })
-
-
-
-        // Listen for keydown and keyup events to track the state of the Ctrl key  - not used
-        scene.input.keyboard.on('keydown', (event: KeyboardEvent) => {
-
-            if (event.ctrlKey || event.metaKey) {
-                // Ctrl key is pressed
-                ctrlKeyHeld = true;
-            }
-        });
-        scene.input.keyboard.on('keyup', (event: KeyboardEvent) => {
-
-            if (event.ctrlKey || event.metaKey) {
-                // Ctrl key is pressed
-                ctrlKeyHeld = false;
-            }
-        });
-
 
 
 
@@ -129,7 +111,7 @@ export default class InteractiveHandler {
             let cardsPlayed = []; 
 
             //card dropped in the play zone
-            if (scene.GameHandler.isMyTurn && scene.GameHandler.canPlay(scene, cardsTryPlayed)) {
+            if (scene.GameHandler.canPlay(scene, cardsTryPlayed)) {
 
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
@@ -144,7 +126,8 @@ export default class InteractiveHandler {
                 })
                 scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
                 let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed) 
-                scene.socket.emit('changeTurn', nextPlayer); 
+                //advance turn and clear cards if appropriate
+                scene.socket.emit('changeTurn', nextPlayer, scene.GameHandler.shouldClear); 
 
             }
             else {
