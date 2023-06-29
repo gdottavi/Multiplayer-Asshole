@@ -140,10 +140,10 @@ export default class InteractiveHandler {
                     //add to currently played cards
                     cardsPlayed.push(cardSprite.card);
                     //remove from players hand
-                    scene.currentPlayers.getPlayerById(scene.socket.id).removeCard(cardSprite.card);
+                    scene.currentPlayers.getPlayerById(scene.socket.id)?.removeCard(cardSprite.card);
                 })
                 scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
-                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed)
+                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed) 
                 scene.socket.emit('changeTurn', nextPlayer); 
 
             }

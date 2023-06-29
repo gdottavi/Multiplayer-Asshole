@@ -47,11 +47,6 @@ io.on('connection', function (socket) {
         //io.emit('changeGameState',"Ready");
     })
 
-    /*     //card played
-        socket.on('cardPlayed', (cardPlayed: Card, socketId) => {
-            io.emit('cardPlayed', cardPlayed, socketId);
-        }) */
-
     //card played
     socket.on('playCards', (cardsPlayed: Card[], socketId) => {
         io.emit('playCards', cardsPlayed, socketId);
@@ -66,6 +61,11 @@ io.on('connection', function (socket) {
     //pass turn
     socket.on('passTurn', () => {
         io.emit('passTurn');
+    })
+
+    //reset game
+    socket.on('reset', () => {
+
     })
 
     //remove players as they disconnect
