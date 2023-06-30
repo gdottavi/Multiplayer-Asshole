@@ -1,5 +1,5 @@
 import Game from "../scenes/game";
-import { Card, suites, values } from "../model/card";
+import { Card, suites, testingSuite, values } from "../model/card";
 import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
@@ -8,7 +8,7 @@ import { themeColors } from "./uiHandler";
 const four = '4', two = '2';
 
 /**
- * Handles dealing cards to start game
+ * Handles deck operations such as dealing and displaying cards
  */
 export default class DeckHandler {
 
@@ -26,52 +26,64 @@ export default class DeckHandler {
     /**
      * main entry point for dealing.  creates, shuffles and deals
      */
-    dealCards() {
-        this.createDeck();
-        this.shuffleDeck();
-        this.createHands();
+    async dealCards() {
+        await this.createDeck();
+        await this.shuffleDeck();
+        this.createHands()
     }
 
   
+/**
+ * Creates the initial deck - TODO: change to real suites, not testing suites.
+ */
+createDeck(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      testingSuite.forEach((suite) => {
+        values.forEach((value) => {
+          let card = new Card(suite, value);
+          this.scene.deck.addCard(card);
+        });
+      });
+      resolve();
+    });
+  }
+  
+  /**
+   * Shuffles the deck.
+   */
+  shuffleDeck(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.scene.deck.shuffleDeck();
+      resolve();
+    });
+  }
+
+
     /**
-     * Creates initial deck
+     * deals deck to all players in game
      */
-    private createDeck() {
-        suites.forEach(suite => {
-            values.forEach(value => {
-                let card = new Card(suite, value);
-                this.scene.deck.addCard(card);
-            })
-        })
-    }
-
-    
-    /**
-     * shuffles deck
-     */ 
-    private shuffleDeck() {
-        this.scene.deck.shuffleDeck();
-    }
-
-
-    //distrubute deck amongst game players
     createHands() {
-        let playerIndex = 0;
-        for (let i = 0; i < 52; i++) {
+        let playerIndex = 0
+
+        for (let i = 0; i < this.scene.deck.cards.length; i++) {
             let card = this.scene.deck.cards[i];
             this.scene.currentPlayers.players[playerIndex].cardHand.push(card);
             if (playerIndex < this.scene.currentPlayers.numberPlayers() - 1) {
                 playerIndex++;
             }
             else {
-                playerIndex = 0;
+                playerIndex = 0
             }
         }
     }
 
+    /**
+     * main tag to update on all clients after dealing is complete
+     * @param players - list of players in game
+     */
     updateAfterDeal(players: Player[]){
-        this.scene.currentPlayers.setPlayers(players)
-        this.displayCards();
+        this.scene.currentPlayers.setPlayers(players);
+        this.displayCards()
         this.scene.UIHandler.setInactiveText(this.scene.readyText); 
         this.scene.UIHandler.setInactiveText(this.scene.dealText)
         this.scene.UIHandler.setPlayerNames(this.scene);

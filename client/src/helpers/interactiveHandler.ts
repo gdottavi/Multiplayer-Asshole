@@ -16,8 +16,8 @@ export default class InteractiveHandler {
         let shouldAddToSelected = true;  //used to make sure after a drop the click event doesn't re-add cards to play and drag
 
         //deal cards on click
-        scene.dealText.on('pointerdown', () => {
-            scene.DeckHandler.dealCards()
+        scene.dealText.on('pointerdown', async () => {
+            await scene.DeckHandler.dealCards()
             scene.socket.emit('dealCards', scene.currentPlayers.players);
         })
 
