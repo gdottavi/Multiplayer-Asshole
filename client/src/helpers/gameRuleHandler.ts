@@ -71,7 +71,7 @@ export default class GameRuleHandler {
                 utils.removeSprite(this.scene, cardPlayed);
 
                 //show card played in middle for everyone
-                this.scene.DeckHandler.renderCard(this.scene, cardPlayed, ((this.scene.dropZone.x - 350) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y), 0.1,
+                this.scene.DeckHandler.renderCard(cardPlayed, ((this.scene.dropZone.x - 350) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y), 0.1,
                     cardPlayed.frontImageSprite, false);
 
             }

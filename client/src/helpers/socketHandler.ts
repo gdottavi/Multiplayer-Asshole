@@ -40,12 +40,7 @@ export default class SocketHandler {
 
         //Deal Cards
         scene.socket.on('dealCards', (players: Player[]) => {
-            scene.currentPlayers.setPlayers(players);  //set players with data on all clients
-            scene.DeckHandler.displayCards();
-            scene.UIHandler.setInactiveText(scene.readyText); 
-            scene.UIHandler.setInactiveText(scene.dealText)
-            scene.UIHandler.setPlayerNames(scene);
-            scene.UIHandler.updatePlayerNameColor(scene, scene.GameTurnHandler.currentTurnPlayer.socketId, themeColors.yellow)
+            scene.DeckHandler.updateAfterDeal(players); 
         })
 
 
