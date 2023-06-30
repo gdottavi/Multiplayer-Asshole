@@ -18,8 +18,7 @@ export default class InteractiveHandler {
     constructor(scene: Game) {
 
         let shouldAddToSelected = true;  //used to make sure after a drop the click event doesn't re-add cards to play and drag
-        // Define a flag to track whether the Ctrl key is held down
-        let ctrlKeyHeld = false;
+        //let isDragging = false;  //flag to track if card is being dragged
 
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -30,7 +29,7 @@ export default class InteractiveHandler {
         //ready on click
         scene.readyText.on('pointerdown', () => {
             scene.socket.emit('ready')
-            scene.playSound(soundKeys.crackBeer); 
+            scene.playSound(soundKeys.crackBeer);
         })
 
         //pass turn on click
@@ -40,18 +39,21 @@ export default class InteractiveHandler {
 
         //make card active when dragging - not used
         scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
-
-
+            //isDragging = true;
         })
 
         //finished dragging
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
+            //isDragging = false;
             //if not dropped in drop zone send back to starting positions
             if (!dropped) {
                 scene.selectedCardSprites.forEach(sprite => {
                     sprite.x = sprite.getData('dragStartX');
                     sprite.y = sprite.getData('dragStartY');
+                    //sprite.clearTint(); 
                 })
+                //scene.selectedCardSprites = []
+                //shouldAddToSelected = false;
             }
 
         })
@@ -72,28 +74,30 @@ export default class InteractiveHandler {
         scene.input.on('gameobjectup', (pointer: Input.Pointer, gameObject: GameObjects.Sprite) => {
 
             if (gameObject instanceof CardSprite) {
+                
+                    scene.input.setDraggable(gameObject);
 
-                scene.input.setDraggable(gameObject);
+                    const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
+                    let index = scene.selectedCardSprites.indexOf(gameObject);
 
-                const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
-                let index = scene.selectedCardSprites.indexOf(gameObject);
+                    //select card for dragging
+                    if (!isSelected && shouldAddToSelected) {
+                        //set start points for returning if not dragged to middle
+                        gameObject.setData('dragStartX', gameObject.x);
+                        gameObject.setData('dragStartY', gameObject.y)
 
-                //select card for dragging
-                if (!isSelected && shouldAddToSelected) {
-                    //set start points for returning if not dragged to middle
-                    gameObject.setData('dragStartX', gameObject.x)
-                    gameObject.setData('dragStartY', gameObject.y)
-                    //add to selected and show as selected
-                    scene.selectedCardSprites.push(gameObject);
-                    gameObject.setTint(0xff69b4);
-                    scene.children.bringToTop(gameObject);
-                }
-                //unselect card if clicked a second time
-                else if (isSelected) {
-                    scene.selectedCardSprites.splice(index, 1);
-                    gameObject.clearTint();
-                    scene.children.sendToBack(gameObject);
-                }
+                        //add to selected and show as selected
+                        scene.selectedCardSprites.push(gameObject);
+                        gameObject.setTint(0xff69b4);
+                        scene.children.bringToTop(gameObject);
+                    }
+                    //unselect card if clicked a second time
+                    else if (isSelected) {
+                        scene.selectedCardSprites.splice(index, 1);
+                        gameObject.clearTint();
+                        scene.children.sendToBack(gameObject);
+                    }
+                
 
             }
 
@@ -107,39 +111,39 @@ export default class InteractiveHandler {
         scene.input.on('drop', (pointer: Input.Pointer, sprite: CardSprite, dropZone: GameObjects.Zone) => {
 
             //array of cards from sprites
-            const cardsTryPlayed = scene.selectedCardSprites.map(sprite => sprite.card); 
-            let cardsPlayed = []; 
+            const cardsTryPlayed = scene.selectedCardSprites.map(sprite => sprite.card);
+            let cardsPlayed = [];
 
             //card dropped in the play zone
             if (scene.GameHandler.canPlay(scene, cardsTryPlayed)) {
 
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
-                    cardSprite.x = (dropZone.x - 350) + ((scene.GameHandler.getTotalCountCardsPlayed(scene)+(i+1)) * 50);
+                    cardSprite.x = (dropZone.x - 350) + ((scene.GameHandler.getTotalCountCardsPlayed(scene) + (i + 1)) * 50);
                     cardSprite.y = dropZone.y;
                     //disable the card from being dragged again after play
                     scene.input.setDraggable(cardSprite, false);
+                    cardSprite.clearTint()
                     //add to currently played cards
                     cardsPlayed.push(cardSprite.card);
                     //remove from players hand
                     scene.currentPlayers.getPlayerById(scene.socket.id)?.removeCard(cardSprite.card);
                 })
                 scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
-                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed) 
+                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed)
                 //advance turn and clear cards if appropriate
-                scene.socket.emit('changeTurn', nextPlayer, scene.GameHandler.shouldClear); 
+                scene.socket.emit('changeTurn', nextPlayer, scene.GameHandler.shouldClear);
 
             }
+            //if unable to play cards return each to start position
             else {
                 scene.selectedCardSprites.forEach((cardSprite) => {
-                    cardSprite.x = cardSprite.input.dragStartX;
-                    cardSprite.y = cardSprite.input.dragStartY;
+                    cardSprite.x = cardSprite.getData('dragStartX');
+                    cardSprite.y = cardSprite.getData('dragStartY');
+                    cardSprite.clearTint();
                 })
             }
-            scene.selectedCardSprites.forEach(sprite => {
-                sprite.clearTint()
-            }
-            )
+
             scene.selectedCardSprites = []
             shouldAddToSelected = false;
         })

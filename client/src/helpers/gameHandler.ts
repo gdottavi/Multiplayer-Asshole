@@ -41,7 +41,7 @@ export default class GameHandler {
         this.queuedCardsToPlay = new Deck();
         this.lastPlayedHand = new Deck();
         this.shouldClear = false;
-        this.lastHandCleared = false; 
+        this.lastHandCleared = false;
 
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
@@ -59,24 +59,24 @@ export default class GameHandler {
 
         //set if cards should be cleared for clients who did not play the cards
         if (this.currentTurnPlayer.socketId !== scene.socket.id) {
-            this.shouldClear = shouldClear; 
+            this.shouldClear = shouldClear;
         }
 
         //current --> last and next --> current
-        let lastPlayer = this.currentTurnPlayer;  
+        let lastPlayer = this.currentTurnPlayer;
         this.setTurn(scene, nextPlayer)
         scene.UIHandler.updatePlayerNameColor(scene, nextPlayer.socketId, themeColors.yellow);
 
         //check if cards should be cleared after changing turn
         if (this.checkClear(lastPlayer, nextPlayer)) {
-            this.lastHandCleared = true; 
+            this.lastHandCleared = true;
             await this.clearCards(scene);
-            this.shouldClear = false; 
+            this.shouldClear = false;
 
         }
-        else{
-        //cards not cleared and turn advanced
-        this.lastHandCleared = false; 
+        else {
+            //cards not cleared and turn advanced
+            this.lastHandCleared = false;
         }
     }
 
@@ -113,11 +113,11 @@ export default class GameHandler {
             if (nextPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || nextPlayerPosition == -1) {
                 nextPlayerPosition = 0;
             }
-            else nextPlayerPosition++;            
+            else nextPlayerPosition++;
         }
 
         nextTurnPlayer = scene.currentPlayers.players[nextPlayerPosition]
-        
+
         return nextTurnPlayer;
 
 
@@ -137,7 +137,7 @@ export default class GameHandler {
             this.isMyTurn = true;
         }
         else {
-            this.isMyTurn = false; 
+            this.isMyTurn = false;
         }
 
     }
@@ -149,7 +149,7 @@ export default class GameHandler {
     checkClear(prevPlayer: Player, currentPlayer: Player): boolean {
 
         //cards played which would clear - 2, 4 of a kind, complete square
-        if(this.shouldClear) return true; 
+        if (this.shouldClear) return true;
 
         //play has returned to original player and not immediately following a clear
         if ((prevPlayer.socketId === currentPlayer.socketId) && !this.lastHandCleared) return true;
@@ -193,7 +193,7 @@ export default class GameHandler {
             }
         })
 
-        
+
     }
 
 
@@ -239,24 +239,31 @@ export default class GameHandler {
     canPlay(scene: Game, cardsPlayed: Card[]): boolean {
 
         //check if completing square before turn since this can be done out of turn
-        if(this.checkSquareCompleted(scene, cardsPlayed)) {
-            this.shouldClear = true;    
-            return true; 
+        if (this.checkSquareCompleted(scene, cardsPlayed)) {
+            this.shouldClear = true;
+            return true
         }
 
         //not this players turn
-        if(!this.isMyTurn) return false; 
+        if (!this.isMyTurn) return false;
+
+        //check clear conditions first in order to properly set shouldClear
+            //four of a kind played
+        if (cardsPlayed.length === 4 && cardsPlayed.every(card => card.value === cardsPlayed[0].value)) {
+            this.shouldClear = true;
+            return true;
+        }
+            //single 2 played 
+        if (cardsPlayed.length === 1 && cardsPlayed[0].value === two) {
+            this.shouldClear = true
+            return true
+        }
+
 
         let lastPlayedHand = this.getLastPlayedHand(scene);
 
         //first card played
         if (lastPlayedHand == null || lastPlayedHand.length === 0) return true;
-
-        //single 2 played 
-        if (cardsPlayed.length === 1 && cardsPlayed[0].value === two) {
-            this.shouldClear = true;
-            return true;
-        }
 
         //single 4 played
         if (cardsPlayed.length === 1 && cardsPlayed[0].value === four) return true;
@@ -321,11 +328,7 @@ export default class GameHandler {
 
         }
 
-        //four of a kind played
-        if (cardsPlayed.length === 4) {
-            this.shouldClear = true;
-            return true;
-        }
+
 
         //default
         return true;
@@ -393,7 +396,7 @@ export default class GameHandler {
     async clearCards(scene: Game): Promise<void> {
 
         //delay by 1 second
-        await new Promise(resolve => setTimeout(resolve, 1000)); 
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         this.getAllPlayedCards(scene).forEach(card => {
             scene.InteractiveHandler.moveCard(scene, this.findSprite(scene, card))
