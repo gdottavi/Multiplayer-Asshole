@@ -125,7 +125,8 @@ export default class InteractiveHandler {
                     scene.currentPlayers.getPlayerById(scene.socket.id)?.removeCard(cardSprite.card);
                 })
                 scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
-
+                //check end scenarios and handle player out of game if necessary
+                scene.socket.emit('handlePlayerOut')
                 //advance turn and clear cards if appropriate
                 let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
                 scene.socket.emit('changeTurn', nextPlayer, scene.GameTurnHandler.shouldClear)

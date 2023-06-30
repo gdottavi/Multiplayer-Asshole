@@ -4,7 +4,7 @@ import Utils from "./utils";
 import { themeColors } from "./uiHandler";
 import { Card } from "../model/card";
 
-const utils = new Utils(); 
+const utils = new Utils();
 const four = '4', two = '2';
 
 /**
@@ -16,6 +16,7 @@ export default class GameTurnHandler {
     currentPlayers: Player[];
     shouldClear: boolean;
     lastHandCleared: boolean;
+    scene: Game;
 
     constructor(scene: Game) {
         this.isMyTurn = false;
@@ -23,6 +24,7 @@ export default class GameTurnHandler {
         this.currentPlayers = scene.currentPlayers.players;
         this.shouldClear = false;
         this.lastHandCleared = false;  //used to track if last hand played cleared the middle
+        this.scene = scene;
     }
 
     /**
@@ -54,6 +56,33 @@ export default class GameTurnHandler {
             //cards not cleared and turn advanced
             this.lastHandCleared = false;
         }
+
+    }
+
+
+    /**
+     * Finds the next player still in the game
+     * @param startIndex - player position to start looking at
+     * @returns - next player in game
+     */
+    getNextPlayerInGame(startIndex: number): Player|undefined {
+
+        const endIndex = startIndex - 1;
+        let currentIndex = startIndex; 
+
+        while(currentIndex !== endIndex)
+        {
+            if(currentIndex >= this.currentPlayers.length){
+                currentIndex = 0
+            }
+
+            const player = this.currentPlayers[currentIndex];
+            if(player.inGame) return player;
+
+            currentIndex++; 
+        }
+        return undefined; 
+
     }
 
     /**
@@ -62,18 +91,25 @@ export default class GameTurnHandler {
      * @param cardsPlayed 
      * @returns - Player that is up next
      */
-    getNextTurnPlayer(scene: Game, cardsPlayed: Card[]): Player {
+    getNextTurnPlayer(scene: Game, cardsPlayed?: Card[]): Player {
 
         let nextTurnPlayer = this.currentTurnPlayer
 
+        //find current player in active players
+        let currentPlayerPosition = this.currentPlayers.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
+
+        //if player is out of game keep advancing to next that would be in
+        if (this.isPlayerOut(scene, nextTurnPlayer)) {
+            nextTurnPlayer = this.getNextPlayerInGame(currentPlayerPosition)
+        }
+
         //do not advance turn on a 2 played
-        if (cardsPlayed[0]?.value == two) return nextTurnPlayer;
+        if (cardsPlayed !== null && cardsPlayed[0]?.value == two) return nextTurnPlayer;
 
         //sanity check
         if (this.currentPlayers.length < 2) return nextTurnPlayer
 
-        //find current player in active players
-        let currentPlayerPosition = this.currentPlayers.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
+
 
         //set back to first player if at end otherwise advance to next position
         let nextPlayerPosition = 0;
@@ -84,7 +120,7 @@ export default class GameTurnHandler {
 
 
         //if card(s) played matched last card(s) skip player
-        if (cardsPlayed?.length === 1 && (scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)?.length === cardsPlayed.length) && (cardsPlayed[0]?.value === scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)[0]?.value)) {
+        if (cardsPlayed?.length === 1 && (scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)?.length === cardsPlayed?.length) && (cardsPlayed[0]?.value === scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)[0]?.value)) {
             //set back to first player if at end otherwise advance to next position
             if (nextPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || nextPlayerPosition == -1) {
                 nextPlayerPosition = 0;
@@ -132,7 +168,7 @@ export default class GameTurnHandler {
         this.currentTurnPlayer = nextPlayer;
 
         //determine if current player is this client (getting some errors here)
-        if (this.currentTurnPlayer.socketId === scene.socket.id) {
+        if (this.currentTurnPlayer.socketId === this.scene.socket.id) {
             this.isMyTurn = true;
         }
         else {
@@ -169,20 +205,29 @@ export default class GameTurnHandler {
       * 
       * 
       */
-    handlePlayerOut(scene: Game, currentPlayer: Player): void {
+
+    /**
+     * Handles a single player being out of game and end scenario for game (1 player left)
+     */
+    handlePlayerOut(): void {
+
+        let currentPlayer = this.currentTurnPlayer; 
+
         //player still in game
-        if (!this.isPlayerOut(scene, currentPlayer)) return;
-        //player out - don't remove from game but mark as out and update UI
+        if (!this.isPlayerOut(this.scene, currentPlayer)) return;
+
+        //player out - don't remove from game but update UI. 
+        this.scene.UIHandler.updatePlayerNameColor(this.scene, currentPlayer.socketId, themeColors.inactiveGray)
 
         //all players out except 1 - Game over
-        if (this.currentPlayers.length === 1) {
-            //GAME OVER - TODO - display message and change scene
-            alert("game over!")
+        if(this.scene.currentPlayers.countPlayersInGame() < 2){
+            utils.createToast(this.scene, "GAME OVER", 10000); 
+            this.resetGame(this.scene); 
         }
     }
 
     /**
-     * Checks if player is out of game 
+     * Checks if player is out of game.  If player has zero cards sets as out. 
      * @param scene 
      * @param currentPlayer 
      * @returns - true if player is out of game
@@ -201,6 +246,8 @@ export default class GameTurnHandler {
         return false
 
     }
+
+
 
     /**
  * Clear cards played

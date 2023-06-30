@@ -45,4 +45,13 @@ export class Players {
             this.addPlayer(newPlayer); 
         })
     }
+
+    /**
+     * 
+     * @returns number of players in game
+     */
+    countPlayersInGame(): number{
+        const playersInGame = this.players.filter(player => player.inGame === true)
+        return playersInGame.length
+    }
 }

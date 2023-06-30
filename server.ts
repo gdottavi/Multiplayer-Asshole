@@ -52,6 +52,11 @@ io.on('connection', function (socket) {
         io.emit('playCards', cardsPlayed, socketId);
     })
 
+    //Between card played and advancing turn check if player is out and if game is over
+    socket.on('handlePlayerOut', () => {
+        io.emit('handlePlayerOut'); 
+    })
+
     //turn finished - advance to next player
     socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
         io.emit('changeTurn', nextPlayer, shouldClear);
