@@ -37,8 +37,7 @@ export default class UIHandler {
         //TODO - create zones for all opponent hands
 
 
-        //menu options for game
-        //TODO - don't allow dealing until ready is pushed and finished processing (add delay)
+        //menu options for game - TODO Add PLAY AGAIN OPTION
         scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
         scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS')
         this.setInactiveText(scene.dealText); 
@@ -104,6 +103,8 @@ export default class UIHandler {
         text.setFontStyle('normal');
         text.setInteractive(); 
     }
+
+    
 
 
 }

@@ -2,13 +2,13 @@ import {GameObjects, Input, Scene} from "phaser";
 import InteractiveHandler from "../helpers/interactiveHandler";
 import SocketHandler from "../helpers/socketHandler";
 import UIHandler from "../helpers/uiHandler";
-import GameHandler from "../helpers/gameHandler";
+import GameRuleHandler from "../helpers/gameRuleHandler";
 import DeckHandler from "../helpers/deckHandler";
 import {Socket} from "socket.io-client" ; 
 import { Deck } from "../model/deck";
 import { Players } from "../model/players";
 import { suites, values } from "../model/card";
-import CardSprite from "../model/cardSprite";
+import GameTurnHandler from "../helpers/gameTurnHandler";
 
 export const soundKeys = {
     crackBeer: 'beer-can-open',
@@ -20,7 +20,8 @@ export default class Game extends Scene {
     InteractiveHandler: InteractiveHandler;
     SocketHandler: SocketHandler;
     UIHandler: UIHandler;
-    GameHandler: GameHandler;
+    GameRuleHandler: GameRuleHandler;
+    GameTurnHandler: GameTurnHandler; 
     DeckHandler: DeckHandler;
     zone: any;
     dropZone: Phaser.GameObjects.Zone;
@@ -70,7 +71,8 @@ export default class Game extends Scene {
         this.currentPlayedCards = new Deck(); 
 
         this.UIHandler = new UIHandler(this); 
-        this.GameHandler = new GameHandler(this); 
+        this.GameRuleHandler = new GameRuleHandler(this); 
+        this.GameTurnHandler = new GameTurnHandler(this); 
         this.InteractiveHandler = new InteractiveHandler(this); 
         this.SocketHandler = new SocketHandler(this); 
         this.DeckHandler = new DeckHandler(this);

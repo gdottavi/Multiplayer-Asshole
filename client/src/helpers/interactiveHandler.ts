@@ -1,9 +1,7 @@
 import { GameObjects, Input, Events } from "phaser";
 import Game, { soundKeys } from "../scenes/game";
-import GameHandler, { gameStateEnum } from "./gameHandler";
 import CardSprite from "../model/cardSprite";
-import { Player } from "../model/player";
-import { Deck } from "../model/deck";
+
 
 const OFFSET_X = 20;
 
@@ -13,12 +11,9 @@ const OFFSET_X = 20;
  */
 export default class InteractiveHandler {
 
-
-
     constructor(scene: Game) {
 
         let shouldAddToSelected = true;  //used to make sure after a drop the click event doesn't re-add cards to play and drag
-        //let isDragging = false;  //flag to track if card is being dragged
 
         //deal cards on click
         scene.dealText.on('pointerdown', () => {
@@ -32,6 +27,11 @@ export default class InteractiveHandler {
             scene.playSound(soundKeys.crackBeer);
         })
 
+        //reset on click
+        scene.resetText.on('pointerdown', () => {
+            scene.socket.emit('reset')
+        })
+
         //pass turn on click
         scene.passText.on('pointerdown', () => {
             scene.socket.emit('passTurn');
@@ -39,21 +39,16 @@ export default class InteractiveHandler {
 
         //make card active when dragging - not used
         scene.input.on('dragstart', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite) {
-            //isDragging = true;
         })
 
         //finished dragging
         scene.input.on('dragend', function (pointer: Input.Pointer, gameObject: GameObjects.Sprite, dropped: boolean) {
-            //isDragging = false;
             //if not dropped in drop zone send back to starting positions
             if (!dropped) {
                 scene.selectedCardSprites.forEach(sprite => {
                     sprite.x = sprite.getData('dragStartX');
                     sprite.y = sprite.getData('dragStartY');
-                    //sprite.clearTint(); 
                 })
-                //scene.selectedCardSprites = []
-                //shouldAddToSelected = false;
             }
 
         })
@@ -115,24 +110,25 @@ export default class InteractiveHandler {
             let cardsPlayed = [];
 
             //card dropped in the play zone
-            if (scene.GameHandler.canPlay(scene, cardsTryPlayed)) {
+            if (scene.GameRuleHandler.canPlay(cardsTryPlayed)) {
 
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
-                    cardSprite.x = (dropZone.x - 350) + ((scene.GameHandler.getTotalCountCardsPlayed(scene) + (i + 1)) * 50);
+                    cardSprite.x = (dropZone.x - 350) + ((scene.GameRuleHandler.getTotalCountCardsPlayed() + (i + 1)) * 50);
                     cardSprite.y = dropZone.y;
                     //disable the card from being dragged again after play
                     scene.input.setDraggable(cardSprite, false);
                     cardSprite.clearTint()
                     //add to currently played cards
                     cardsPlayed.push(cardSprite.card);
-                    //remove from players hand
+                    //remove from players hand 
                     scene.currentPlayers.getPlayerById(scene.socket.id)?.removeCard(cardSprite.card);
                 })
                 scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
-                let nextPlayer = scene.GameHandler.getNextTurnPlayer(scene, cardsPlayed)
+
                 //advance turn and clear cards if appropriate
-                scene.socket.emit('changeTurn', nextPlayer, scene.GameHandler.shouldClear);
+                let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
+                scene.socket.emit('changeTurn', nextPlayer, scene.GameTurnHandler.shouldClear)
 
             }
             //if unable to play cards return each to start position
@@ -173,6 +169,14 @@ export default class InteractiveHandler {
         })
         scene.readyText.on('pointerout', () => {
             scene.readyText.setColor('#00ffff');
+        })
+
+        //hover for reset text
+        scene.resetText.on('pointerover', () => {
+            scene.resetText.setColor('#ff69b4');
+        })
+        scene.resetText.on('pointerout', () => {
+            scene.resetText.setColor('#00ffff');
         })
 
     }

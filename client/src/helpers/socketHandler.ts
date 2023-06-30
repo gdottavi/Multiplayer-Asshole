@@ -2,8 +2,6 @@ import { io } from "socket.io-client";
 import Game from "../scenes/game";
 import { Card } from '../model/card';
 import { Player } from "../model/player";
-import CardSprite from "../model/cardSprite";
-import { Players } from "../model/players";
 import { themeColors } from "./uiHandler";
 
 
@@ -27,15 +25,14 @@ export default class SocketHandler {
 
         //Ready - Create Players from array of socket Ids (players)
         scene.socket.on('ready', (players) => {
-            players.forEach((p: string) => {
+            players.forEach((socketID: string) => {
                 //if player already exists with socketID delete first - TODO
-                //
-                let newPlayer = new Player(p, "Player " + scene.currentPlayers.numberPlayers());
+                let newPlayer = new Player(socketID, "Player " + scene.currentPlayers.numberPlayers());
                 scene.currentPlayers.addPlayer(newPlayer);
             })
 
             //set first turn
-            scene.GameHandler.setTurn(scene, scene.currentPlayers.players[0]);
+            scene.GameTurnHandler.setTurn(scene, scene.currentPlayers.players[0]);
             //update state of menu options
             scene.UIHandler.setActiveText(scene.dealText); 
             scene.UIHandler.setInactiveText(scene.readyText); 
@@ -48,23 +45,29 @@ export default class SocketHandler {
             scene.UIHandler.setInactiveText(scene.readyText); 
             scene.UIHandler.setInactiveText(scene.dealText)
             scene.UIHandler.setPlayerNames(scene);
-            scene.UIHandler.updatePlayerNameColor(scene, scene.GameHandler.currentTurnPlayer.socketId, themeColors.yellow)
+            scene.UIHandler.updatePlayerNameColor(scene, scene.GameTurnHandler.currentTurnPlayer.socketId, themeColors.yellow)
         })
 
 
         //Advance Turn
         scene.socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
-            scene.GameHandler.changeTurn(scene, nextPlayer, shouldClear);
+            scene.GameTurnHandler.changeTurn(scene, nextPlayer, shouldClear);
         })
 
         //Pass Turn - TODO
         scene.socket.on('passTurn', () => {
-            scene.GameHandler.changeTurn(scene, null)
+            scene.GameTurnHandler.changeTurn(scene, null)
+        })
+
+        //Reset Game
+        scene.socket.on('reset', () => {
+            scene.GameTurnHandler.resetGame(scene)
+            scene.UIHandler.setActiveText(scene.dealText)
         })
 
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {
-            scene.GameHandler.changeGameState(gameState);
+            scene.GameRuleHandler.changeGameState(gameState);
             if (gameState === "Initializing") {
                 scene.dealText.setInteractive();
                 scene.dealText.setColor('#00ffff');
@@ -75,7 +78,7 @@ export default class SocketHandler {
          * Card Played - show on all clients, remove cards from hands and check if should clear
          */
         scene.socket.on('playCards', (cardsPlayed: Card[], socketId: string) => {
-            scene.GameHandler.playCards(socketId, scene, cardsPlayed);
+            scene.GameRuleHandler.playCards(socketId, cardsPlayed);
         })
 
 
