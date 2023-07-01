@@ -43,7 +43,8 @@ export default class UIHandler {
         this.setInactiveText(scene.dealText); 
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
         this.setInactiveText(scene.resetText)
-        scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
+        scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        this.setInactiveText(scene.passText); 
     }
 
     /**

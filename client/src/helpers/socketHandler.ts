@@ -32,7 +32,7 @@ export default class SocketHandler {
             })
 
             //set first turn
-            scene.GameTurnHandler.setTurn(scene, scene.currentPlayers.players[0]);
+            scene.GameTurnHandler.setTurn(scene.currentPlayers.players[0]);
             //update state of menu options
             scene.UIHandler.setActiveText(scene.dealText);
             scene.UIHandler.setInactiveText(scene.readyText);
@@ -55,10 +55,8 @@ export default class SocketHandler {
         })
 
         //Pass Turn - TODO
-        scene.socket.on('passTurn', () => {\
-            //TODO - either update getnextturnplaer to take null for cards played or write a new function
-            let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene)
-            scene.GameTurnHandler.changeTurn(scene, nextPlayer)
+        scene.socket.on('passTurn', (nextPlayer: Player) => {
+            scene.GameTurnHandler.changeTurn(scene, nextPlayer, false, true)
         })
 
         //Reset Game

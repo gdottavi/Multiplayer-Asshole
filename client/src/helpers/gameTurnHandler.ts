@@ -12,7 +12,8 @@ const four = '4', two = '2';
  */
 export default class GameTurnHandler {
     isMyTurn: boolean;
-    currentTurnPlayer: Player;
+    currentTurnPlayer: Player;  //current player up to play
+    lastTurnPlayer: Player;  //last player who played cards
     currentPlayers: Player[];
     shouldClear: boolean;
     lastHandCleared: boolean;
@@ -21,6 +22,7 @@ export default class GameTurnHandler {
     constructor(scene: Game) {
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
+        this.lastTurnPlayer = scene.currentPlayers.players[0]; 
         this.currentPlayers = scene.currentPlayers.players;
         this.shouldClear = false;
         this.lastHandCleared = false;  //used to track if last hand played cleared the middle
@@ -28,12 +30,13 @@ export default class GameTurnHandler {
     }
 
     /**
- * Advances turn to next player
+ * Advances turn to next player and stores last player who played cards. 
  * @param scene 
  * @param nextPlayer - player to set as current player
- * @param shouldClear - indicates cards should be cleared from middle
+ * @param shouldClear - indicates cards should be cleared from middle.  should be false for a pass
+ * @param pass - indicates the last player did not play and passed turn.  Default is false.
  */
-    async changeTurn(scene: Game, nextPlayer: Player, shouldClear?: boolean): Promise<void> {
+    async changeTurn(scene: Game, nextPlayer: Player, shouldClear?: boolean, pass: boolean= false): Promise<void> {
 
         //set if cards should be cleared for clients who did not play the cards
         if (this.currentTurnPlayer.socketId !== scene.socket.id) {
@@ -41,12 +44,14 @@ export default class GameTurnHandler {
         }
 
         //current --> last and next --> current
-        let lastPlayer = this.currentTurnPlayer;
-        this.setTurn(scene, nextPlayer)
+        //set the player who just played to last, unless they passed turn
+        if(!pass) this.lastTurnPlayer = this.currentTurnPlayer;
+        //set the calculated next player as current
+        this.setTurn(nextPlayer);
         scene.UIHandler.updatePlayerNameColor(scene, nextPlayer.socketId, themeColors.yellow);
 
         //check if cards should be cleared after changing turn
-        if (this.checkClear(lastPlayer, nextPlayer)) {
+        if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
             this.lastHandCleared = true;
             await this.clearCards(scene);
             this.shouldClear = false;
@@ -72,14 +77,16 @@ export default class GameTurnHandler {
 
         while(currentIndex !== endIndex)
         {
+
+            currentIndex++; 
+
             if(currentIndex >= this.currentPlayers.length){
                 currentIndex = 0
             }
 
             const player = this.currentPlayers[currentIndex];
             if(player.inGame) return player;
-
-            currentIndex++; 
+            
         }
         return undefined; 
 
@@ -88,10 +95,11 @@ export default class GameTurnHandler {
     /**
      * Given cards played returns the next player up to play
      * @param scene 
-     * @param cardsPlayed 
+     * @param cardsPlayed - cards played.  This should not be used with pass
+     * @param pass - player passes turn without playing cards.  This should not be used with cardsPlayed
      * @returns - Player that is up next
      */
-    getNextTurnPlayer(scene: Game, cardsPlayed?: Card[]): Player {
+    getNextTurnPlayer(scene: Game, cardsPlayed?: Card[], pass?: boolean): Player {
 
         let nextTurnPlayer = this.currentTurnPlayer
 
@@ -103,13 +111,16 @@ export default class GameTurnHandler {
             nextTurnPlayer = this.getNextPlayerInGame(currentPlayerPosition)
         }
 
+        //if passing just get next player in game
+        if(cardsPlayed === null && pass === true){
+            return this.getNextPlayerInGame(currentPlayerPosition) 
+        }
+
         //do not advance turn on a 2 played
-        if (cardsPlayed !== null && cardsPlayed[0]?.value == two) return nextTurnPlayer;
+        if (cardsPlayed[0]?.value == two) return nextTurnPlayer;
 
         //sanity check
         if (this.currentPlayers.length < 2) return nextTurnPlayer
-
-
 
         //set back to first player if at end otherwise advance to next position
         let nextPlayerPosition = 0;
@@ -163,16 +174,18 @@ export default class GameTurnHandler {
      * Sets the current turn player to calculated next player for all clients through socket.io call
      * @param nextPlayer - next player up to now set as current player
      */
-    setTurn(scene: Game, nextPlayer: Player): void {
+    setTurn(nextPlayer: Player): void {
 
         this.currentTurnPlayer = nextPlayer;
 
         //determine if current player is this client (getting some errors here)
         if (this.currentTurnPlayer.socketId === this.scene.socket.id) {
             this.isMyTurn = true;
+            this.scene.UIHandler.setActiveText(this.scene.passText); 
         }
         else {
             this.isMyTurn = false;
+            this.scene.UIHandler.setInactiveText(this.scene.passText); 
         }
 
     }

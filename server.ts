@@ -63,8 +63,8 @@ io.on('connection', function (socket) {
     })
 
     //pass turn
-    socket.on('passTurn', () => {
-        io.emit('passTurn');
+    socket.on('passTurn', (nextPlayer: Player) => {
+        io.emit('passTurn', nextPlayer);
     })
 
     //reset game

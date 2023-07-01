@@ -34,7 +34,8 @@ export default class InteractiveHandler {
 
         //pass turn on click
         scene.passText.on('pointerdown', () => {
-            scene.socket.emit('passTurn');
+            let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, null, true)
+            scene.socket.emit('passTurn', nextPlayer);
         })
 
         //make card active when dragging - not used
@@ -69,30 +70,30 @@ export default class InteractiveHandler {
         scene.input.on('gameobjectup', (pointer: Input.Pointer, gameObject: GameObjects.Sprite) => {
 
             if (gameObject instanceof CardSprite) {
-                
-                    scene.input.setDraggable(gameObject);
 
-                    const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
-                    let index = scene.selectedCardSprites.indexOf(gameObject);
+                scene.input.setDraggable(gameObject);
 
-                    //select card for dragging
-                    if (!isSelected && shouldAddToSelected) {
-                        //set start points for returning if not dragged to middle
-                        gameObject.setData('dragStartX', gameObject.x);
-                        gameObject.setData('dragStartY', gameObject.y)
+                const isSelected = scene.selectedCardSprites.some(sprite => sprite === gameObject)
+                let index = scene.selectedCardSprites.indexOf(gameObject);
 
-                        //add to selected and show as selected
-                        scene.selectedCardSprites.push(gameObject);
-                        gameObject.setTint(0xff69b4);
-                        scene.children.bringToTop(gameObject);
-                    }
-                    //unselect card if clicked a second time
-                    else if (isSelected) {
-                        scene.selectedCardSprites.splice(index, 1);
-                        gameObject.clearTint();
-                        scene.children.sendToBack(gameObject);
-                    }
-                
+                //select card for dragging
+                if (!isSelected && shouldAddToSelected) {
+                    //set start points for returning if not dragged to middle
+                    gameObject.setData('dragStartX', gameObject.x);
+                    gameObject.setData('dragStartY', gameObject.y)
+
+                    //add to selected and show as selected
+                    scene.selectedCardSprites.push(gameObject);
+                    gameObject.setTint(0xff69b4);
+                    scene.children.bringToTop(gameObject);
+                }
+                //unselect card if clicked a second time
+                else if (isSelected) {
+                    scene.selectedCardSprites.splice(index, 1);
+                    gameObject.clearTint();
+                    scene.children.sendToBack(gameObject);
+                }
+
 
             }
 
@@ -178,6 +179,14 @@ export default class InteractiveHandler {
         })
         scene.resetText.on('pointerout', () => {
             scene.resetText.setColor('#00ffff');
+        })
+
+        //hover for reset text
+        scene.passText.on('pointerover', () => {
+            scene.passText.setColor('#ff69b4');
+        })
+        scene.passText.on('pointerout', () => {
+            scene.passText.setColor('#00ffff');
         })
 
     }
