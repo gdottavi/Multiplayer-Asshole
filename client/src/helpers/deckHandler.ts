@@ -63,7 +63,7 @@ createDeck(): Promise<void> {
      * deals deck to all players in game
      */
     createHands() {
-        let playerIndex = 0
+        let playerIndex = 0;
 
         for (let i = 0; i < this.scene.deck.cards.length; i++) {
             let card = this.scene.deck.cards[i];

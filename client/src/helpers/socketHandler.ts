@@ -43,20 +43,20 @@ export default class SocketHandler {
             scene.DeckHandler.updateAfterDeal(players);
         })
 
-        //Between card played and advancing turn check if player is out and if game is over
-        scene.socket.on('handlePlayerOut', () => {
-            scene.GameTurnHandler.handlePlayerOut();
-        })
+        // //Between card played and advancing turn check if player is out and if game is over
+        // scene.socket.on('handlePlayerOut', () => {
+        //     scene.GameTurnHandler.handlePlayerOut();
+        // })
 
 
-        //Advance Turn
-        scene.socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
-            scene.GameTurnHandler.changeTurn(scene, nextPlayer, shouldClear);
-        })
+        // //Advance Turn
+        // scene.socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
+        //     scene.GameTurnHandler.changeTurn(scene, nextPlayer, shouldClear);
+        // })
 
         //Pass Turn - TODO
-        scene.socket.on('passTurn', (nextPlayer: Player) => {
-            scene.GameTurnHandler.changeTurn(scene, nextPlayer, false, true)
+        scene.socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
+            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true)
         })
 
         //Reset Game
@@ -75,10 +75,17 @@ export default class SocketHandler {
         });
 
         /**
-         * Card Played - show on all clients, remove cards from hands and check if should clear
+         * Card Played Handling for all Clients
+         *   - show cards played on all clients
+         *   - remove cards form opponent hands
+         *   - check if should clear played cards
+         *   - handle players winning/exiting game
+         *   - handle updating turn
          */
-        scene.socket.on('playCards', (cardsPlayed: Card[], socketId: string) => {
-            scene.GameRuleHandler.playCards(socketId, cardsPlayed);
+        scene.socket.on('playCards', async (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
+            await scene.GameRuleHandler.playCards(socketId, cardsPlayed);
+            await scene.GameTurnHandler.handlePlayerOut(currentPlayer.socketId);
+            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear); 
         })
 
 

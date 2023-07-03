@@ -49,8 +49,9 @@ export default class GameRuleHandler {
      * Plays a single card for all opponent clients
      * @param socketId 
      * @param cardsPlayed 
+     * @returns - currently played cards deck array. used to update other clients
      */
-    playCards(socketId: string, cardsPlayed: Card[]): void {
+    async playCards(socketId: string, cardsPlayed: Card[]): Promise<void> {
 
         let handPlayed = new Deck();
         this.currentPlayedCards.push(handPlayed);
@@ -77,10 +78,9 @@ export default class GameRuleHandler {
             }
         })
 
+        return Promise.resolve();
 
     }
-
-
 
 
     /**

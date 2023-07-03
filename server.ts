@@ -48,8 +48,8 @@ io.on('connection', function (socket) {
     })
 
     //card played
-    socket.on('playCards', (cardsPlayed: Card[], socketId) => {
-        io.emit('playCards', cardsPlayed, socketId);
+    socket.on('playCards', (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
+        io.emit('playCards', cardsPlayed, socketId, shouldClear, currentPlayer, nextPlayer);
     })
 
     //Between card played and advancing turn check if player is out and if game is over
@@ -63,8 +63,8 @@ io.on('connection', function (socket) {
     })
 
     //pass turn
-    socket.on('passTurn', (nextPlayer: Player) => {
-        io.emit('passTurn', nextPlayer);
+    socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
+        io.emit('passTurn',currentPlayer, nextPlayer);
     })
 
     //reset game

@@ -33,9 +33,10 @@ export default class InteractiveHandler {
         })
 
         //pass turn on click
-        scene.passText.on('pointerdown', () => {
-            let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, null, true)
-            scene.socket.emit('passTurn', nextPlayer);
+        scene.passText.on('pointerdown', async () => {
+            const nextPlayer = await scene.GameTurnHandler.getNextTurnPlayer(scene, null, true)
+            const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
+            scene.socket.emit('passTurn', currentPlayer, nextPlayer);
         })
 
         //make card active when dragging - not used
@@ -104,14 +105,16 @@ export default class InteractiveHandler {
 
 
         //Card Played
-        scene.input.on('drop', (pointer: Input.Pointer, sprite: CardSprite, dropZone: GameObjects.Zone) => {
+        scene.input.on('drop', async (pointer: Input.Pointer, sprite: CardSprite, dropZone: GameObjects.Zone) => {
 
             //array of cards from sprites
             const cardsTryPlayed = scene.selectedCardSprites.map(sprite => sprite.card);
             let cardsPlayed = [];
 
-            //card dropped in the play zone
+            //card dropped in the play zone 
             if (scene.GameRuleHandler.canPlay(cardsTryPlayed)) {
+
+                const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id)
 
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
@@ -123,14 +126,20 @@ export default class InteractiveHandler {
                     //add to currently played cards
                     cardsPlayed.push(cardSprite.card);
                     //remove from players hand 
-                    scene.currentPlayers.getPlayerById(scene.socket.id)?.removeCard(cardSprite.card);
+                    currentPlayer?.removeCard(cardSprite.card);
                 })
-                scene.socket.emit('playCards', cardsPlayed, scene.socket.id)
+
+                let nextPlayer = await scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
+                scene.socket.emit('playCards', cardsPlayed, scene.socket.id, scene.GameTurnHandler.shouldClear, currentPlayer, nextPlayer)
                 //check end scenarios and handle player out of game if necessary
-                scene.socket.emit('handlePlayerOut')
+                //scene.socket.emit('handlePlayerOut')
                 //advance turn and clear cards if appropriate
-                let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
-                scene.socket.emit('changeTurn', nextPlayer, scene.GameTurnHandler.shouldClear)
+                //let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
+                //scene.socket.emit('changeTurn', nextPlayer, scene.GameTurnHandler.shouldClear)
+
+
+                //let other clients know about the cards played, the last players hand update and who the current player is
+              
 
             }
             //if unable to play cards return each to start position
@@ -138,7 +147,7 @@ export default class InteractiveHandler {
                 scene.selectedCardSprites.forEach((cardSprite) => {
                     cardSprite.x = cardSprite.getData('dragStartX');
                     cardSprite.y = cardSprite.getData('dragStartY');
-                    cardSprite.clearTint();
+                    cardSprite.clearTint()
                 })
             }
 
