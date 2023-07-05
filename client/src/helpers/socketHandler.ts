@@ -83,9 +83,9 @@ export default class SocketHandler {
          *   - handle updating turn
          */
         scene.socket.on('playCards', async (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
-            await scene.GameRuleHandler.playCards(socketId, cardsPlayed);
-            await scene.GameTurnHandler.handlePlayerOut(currentPlayer.socketId);
-            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear); 
+            await scene.GameRuleHandler.playCards(socketId, cardsPlayed)
+            await scene.GameTurnHandler.handlePlayerOut(scene, currentPlayer)
+            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear)
         })
 
 

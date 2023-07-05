@@ -1,4 +1,5 @@
 import CardSprite from "../model/cardSprite";
+import { Player } from "../model/player";
 import Game from "../scenes/game";
 
 
@@ -40,11 +41,11 @@ export default class UIHandler {
         //menu options for game - TODO Add PLAY AGAIN OPTION
         scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
         scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS')
-        this.setInactiveText(scene.dealText); 
+        this.setInactiveText(scene.dealText);
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
         this.setInactiveText(scene.resetText)
         scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
-        this.setInactiveText(scene.passText); 
+        this.setInactiveText(scene.passText);
     }
 
     /**
@@ -58,31 +59,35 @@ export default class UIHandler {
 
             if (scene.socket.id !== player.socketId) { opponentPos++ };
             if (scene.socket.id === player.socketId) {
-                scene.add.text(100, 575, [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName'); 
+                scene.add.text(100, 575, [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
-                scene.add.text(100, 50 + (opponentPos * 80), [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName'); 
+                scene.add.text(100, 50 + (opponentPos * 80), [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
 
         })
     }
 
     /**
-     * Updates color of active player name
+     * Updates color of player name.  Will default to cyan if player in game.
      * @param scene 
-     * @param socketId 
-     * @param color 
+     * @param player - player name to update
+     * @param color - color to update name to
      */
-    updatePlayerNameColor(scene: Game, socketId: string, color: string){
+    async updatePlayerNameColor(scene: Game, player: Player, color: string): Promise<void> {
+
+       let socketId = player.socketId; 
+
         scene.children.each((child) => {
-            if(child instanceof Phaser.GameObjects.Text  && child.getData('type') === 'playerName'){
+            if (child instanceof Phaser.GameObjects.Text && child.getData('type') === 'playerName') {
 
-            if(child.getData('id') === socketId) child.setColor(color); 
+                if (child.getData('id') === socketId) child.setColor(color)
 
-            else child.setColor(themeColors.cyan)
             }
 
         })
+
+        return Promise.resolve();
     }
 
     /**
@@ -90,9 +95,9 @@ export default class UIHandler {
      * @param text - text to set inactive
      */
     setInactiveText(text: Phaser.GameObjects.Text): void {
-        text.setColor(themeColors.inactiveGray); 
-        text.setFontStyle('italic'); 
-        text.disableInteractive(); 
+        text.setColor(themeColors.inactiveGray);
+        text.setFontStyle('italic');
+        text.disableInteractive();
     }
 
     /**
@@ -102,10 +107,10 @@ export default class UIHandler {
     setActiveText(text: Phaser.GameObjects.Text): void {
         text.setColor(themeColors.cyan);
         text.setFontStyle('normal');
-        text.setInteractive(); 
+        text.setInteractive();
     }
 
-    
+
 
 
 }

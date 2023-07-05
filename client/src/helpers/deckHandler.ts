@@ -53,7 +53,7 @@ createDeck(): Promise<void> {
    */
   shuffleDeck(): Promise<void> {
     return new Promise<void>((resolve) => {
-      this.scene.deck.shuffleDeck();
+      this.scene.deck.shuffleDeck()
       resolve();
     });
   }
@@ -87,7 +87,7 @@ createDeck(): Promise<void> {
         this.scene.UIHandler.setInactiveText(this.scene.readyText); 
         this.scene.UIHandler.setInactiveText(this.scene.dealText)
         this.scene.UIHandler.setPlayerNames(this.scene);
-        this.scene.UIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer.socketId, themeColors.yellow)
+        this.scene.UIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
     }
 
     /**
@@ -117,6 +117,7 @@ createDeck(): Promise<void> {
      */
     renderCard(card: Card, x: number, y: number, scale: number, image_key: string, interactive: boolean) {
         let cardSprite = new CardSprite(this.scene, card, x, y, image_key).setScale(scale);
+        this.scene.children.bringToTop(cardSprite); 
         if (interactive) cardSprite.setInteractive();
 
     }

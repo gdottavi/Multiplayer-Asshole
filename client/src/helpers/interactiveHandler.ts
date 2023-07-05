@@ -50,6 +50,7 @@ export default class InteractiveHandler {
                 scene.selectedCardSprites.forEach(sprite => {
                     sprite.x = sprite.getData('dragStartX');
                     sprite.y = sprite.getData('dragStartY');
+                    scene.children.bringToTop(sprite)
                 })
             }
 
@@ -92,7 +93,6 @@ export default class InteractiveHandler {
                 else if (isSelected) {
                     scene.selectedCardSprites.splice(index, 1);
                     gameObject.clearTint();
-                    scene.children.sendToBack(gameObject);
                 }
 
 
@@ -123,6 +123,7 @@ export default class InteractiveHandler {
                     //disable the card from being dragged again after play
                     scene.input.setDraggable(cardSprite, false);
                     cardSprite.clearTint()
+                    scene.children.bringToTop(cardSprite); 
                     //add to currently played cards
                     cardsPlayed.push(cardSprite.card);
                     //remove from players hand 
@@ -130,16 +131,7 @@ export default class InteractiveHandler {
                 })
 
                 let nextPlayer = await scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
-                scene.socket.emit('playCards', cardsPlayed, scene.socket.id, scene.GameTurnHandler.shouldClear, currentPlayer, nextPlayer)
-                //check end scenarios and handle player out of game if necessary
-                //scene.socket.emit('handlePlayerOut')
-                //advance turn and clear cards if appropriate
-                //let nextPlayer = scene.GameTurnHandler.getNextTurnPlayer(scene, cardsPlayed)
-                //scene.socket.emit('changeTurn', nextPlayer, scene.GameTurnHandler.shouldClear)
-
-
-                //let other clients know about the cards played, the last players hand update and who the current player is
-              
+                scene.socket.emit('playCards', cardsPlayed, scene.socket.id, scene.GameTurnHandler.shouldClear, currentPlayer, nextPlayer)              
 
             }
             //if unable to play cards return each to start position
@@ -148,9 +140,9 @@ export default class InteractiveHandler {
                     cardSprite.x = cardSprite.getData('dragStartX');
                     cardSprite.y = cardSprite.getData('dragStartY');
                     cardSprite.clearTint()
+                    scene.children.bringToTop(cardSprite); 
                 })
             }
-
             scene.selectedCardSprites = []
             shouldAddToSelected = false;
         })

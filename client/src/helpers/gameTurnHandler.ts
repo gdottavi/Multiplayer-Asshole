@@ -22,7 +22,7 @@ export default class GameTurnHandler {
     constructor(scene: Game) {
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
-        this.lastTurnPlayer = scene.currentPlayers.players[0]; 
+        this.lastTurnPlayer = scene.currentPlayers.players[0];
         this.currentPlayers = scene.currentPlayers.players;
         this.shouldClear = false;
         this.lastHandCleared = false;  //used to track if last hand played cleared the middle
@@ -37,7 +37,7 @@ export default class GameTurnHandler {
  * @param shouldClear - indicates cards should be cleared from middle.  should be false for a pass
  * @param pass - indicates the last player did not play and passed turn.  Default is false.
  */
-    async changeTurn(scene: Game, currentPlayer: Player, nextPlayer: Player, shouldClear?: boolean, pass: boolean= false): Promise<void> {
+    async changeTurn(scene: Game, currentPlayer: Player, nextPlayer: Player, shouldClear?: boolean, pass: boolean = false): Promise<void> {
 
         //set if cards should be cleared for clients who did not play the cards
         if (currentPlayer.socketId !== scene.socket.id) {
@@ -46,10 +46,12 @@ export default class GameTurnHandler {
 
         //current --> last and next --> current
         //set the player who just played to last, unless they passed turn
-        if(!pass) this.lastTurnPlayer = currentPlayer
+        if (!pass) this.lastTurnPlayer = currentPlayer
         //set the calculated next player as current
         this.setTurn(nextPlayer);
-        scene.UIHandler.updatePlayerNameColor(scene, nextPlayer.socketId, themeColors.yellow);
+        //update player name colors to indicate turn
+        await scene.UIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
+        if (currentPlayer.inGame) await scene.UIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan); 
 
         //check if cards should be cleared after changing turn
         if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
@@ -63,7 +65,7 @@ export default class GameTurnHandler {
             this.lastHandCleared = false;
         }
 
-        return Promise.resolve(); 
+        return Promise.resolve();
 
     }
 
@@ -73,25 +75,24 @@ export default class GameTurnHandler {
      * @param startIndex - player position to start looking at
      * @returns - next player in game
      */
-    getNextPlayerInGame(startIndex: number): Player|undefined {
+    getNextPlayerInGame(startIndex: number): Player | undefined {
 
         const endIndex = startIndex - 1;
-        let currentIndex = startIndex; 
+        let currentIndex = startIndex;
 
-        while(currentIndex !== endIndex)
-        {
+        while (currentIndex !== endIndex) {
 
-            currentIndex++; 
+            currentIndex++;
 
-            if(currentIndex >= this.currentPlayers.length){
+            if (currentIndex >= this.currentPlayers.length) {
                 currentIndex = 0
             }
 
             const player = this.currentPlayers[currentIndex];
-            if(player.inGame) return player;
-            
+            if (player.inGame) return player;
+
         }
-        return undefined; 
+        return undefined;
 
     }
 
@@ -110,13 +111,13 @@ export default class GameTurnHandler {
         let currentPlayerPosition = this.currentPlayers.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
 
         //if player is out of game keep advancing to next that would be in
-        if (this.isPlayerOut(nextTurnPlayer)) {
+        if (!nextTurnPlayer.inGame) {
             nextTurnPlayer = this.getNextPlayerInGame(currentPlayerPosition)
         }
 
         //if passing just get next player in game
-        if(cardsPlayed === null && pass === true){
-            return this.getNextPlayerInGame(currentPlayerPosition) 
+        if (cardsPlayed === null && pass === true) {
+            return this.getNextPlayerInGame(currentPlayerPosition)
         }
 
         //do not advance turn on a 2 played
@@ -179,17 +180,17 @@ export default class GameTurnHandler {
      */
     setTurn(nextPlayer: Player): void {
 
-        console.log(nextPlayer); 
+        console.log(nextPlayer);
         this.currentTurnPlayer = nextPlayer;
 
         //determine if current player is this client (getting some errors here)
         if (this.currentTurnPlayer.socketId === this.scene.socket.id) {
             this.isMyTurn = true;
-            this.scene.UIHandler.setActiveText(this.scene.passText); 
+            this.scene.UIHandler.setActiveText(this.scene.passText);
         }
         else {
             this.isMyTurn = false;
-            this.scene.UIHandler.setInactiveText(this.scene.passText); 
+            this.scene.UIHandler.setInactiveText(this.scene.passText);
         }
 
     }
@@ -204,7 +205,7 @@ export default class GameTurnHandler {
         if (this.shouldClear) return true;
 
         //first play no one to compare to
-        if(prevPlayer === null) return false; 
+        if (prevPlayer === null) return false;
 
         //play has returned to original player and not immediately following a clear
         if ((prevPlayer?.socketId === currentPlayer?.socketId) && !this.lastHandCleared) return true;
@@ -214,60 +215,26 @@ export default class GameTurnHandler {
 
     }
 
-    /**
-      * END STATE FOR GAME
-      * play hand
-      * check if player is out if yes
-      * remove player from players
-      * set player rank and display to board for everyone
-      * check if other players still left if no --> 
-      * send message that game is over and player is asshole 
-      * 
-      * 
-      */
 
     /**
      * Handles a single player being out of game and end scenario for game (1 player left)
      */
-    async handlePlayerOut(currentPlayerSocketID: string): Promise<void> {
-
-        const currentPlayer = this.scene.currentPlayers.getPlayerById(currentPlayerSocketID); 
+    async handlePlayerOut(scene: Game, currentPlayer: Player): Promise<void> {
 
         //player still in game
-        if (!this.isPlayerOut(currentPlayer)) return Promise.resolve(); 
+        if (currentPlayer.inGame) return Promise.resolve();
 
-        //player out - don't remove from game but update UI. 
-        this.scene.UIHandler.updatePlayerNameColor(this.scene, currentPlayer.socketId, themeColors.inactiveGray)
+        //player out - don't remove from game but update UI. TODO - NOT WORKING - Other update player name sets it back immediately
+        await this.scene.UIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
 
         //all players out except 1 - Game over
-        if(this.scene.currentPlayers.countPlayersInGame() < 2){
+        if (this.scene.currentPlayers.countPlayersInGame() < 2) {
             utils.createToast(this.scene, "GAME OVER", 10000);
-            this.resetGame(this.scene); 
+            this.resetGame(this.scene);
         }
 
         return Promise.resolve();
     }
-
-    /**
-     * Checks if player is out of game.  If player has zero cards sets as out. 
-     * @param currentPlayer 
-     * @returns - true if player is out of game
-     */
-    isPlayerOut(currentPlayer: Player): boolean {
-
-        if (!currentPlayer.inGame) return true
-
-        //check if player has no cards left
-        if (currentPlayer.cardHand.length === 0) {
-            currentPlayer.inGame = false;
-            return true;
-        }
-
-        //player still in game
-        return false
-
-    }
-
 
 
     /**
