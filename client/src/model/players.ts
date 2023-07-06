@@ -31,6 +31,17 @@ export class Players {
     }
 
     /**
+     * Finds the player position (index in array)
+     * @param playerToFind - player to find 
+     * @returns - index of player in players array
+     */
+    getPlayerIndex(playerToFind: Player): number {
+         //find current player in active players
+         return this.players.findIndex(p => p.socketId === playerToFind.socketId);
+
+    }
+
+    /**
      * Builds all players in game.  Needed after socket.io calls to create Player objects. 
      * @param newPlayers - players to add 
      */
@@ -39,6 +50,13 @@ export class Players {
         newPlayers.forEach(p => {
                 this.addPlayer(p); 
         })
+    }
+
+    /**
+     * clears all player hands
+     */
+    clearHands(): void{
+        this.players.forEach(player => player.clearHand()); 
     }
 
     /**

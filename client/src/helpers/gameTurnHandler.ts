@@ -3,6 +3,7 @@ import { Player } from "../model/player";
 import Utils from "./utils";
 import { themeColors } from "./uiHandler";
 import { Card } from "../model/card";
+import { Players } from "../model/players";
 
 const utils = new Utils();
 const four = '4', two = '2';
@@ -14,7 +15,7 @@ export default class GameTurnHandler {
     isMyTurn: boolean;
     currentTurnPlayer: Player;  //current player up to play
     lastTurnPlayer: Player;  //last player who played cards
-    currentPlayers: Player[];
+    currentPlayers: Players;
     shouldClear: boolean;
     lastHandCleared: boolean;
     scene: Game;
@@ -23,7 +24,7 @@ export default class GameTurnHandler {
         this.isMyTurn = false;
         this.currentTurnPlayer = scene.currentPlayers.players[0];
         this.lastTurnPlayer = scene.currentPlayers.players[0];
-        this.currentPlayers = scene.currentPlayers.players;
+        this.currentPlayers = scene.currentPlayers;
         this.shouldClear = false;
         this.lastHandCleared = false;  //used to track if last hand played cleared the middle
         this.scene = scene;
@@ -41,7 +42,7 @@ export default class GameTurnHandler {
 
         //set if cards should be cleared for clients who did not play the cards
         if (currentPlayer.socketId !== scene.socket.id) {
-            this.shouldClear = shouldClear
+            this.shouldClear = shouldClear;
         }
 
         //current --> last and next --> current
@@ -51,7 +52,7 @@ export default class GameTurnHandler {
         this.setTurn(nextPlayer);
         //update player name colors to indicate turn
         await scene.UIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
-        if (currentPlayer.inGame) await scene.UIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan); 
+        if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId) await scene.UIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
 
         //check if cards should be cleared after changing turn
         if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
@@ -84,11 +85,11 @@ export default class GameTurnHandler {
 
             currentIndex++;
 
-            if (currentIndex >= this.currentPlayers.length) {
+            if (currentIndex >= this.currentPlayers.numberPlayers()) {
                 currentIndex = 0
             }
 
-            const player = this.currentPlayers[currentIndex];
+            const player = this.currentPlayers.players[currentIndex];
             if (player.inGame) return player;
 
         }
@@ -108,7 +109,7 @@ export default class GameTurnHandler {
         let nextTurnPlayer = this.currentTurnPlayer;
 
         //find current player in active players
-        let currentPlayerPosition = this.currentPlayers.findIndex(p => p.socketId === this.currentTurnPlayer.socketId);
+        let currentPlayerPosition = this.currentPlayers.getPlayerIndex(this.currentTurnPlayer)
 
         //if player is out of game keep advancing to next that would be in
         if (!nextTurnPlayer.inGame) {
@@ -124,52 +125,39 @@ export default class GameTurnHandler {
         if (cardsPlayed[0]?.value == two) return nextTurnPlayer;
 
         //sanity check
-        if (this.currentPlayers.length < 2) return nextTurnPlayer
+        if (this.currentPlayers.numberPlayers() < 2) return nextTurnPlayer
 
-        //set back to first player if at end otherwise advance to next position
-        let nextPlayerPosition = 0;
-        if (currentPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || currentPlayerPosition == -1) {
-            nextPlayerPosition = 0;
-        }
-        else nextPlayerPosition++;
+        //get the next player in the game
+        nextTurnPlayer = this.getNextPlayerInGame(currentPlayerPosition)
 
 
         //if card(s) played matched last card(s) skip player
-        if (cardsPlayed?.length === 1 && (scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)?.length === cardsPlayed?.length) && (cardsPlayed[0]?.value === scene.DeckHandler.getLastPlayedHand(scene.currentPlayedCards)[0]?.value)) {
-            //set back to first player if at end otherwise advance to next position
-            if (nextPlayerPosition >= (scene.currentPlayers.numberPlayers() - 1) || nextPlayerPosition == -1) {
-                nextPlayerPosition = 0;
-            }
-            else nextPlayerPosition++;
+        if (this.checkSkip(cardsPlayed)) {
+            let nextPlayerPosition = this.currentPlayers.getPlayerIndex(nextTurnPlayer); 
+            nextTurnPlayer = this.getNextPlayerInGame(nextPlayerPosition)
         }
 
-        nextTurnPlayer = this.currentPlayers[nextPlayerPosition]
+         return nextTurnPlayer;
+    }
 
-        //TODO - check if player is in game, if not advance to next player
-        let initialPlayerPosition = nextPlayerPosition; // Store the initial player position
+    /**
+     * Checks if cards played will skip next player
+     * @param cardsPlayed - cards played
+     * @returns true if player should be skipped false otherwise
+     */
+    checkSkip(cardsPlayed: Card[]): boolean{
 
-        // Loop through all players and find the next available player
-        while (nextPlayerPosition !== initialPlayerPosition) {
+        //Skips do not apply to non-single plays
+        if (cardsPlayed.length > 1) return false;
 
-            nextTurnPlayer = this.currentPlayers[nextPlayerPosition];
+        //Only skip on singles played on singles
+        if (this.scene.DeckHandler.getLastPlayedHand(this.scene.currentPlayedCards)?.length !== cardsPlayed?.length) return false
 
-            // Check if the next player is in the game
-            if (nextTurnPlayer.inGame) {
-                // Found an available player, break out of the loop
-                break;
-            }
+        //values must match
+        if (cardsPlayed[0]?.value !== this.scene.DeckHandler.getLastPlayedHand(this.scene.currentPlayedCards)[0]?.value) return false
 
-            // Increment the player position
-            if (nextPlayerPosition >= scene.currentPlayers.numberPlayers() - 1 || nextPlayerPosition === -1) {
-                nextPlayerPosition = 0;
-            } else {
-                nextPlayerPosition++;
-            }
-        }
-
-
-        return nextTurnPlayer;
-
+        //skip
+        return true
 
     }
 
@@ -230,7 +218,7 @@ export default class GameTurnHandler {
         //all players out except 1 - Game over
         if (this.scene.currentPlayers.countPlayersInGame() < 2) {
             utils.createToast(this.scene, "GAME OVER", 10000);
-            this.resetGame(this.scene);
+            this.resetGame();
         }
 
         return Promise.resolve();
@@ -259,21 +247,19 @@ export default class GameTurnHandler {
          * Resets game state for new game with same players
          * @param scene 
          */
-    resetGame(scene: Game): void {
+    resetGame(): void {
 
         //clear players cards
-        this.currentPlayers.forEach(player => player.clearHand())
+        this.currentPlayers.clearHands(); 
 
         //clear cards played
-        this.clearCards(scene);
+        this.clearCards(this.scene);
 
         //clear deck
-        scene.deck.clearDeck();
+        this.scene.deck.clearDeck();
 
         //reset state
         //this.changeGameState(gameStateEnum.Ready);
-
-
     }
 
 }

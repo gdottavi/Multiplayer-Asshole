@@ -2,7 +2,6 @@ import { io } from "socket.io-client";
 import Game from "../scenes/game";
 import { Card } from '../model/card';
 import { Player } from "../model/player";
-import { themeColors } from "./uiHandler";
 
 
 //server is for production deploy local is for testing
@@ -44,17 +43,6 @@ export default class SocketHandler {
             scene.DeckHandler.updateAfterDeal(playerData);
         })
 
-        // //Between card played and advancing turn check if player is out and if game is over
-        // scene.socket.on('handlePlayerOut', () => {
-        //     scene.GameTurnHandler.handlePlayerOut();
-        // })
-
-
-        // //Advance Turn
-        // scene.socket.on('changeTurn', (nextPlayer: Player, shouldClear: boolean) => {
-        //     scene.GameTurnHandler.changeTurn(scene, nextPlayer, shouldClear);
-        // })
-
         //Pass Turn 
         scene.socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true)
@@ -62,7 +50,7 @@ export default class SocketHandler {
 
         //Reset Game
         scene.socket.on('reset', () => {
-            scene.GameTurnHandler.resetGame(scene)
+            scene.GameTurnHandler.resetGame()
             scene.UIHandler.setActiveText(scene.dealText)
         })
 
