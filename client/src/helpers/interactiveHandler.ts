@@ -45,6 +45,7 @@ export default class InteractiveHandler {
         scene.sortCardsText.on('pointerdown', () => {
             const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
             currentPlayer.cardHand.sortDeck(); 
+            scene.DeckHandler.redisplayHand(currentPlayer.cardHand)
         })
 
         //make card active when dragging - not used

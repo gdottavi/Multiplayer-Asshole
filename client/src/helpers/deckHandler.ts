@@ -4,8 +4,10 @@ import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
 import { themeColors } from "./uiHandler";
+import Utils from "./utils";
 
 const four = '4', two = '2';
+const utils = new Utils();
 
 /**
  * Handles deck operations such as dealing and displaying cards
@@ -111,6 +113,20 @@ createDeck(): Promise<void> {
                 }
             }
         })
+    }
+
+    /**
+     * Clears display of hand and displays for current player
+     * @param cardHand - card hand to display for current player
+     */
+    redisplayHand(cardHand: Deck){
+
+        //TODO add some animation here for mixing up cards.  Add sound.
+        for(let i=0; i < cardHand.getNumberCards(); i++){
+            let currentCard = cardHand.cards[i]; 
+            utils.removeSprite(this.scene, currentCard); 
+            this.renderCard(currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)
+        }
     }
 
     /**
