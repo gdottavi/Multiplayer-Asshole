@@ -13,19 +13,26 @@ export class Player{
     inGame: boolean;
     isTurn: boolean; 
 
-
     public constructor(socketId: string, name: string ){
         this.name = name; 
         this.socketId = socketId;
         this.cardHand = new Deck; 
         this.inGame = true; 
         this.isTurn = false; 
+        this.rank = 0; 
+        this.isAsshole = false;
+        this.isPresident = false; 
     };
 
 
 
-    getName(): string {
-        return this.name;
+    getDisplayName(): string {
+        if(this.isAsshole) return this.name + " (ASSHOLE)";
+        if(this.isPresident) return this.name + " (PRESIDENT)"
+        if(this.rank === 2) return this.name + " (VICE)"
+        if(this.rank === 3) return this.name + " (3rd)"
+        if(this.rank > 2) return this.name + " (" + this.rank + "th)"
+        else return this.name; 
     }
 
     /**

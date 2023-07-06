@@ -61,10 +61,10 @@ export default class UIHandler {
 
             if (scene.socket.id !== player.socketId) { opponentPos++ };
             if (scene.socket.id === player.socketId) {
-                scene.add.text(100, 575, [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
+                scene.add.text(100, 575, [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
-                scene.add.text(100, 50 + (opponentPos * 80), [player.name]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
+                scene.add.text(100, 50 + (opponentPos * 80), [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
 
         })

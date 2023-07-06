@@ -171,7 +171,7 @@ export default class GameTurnHandler {
         console.log(nextPlayer);
         this.currentTurnPlayer = nextPlayer;
 
-        //determine if current player is this client (getting some errors here)
+        //determine if current player is this client 
         if (this.currentTurnPlayer.socketId === this.scene.socket.id) {
             this.isMyTurn = true;
             this.scene.UIHandler.setActiveText(this.scene.passText);
