@@ -67,7 +67,7 @@ createDeck(): Promise<void> {
 
         for (let i = 0; i < this.scene.deck.cards.length; i++) {
             let card = this.scene.deck.cards[i];
-            this.scene.currentPlayers.players[playerIndex].cardHand.push(card);
+            this.scene.currentPlayers.players[playerIndex].cardHand.addCard(card)
             if (playerIndex < this.scene.currentPlayers.numberPlayers() - 1) {
                 playerIndex++;
             }
@@ -79,10 +79,11 @@ createDeck(): Promise<void> {
 
     /**
      * main tag to update on all clients after dealing is complete
-     * @param players - list of players in game
+     * @param players - list of serialized players in game
      */
-    updateAfterDeal(players: Player[]){
-        this.scene.currentPlayers.setPlayers(players);
+    updateAfterDeal(players: any[]){
+        const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
+        this.scene.currentPlayers.setPlayers(deserializedPlayers);
         this.displayCards()
         this.scene.UIHandler.setInactiveText(this.scene.readyText); 
         this.scene.UIHandler.setInactiveText(this.scene.dealText)
@@ -99,8 +100,8 @@ createDeck(): Promise<void> {
 
             if (this.scene.socket.id !== player.socketId) { opponentPos++ };
 
-            for (let i = 0; i < player.cardHand.length; i++) {
-                let currentCard = player.cardHand[i];
+            for (let i = 0; i < player.getNumberCardsInHand(); i++) {
+                let currentCard = player.cardHand.cards[i];
                 //current player
                 if (this.scene.socket.id === player.socketId) {
                     this.renderCard(currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)

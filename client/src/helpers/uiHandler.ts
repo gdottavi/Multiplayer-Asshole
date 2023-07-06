@@ -46,6 +46,8 @@ export default class UIHandler {
         this.setInactiveText(scene.resetText)
         scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         this.setInactiveText(scene.passText);
+        scene.sortCardsText = scene.add.text(250, 525, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        this.setInactiveText(scene.sortCardsText)
     }
 
     /**
@@ -82,7 +84,6 @@ export default class UIHandler {
             if (child instanceof Phaser.GameObjects.Text && child.getData('type') === 'playerName') {
 
                 if (child.getData('id') === socketId) child.setColor(color)
-
             }
 
         })

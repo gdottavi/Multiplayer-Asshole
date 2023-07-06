@@ -36,11 +36,12 @@ export default class SocketHandler {
             //update state of menu options
             scene.UIHandler.setActiveText(scene.dealText);
             scene.UIHandler.setInactiveText(scene.readyText);
+            scene.UIHandler.setActiveText(scene.sortCardsText)
         })
 
         //Deal Cards
-        scene.socket.on('dealCards', (players: Player[]) => {
-            scene.DeckHandler.updateAfterDeal(players);
+        scene.socket.on('dealCards', (playerData: any) => {
+            scene.DeckHandler.updateAfterDeal(playerData);
         })
 
         // //Between card played and advancing turn check if player is out and if game is over
@@ -54,7 +55,7 @@ export default class SocketHandler {
         //     scene.GameTurnHandler.changeTurn(scene, nextPlayer, shouldClear);
         // })
 
-        //Pass Turn - TODO
+        //Pass Turn 
         scene.socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true)
         })

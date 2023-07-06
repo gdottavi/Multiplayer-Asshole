@@ -262,13 +262,13 @@ export default class GameTurnHandler {
     resetGame(scene: Game): void {
 
         //clear players cards
-        this.currentPlayers.forEach(player => player.cardHand = [])
+        this.currentPlayers.forEach(player => player.clearHand())
 
         //clear cards played
         this.clearCards(scene);
 
         //clear deck
-        scene.deck.cards = [];
+        scene.deck.clearDeck();
 
         //reset state
         //this.changeGameState(gameStateEnum.Ready);

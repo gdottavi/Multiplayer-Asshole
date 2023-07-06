@@ -42,6 +42,24 @@ export class Card {
         }
     }
 
+    static serialize(card: Card): any {
+        return {
+          value: card.value,
+          suite: card.suite,
+          frontImageSprite: card.frontImageSprite,
+          backImageSprite: card.backImageSprite,
+          key: card.key,
+          rank: card.rank,
+        };
+      }
+    
+      static deserialize(serializedCard: any): Card {
+        return new Card(
+          serializedCard.suite,
+          serializedCard.value
+        );
+      }
+
 }
 
 

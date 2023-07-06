@@ -29,11 +29,20 @@ export class Deck extends Array {
       this.cards.push(cardToAdd); 
     }
 
+
+
     /**
      * randomly shuffle deck
      */
     shuffleDeck(): void{
       Phaser.Utils.Array.Shuffle(this.cards);
+    }
+
+    /**
+     * sorts deck from lowest value to highest value
+     */
+    sortDeck(): void{
+      this.cards.sort((cardA, cardB) => cardA.rank - cardB.rank);
     }
 
     /**
@@ -49,5 +58,19 @@ export class Deck extends Array {
      */
     clearDeck(): void {
       this.cards = []; 
+    }
+
+    static serialize(deck: Deck): any {
+      return {
+        cards: deck.cards.map((card) => Card.serialize(card)),
+      };
+    }
+  
+    static deserialize(serializedDeck: any): Deck {
+      const deck = new Deck();
+      deck.cards = serializedDeck.cards.map((serializedCard: any) =>
+        Card.deserialize(serializedCard)
+      );
+      return deck;
     }
 }

@@ -1,11 +1,12 @@
 import {Card} from "./card";
+import { Deck } from "./deck";
 
 //TODO - Change to factory style class
 
 export class Player{
     name: string;
     readonly socketId: string;
-    cardHand: Card[];
+    cardHand: Deck;
     rank: number; 
     isAsshole: boolean;
     isPresident: boolean; 
@@ -16,7 +17,7 @@ export class Player{
     public constructor(socketId: string, name: string ){
         this.name = name; 
         this.socketId = socketId;
-        this.cardHand = []; 
+        this.cardHand = new Deck; 
         this.inGame = true; 
         this.isTurn = false; 
     };
@@ -32,8 +33,13 @@ export class Player{
      * @param card - card to add to players hand
      */
     addCard(card: Card): void{
-        this.cardHand.push(card)
+        this.cardHand.addCard(card)
         this.inGame = true; 
+    }
+
+
+    getNumberCardsInHand(): number {
+        return this.cardHand.cards.length; 
     }
 
     /**
@@ -41,12 +47,50 @@ export class Player{
      * @param card - card to remove from players hand
      */
     removeCard(card: Card): void {
-        this.cardHand = this.cardHand.filter(c => c.key !== card.key);
+        this.cardHand.removeCard(card); 
 
         //no more cards to play
-        if(this.cardHand.length === 0) this.inGame = false; 
+        if(this.getNumberCardsInHand() === 0) this.inGame = false; 
 
     }
+
+    /**
+     * clears player hand
+     */
+    clearHand(): void{
+        this.cardHand.clearDeck(); 
+    }
+
+    /**
+     * 
+     * @returns a serialized player object for use with socketIO
+     */
+    static serialize(player: Player): any {
+        return {
+          name: player.name,
+          socketId: player.socketId,
+          cardHand: Deck.serialize(player.cardHand),
+          rank: player.rank,
+          isAsshole: player.isAsshole,
+          isPresident: player.isPresident,
+          inGame: player.inGame,
+          isTurn: player.isTurn,
+        };
+      }
+    
+      static deserialize(serializedPlayer: any): Player {
+        const player = new Player(serializedPlayer.socketId, serializedPlayer.name);
+        player.rank = serializedPlayer.rank;
+        player.isAsshole = serializedPlayer.isAsshole;
+        player.isPresident = serializedPlayer.isPresident;
+        player.inGame = serializedPlayer.inGame;
+        player.isTurn = serializedPlayer.isTurn;
+    
+        const deck = Deck.deserialize(serializedPlayer.cardHand);
+        player.cardHand = deck;
+    
+        return player;
+      }
     
 
 }

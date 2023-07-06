@@ -1,6 +1,7 @@
 import { GameObjects, Input, Events } from "phaser";
 import Game, { soundKeys } from "../scenes/game";
 import CardSprite from "../model/cardSprite";
+import { Player } from "../model/player";
 
 
 const OFFSET_X = 20;
@@ -17,8 +18,9 @@ export default class InteractiveHandler {
 
         //deal cards on click
         scene.dealText.on('pointerdown', async () => {
-            await scene.DeckHandler.dealCards()
-            scene.socket.emit('dealCards', scene.currentPlayers.players);
+            await scene.DeckHandler.dealCards();
+            const currentPlayers = scene.currentPlayers.players.map(playerData => Player.serialize(playerData));
+            scene.socket.emit('dealCards', currentPlayers);
         })
 
         //ready on click
@@ -37,6 +39,12 @@ export default class InteractiveHandler {
             const nextPlayer = await scene.GameTurnHandler.getNextTurnPlayer(scene, null, true)
             const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
             scene.socket.emit('passTurn', currentPlayer, nextPlayer);
+        })
+
+        //sort cards on click
+        scene.sortCardsText.on('pointerdown', () => {
+            const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
+            currentPlayer.cardHand.sortDeck(); 
         })
 
         //make card active when dragging - not used
@@ -155,41 +163,25 @@ export default class InteractiveHandler {
 
 
     /**
-     * sets up all menus
+     * sets up all menus to change color on hover
      * @param scene 
      */
     setupMenuOptions(scene: Game): void {
-        //hover for deal text
-        scene.dealText.on('pointerover', () => {
-            scene.dealText.setColor('#ff69b4');
-        })
-        scene.dealText.on('pointerout', () => {
-            scene.dealText.setColor('#00ffff');
-        })
-        //hover for deal text
-        scene.readyText.on('pointerover', () => {
-            scene.readyText.setColor('#ff69b4');
-        })
-        scene.readyText.on('pointerout', () => {
-            scene.readyText.setColor('#00ffff');
-        })
-
-        //hover for reset text
-        scene.resetText.on('pointerover', () => {
-            scene.resetText.setColor('#ff69b4');
-        })
-        scene.resetText.on('pointerout', () => {
-            scene.resetText.setColor('#00ffff');
-        })
-
-        //hover for reset text
-        scene.passText.on('pointerover', () => {
-            scene.passText.setColor('#ff69b4');
-        })
-        scene.passText.on('pointerout', () => {
-            scene.passText.setColor('#00ffff');
-        })
-
+        const setHoverColor = (text: GameObjects.Text) => {
+            text.on('pointerover', () => {
+                text.setColor('#ff69b4');
+            });
+    
+            text.on('pointerout', () => {
+                text.setColor('#00ffff');
+            });
+        };
+    
+        setHoverColor(scene.dealText);
+        setHoverColor(scene.readyText);
+        setHoverColor(scene.resetText);
+        setHoverColor(scene.passText);
+        setHoverColor(scene.sortCardsText);
     }
 
     /**

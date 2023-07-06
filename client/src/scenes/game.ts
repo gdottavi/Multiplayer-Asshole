@@ -36,6 +36,7 @@ export default class Game extends Scene {
     passText: GameObjects.Text;
     playCardsText: GameObjects.Text;
     selectedCardSprites: any[]; 
+    sortCardsText: GameObjects.Text;
 
     constructor(){
         super({

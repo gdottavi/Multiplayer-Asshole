@@ -40,12 +40,11 @@ io.on('connection', function (socket) {
         gameState = gameStateEnum.Ready;
     })
 
-    //cards dealt
-    socket.on('dealCards', (currentPlayers: Player[]) => {
-        io.emit('dealCards', currentPlayers);
-        //gameState = "Ready";
-        //io.emit('changeGameState',"Ready");
-    })
+    // cards dealt
+    socket.on('dealCards', (currentPlayersData: any[]) => {
+        const currentPlayers = currentPlayersData.map(playerData => Player.serialize(playerData));
+        io.emit('dealCards', currentPlayersData);
+    });
 
     //card played
     socket.on('playCards', (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
@@ -54,7 +53,7 @@ io.on('connection', function (socket) {
 
     //Between card played and advancing turn check if player is out and if game is over
     socket.on('handlePlayerOut', () => {
-        io.emit('handlePlayerOut'); 
+        io.emit('handlePlayerOut');
     })
 
     //turn finished - advance to next player
@@ -64,7 +63,7 @@ io.on('connection', function (socket) {
 
     //pass turn
     socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
-        io.emit('passTurn',currentPlayer, nextPlayer);
+        io.emit('passTurn', currentPlayer, nextPlayer);
     })
 
     //reset game

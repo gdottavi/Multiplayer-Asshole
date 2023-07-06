@@ -37,12 +37,7 @@ export class Players {
     setPlayers(newPlayers: Player[]): void{
         this.players = []
         newPlayers.forEach(p => {
-            let newPlayer = new Player(p.socketId, p.name)
-            newPlayer.cardHand = p.cardHand
-            newPlayer.isTurn = p.isTurn
-            newPlayer.inGame = p.inGame
-
-            this.addPlayer(newPlayer); 
+                this.addPlayer(p); 
         })
     }
 
