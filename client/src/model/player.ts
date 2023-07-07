@@ -24,8 +24,7 @@ export class Player{
         this.isPresident = false; 
     };
 
-
-
+    
     getDisplayName(): string {
         if(this.isAsshole) return this.name + " (ASSHOLE)";
         if(this.isPresident) return this.name + " (PRESIDENT)"

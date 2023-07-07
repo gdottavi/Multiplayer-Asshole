@@ -26,13 +26,19 @@ io.on('connection', function (socket) {
     if (gameState !== gameStateEnum.Ready) {
         console.log('A idiot connected: ' + socket.id);
         players.push(socket.id);
-
     }
     else {
         console.log("New connection blocked");
         socket.disconnect(true);
     }
 
+    // Handle "joinGame" event
+    socket.on("joinGame", ({ playerName }) => {
+        console.log(`Player ${playerName} joined the game`);
+
+        // Broadcast the player's name and associated socketID to all connected clients
+        io.emit("playerJoined", { playerName, socketId: socket.id });
+    });
 
     //ready to play the game
     socket.on('ready', () => {
