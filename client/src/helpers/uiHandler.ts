@@ -48,6 +48,9 @@ export default class UIHandler {
         setInactiveText(scene.passText);
         scene.sortCardsText = scene.add.text(250, 525, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         setInactiveText(scene.sortCardsText)
+
+        //add player names to board
+        this.setPlayerNames(scene); 
     }
 
     /**

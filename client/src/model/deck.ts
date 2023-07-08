@@ -61,16 +61,26 @@ export class Deck extends Array {
     }
 
     static serialize(deck: Deck): any {
+      let serializedCards = null;
+      if (deck.cards && Array.isArray(deck.cards)) {
+        serializedCards = deck.cards.map((card) => Card.serialize(card));
+      }
       return {
-        cards: deck.cards.map((card) => Card.serialize(card)),
+        cards: serializedCards,
       };
     }
+    
   
     static deserialize(serializedDeck: any): Deck {
       const deck = new Deck();
-      deck.cards = serializedDeck.cards.map((serializedCard: any) =>
-        Card.deserialize(serializedCard)
-      );
+      if (serializedDeck.cards && Array.isArray(serializedDeck.cards)) {
+        deck.cards = serializedDeck.cards.map((serializedCard: any) =>
+          Card.deserialize(serializedCard)
+        );
+      } else {
+        deck.cards = []; // Handle the case when serializedDeck.cards is null or not an array
+      }
       return deck;
     }
+    
 }

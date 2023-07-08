@@ -51,13 +51,12 @@ export default class Game extends Scene {
      */
     init(data: any) {
 
-
         //extract players and socket from data
         const { players, socket } = data;
 
         //Sets the initial players in game with names and socket IDs
         const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
-        this.currentPlayers = new Players(); 
+        this.currentPlayers = new Players();
         this.currentPlayers.setPlayers(deserializedPlayers);
         this.socket = socket;
 
@@ -87,7 +86,6 @@ export default class Game extends Scene {
     create() {
 
         this.deck = new Deck();
-        this.currentPlayers = new Players();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new Deck();
 
@@ -97,8 +95,6 @@ export default class Game extends Scene {
         this.InteractiveHandler = new InteractiveHandler(this);
         this.SocketHandler = new SocketHandler(this);
         this.DeckHandler = new DeckHandler(this);
-
-
     }
 
     //make updates to game

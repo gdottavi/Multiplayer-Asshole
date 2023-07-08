@@ -32,12 +32,17 @@ io.on('connection', function (socket) {
         socket.disconnect(true);
     }
 
-    // Handle "joinGame" event
-    socket.on("joinGame", (playerName) => {
-        console.log(`Player ${playerName} joined the game`);
+    /**
+     * Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
+     */
+    socket.on("startGame", (currentPlayers) => {
+        io.emit("startGame", currentPlayers)
+    });
 
+    // Handle "joinGame" event
+    socket.on("joinGame", (newPlayer) => {
         // Broadcast the player's name and associated socketID to all connected clients
-        io.emit("playerJoined", playerName, socket.id);
+        io.emit("playerJoined", newPlayer, socket.id);
     });
 
     //ready to play the game

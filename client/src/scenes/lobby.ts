@@ -88,16 +88,25 @@ export default class Lobby extends Phaser.Scene {
         });
 
         // Listen for "playerJoined" event from the server
-        this.socket.on("playerJoined", (playerName, socketId ) => {
-            console.log(`Player ${playerName} joined the game with socket ID: ${socketId}`);
-            this.displayPlayerName(playerName); 
+        this.socket.on("playerJoined", (newPlayer: Player) => {
+            this.players.addPlayer(newPlayer);
+            this.displayPlayerName(newPlayer.name)
         });
+
+        //Listen for "startGame" event from the server
+        //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
+        this.socket.on("startGame", (currentPlayers) => {
+            this.scene.start("Game", {players: currentPlayers, socket: this.socket})
+        })
     }
 
+    /**
+     * Send start game event to server for all players to advance to Game scene
+     */
     startGame() {
         // Transition to the Game scene and pass the players as a parameter
         const currentPlayers = this.players.players.map(playerData => Player.serialize(playerData));
-        this.scene.start("Game", { players: currentPlayers, socket: this.socket });
+        this.socket.emit("startGame", currentPlayers)
     }
 
     /**
@@ -108,11 +117,11 @@ export default class Lobby extends Phaser.Scene {
     joinGame(playerName: string): void {
         // Create a new player object
         let newPlayer = new Player(this.socket.id, playerName)
-
+  
         // Push the player object into the players array
-        this.players.addPlayer(newPlayer);
+        //this.players.addPlayer(newPlayer);
         // Emit "joinGame" event to the server
-        this.socket.emit("joinGame", playerName );
+        this.socket.emit("joinGame", newPlayer);
     }
 
     /**
