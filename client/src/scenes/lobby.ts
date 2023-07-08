@@ -1,18 +1,25 @@
-import Phaser from "phaser";
+import Phaser, { GameObjects } from "phaser";
 import { Socket, io } from "socket.io-client";
 import { Player } from "../model/player";
 import { Players } from "../model/players";
+import UIHandler, { themeColors, setActiveText, setInactiveText } from "../helpers/uiHandler";
+
+//server is for production deploy local is for testing
+const localURL = 'http://localhost:3000';
+const serverURL = 'https://asshole-server.onrender.com';
 
 
 export default class Lobby extends Phaser.Scene {
     rexUI: any;
     players: Players;
     socket: Socket; 
+    namePos: number; 
 
 
     constructor() {
         super("Lobby");
         this.players = new Players; 
+        this.namePos = 0; 
     }
 
     // Add your scene methods and logic here
@@ -25,8 +32,10 @@ export default class Lobby extends Phaser.Scene {
 
     create() {
 
+        
+
         // Connect to the Socket.IO server
-        this.socket = io("http://localhost:3000"); // Replace with your Socket.IO server URL
+        this.socket = io(localURL); // Replace with your Socket.IO server URL
 
         this.socket.on('connect', () => {
             console.log("Game Connected!");
@@ -34,6 +43,7 @@ export default class Lobby extends Phaser.Scene {
 
  
         // Create lobby UI elements
+        this.add.text(100, 100, "Players In Game", { fontSize: "32px", color: "#ffffff" })
 
         // Create the input text box
         const inputBox = this.add.dom(640, 360).createFromHTML(`
@@ -41,17 +51,36 @@ export default class Lobby extends Phaser.Scene {
 `);
 
         // Add a ready button
-        const joinButton = this.add.text(640, 420, "Join Game", { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5);
-        joinButton.setInteractive();
+        const joinButton = this.add.text(640, 420, "Join Game", { fontSize: "32px", color: themeColors.cyan }).setOrigin(0.5).setInteractive().setFontFamily('Trebuchet MS')
+        setActiveText(joinButton);
+        joinButton.on('pointerover', () => {
+            joinButton.setColor(themeColors.magenta);
+        });
+
+        joinButton.on('pointerout', () => {
+            joinButton.setColor(themeColors.cyan);
+        });
 
         joinButton.on("pointerdown", () => {
             const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
             this.joinGame(playerName);
+            setInactiveText(joinButton)
+            setActiveText(startButton)
+            startButton.on('pointerover', () => {
+                startButton.setColor(themeColors.magenta);
+            });
+    
+            startButton.on('pointerout', () => {
+                startButton.setColor(themeColors.cyan);
+            });
+
+
         });
 
         // Add a start button
-        const startButton = this.add.text(640, 220, "Start Game", { fontSize: "32px", color: "#ffffff" }).setOrigin(0.5);
-        startButton.setInteractive();
+        const startButton = this.add.text(640, 640, "Start Game", { fontSize: "32px", color: themeColors.inactiveGray }).setOrigin(0.5).setInteractive().setFontFamily('Trebuchet MS')
+        //startButton.setInteractive();
+        setInactiveText(startButton); 
 
         startButton.on("pointerdown", () => {
             const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
@@ -59,8 +88,9 @@ export default class Lobby extends Phaser.Scene {
         });
 
         // Listen for "playerJoined" event from the server
-        this.socket.on("playerJoined", ({ playerName, socketId }) => {
+        this.socket.on("playerJoined", (playerName, socketId ) => {
             console.log(`Player ${playerName} joined the game with socket ID: ${socketId}`);
+            this.displayPlayerName(playerName); 
         });
     }
 
@@ -75,17 +105,31 @@ export default class Lobby extends Phaser.Scene {
      * @param socket - socket
      * @param playerName - player name entered
      */
-    joinGame(playerName: string) {
+    joinGame(playerName: string): void {
         // Create a new player object
         let newPlayer = new Player(this.socket.id, playerName)
 
         // Push the player object into the players array
         this.players.addPlayer(newPlayer);
         // Emit "joinGame" event to the server
-        this.socket.emit("joinGame", { playerName });
+        this.socket.emit("joinGame", playerName );
+    }
+
+    /**
+     * Displays a single player name on the screen
+     * @param playerName - player name to display
+     */
+    displayPlayerName(playerName: string): void{
+        let yPos = 150 + this.namePos*30;
+        let xPos = 200;
+
+        this.add.text(xPos, yPos, playerName, { fontSize: "24px", color: themeColors.cyan })
+        this.namePos++; 
     }
 
     update() {
         // Update the lobby scene logic (e.g., handle user input, check game state)
     }
+
+    
 }

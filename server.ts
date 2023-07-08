@@ -33,11 +33,11 @@ io.on('connection', function (socket) {
     }
 
     // Handle "joinGame" event
-    socket.on("joinGame", ({ playerName }) => {
+    socket.on("joinGame", (playerName) => {
         console.log(`Player ${playerName} joined the game`);
 
         // Broadcast the player's name and associated socketID to all connected clients
-        io.emit("playerJoined", { playerName, socketId: socket.id });
+        io.emit("playerJoined", playerName, socket.id);
     });
 
     //ready to play the game

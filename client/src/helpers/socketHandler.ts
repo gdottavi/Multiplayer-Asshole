@@ -2,11 +2,12 @@ import { io } from "socket.io-client";
 import Game from "../scenes/game";
 import { Card } from '../model/card';
 import { Player } from "../model/player";
+import { setActiveText, setInactiveText, themeColors } from "./uiHandler";
 
 
 //server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
+//const localURL = 'http://localhost:3000';
+//const serverURL = 'https://asshole-server.onrender.com';
 
 /**
  * Handles socket events for multiplayer functionality
@@ -15,12 +16,12 @@ export default class SocketHandler {
 
     constructor(scene: Game) {
 
-        //server connection
-        scene.socket = io(localURL);
+        // //server connection
+        // scene.socket = io(localURL);
 
-        scene.socket.on('connect', () => {
-            console.log("Game Connected!");
-        })
+        // scene.socket.on('connect', () => {
+        //     console.log("Game Connected!");
+        // })
 
         //Ready - Create Players from array of socket Ids (players)
         scene.socket.on('ready', (players) => {
@@ -33,9 +34,9 @@ export default class SocketHandler {
             //set first turn
             scene.GameTurnHandler.setTurn(scene.currentPlayers.players[0]);
             //update state of menu options
-            scene.UIHandler.setActiveText(scene.dealText);
-            scene.UIHandler.setInactiveText(scene.readyText);
-            scene.UIHandler.setActiveText(scene.sortCardsText)
+            setActiveText(scene.dealText);
+            setInactiveText(scene.readyText);
+            setActiveText(scene.sortCardsText)
         })
 
         //Deal Cards
@@ -51,7 +52,7 @@ export default class SocketHandler {
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame()
-            scene.UIHandler.setActiveText(scene.dealText)
+            setActiveText(scene.dealText)
         })
 
         //Change Game State
@@ -59,7 +60,7 @@ export default class SocketHandler {
             scene.GameRuleHandler.changeGameState(gameState);
             if (gameState === "Initializing") {
                 scene.dealText.setInteractive();
-                scene.dealText.setColor('#00ffff');
+                scene.dealText.setColor(themeColors.cyan);
             }
         });
 

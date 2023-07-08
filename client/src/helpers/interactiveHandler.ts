@@ -2,6 +2,7 @@ import { GameObjects, Input, Events } from "phaser";
 import Game, { soundKeys } from "../scenes/game";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
+import { themeColors } from "./uiHandler";
 
 
 const OFFSET_X = 20;
@@ -170,11 +171,11 @@ export default class InteractiveHandler {
     setupMenuOptions(scene: Game): void {
         const setHoverColor = (text: GameObjects.Text) => {
             text.on('pointerover', () => {
-                text.setColor('#ff69b4');
+                text.setColor(themeColors.magenta);
             });
     
             text.on('pointerout', () => {
-                text.setColor('#00ffff');
+                text.setColor(themeColors.cyan);
             });
         };
     

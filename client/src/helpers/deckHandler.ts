@@ -3,7 +3,7 @@ import { Card, suites, testingSuite, values } from "../model/card";
 import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
-import { themeColors } from "./uiHandler";
+import { themeColors, setActiveText, setInactiveText } from "./uiHandler";
 import Utils from "./utils";
 
 const four = '4', two = '2';
@@ -87,8 +87,8 @@ createDeck(): Promise<void> {
         const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
         this.scene.currentPlayers.setPlayers(deserializedPlayers);
         this.displayCards()
-        this.scene.UIHandler.setInactiveText(this.scene.readyText); 
-        this.scene.UIHandler.setInactiveText(this.scene.dealText)
+        setInactiveText(this.scene.readyText); 
+        setInactiveText(this.scene.dealText)
         this.scene.UIHandler.setPlayerNames(this.scene);
         this.scene.UIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
     }

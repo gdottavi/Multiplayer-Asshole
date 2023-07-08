@@ -1,7 +1,7 @@
 import Game from "../scenes/game";
 import { Player } from "../model/player";
 import Utils from "./utils";
-import { themeColors } from "./uiHandler";
+import { themeColors, setInactiveText, setActiveText } from "./uiHandler";
 import { Card } from "../model/card";
 import { Players } from "../model/players";
 
@@ -174,11 +174,11 @@ export default class GameTurnHandler {
         //determine if current player is this client 
         if (this.currentTurnPlayer.socketId === this.scene.socket.id) {
             this.isMyTurn = true;
-            this.scene.UIHandler.setActiveText(this.scene.passText);
+            setActiveText(this.scene.passText);
         }
         else {
             this.isMyTurn = false;
-            this.scene.UIHandler.setInactiveText(this.scene.passText);
+            setInactiveText(this.scene.passText);
         }
 
     }

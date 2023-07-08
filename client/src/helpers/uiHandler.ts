@@ -41,13 +41,13 @@ export default class UIHandler {
         //menu options for game - TODO Add PLAY AGAIN OPTION
         scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
         scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS')
-        this.setInactiveText(scene.dealText);
+        setInactiveText(scene.dealText);
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
-        this.setInactiveText(scene.resetText)
+        setInactiveText(scene.resetText)
         scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
-        this.setInactiveText(scene.passText);
+        setInactiveText(scene.passText);
         scene.sortCardsText = scene.add.text(250, 525, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
-        this.setInactiveText(scene.sortCardsText)
+        setInactiveText(scene.sortCardsText)
     }
 
     /**
@@ -91,27 +91,29 @@ export default class UIHandler {
         return Promise.resolve();
     }
 
-    /**
+ 
+
+
+
+
+}
+
+   /**
      * 
      * @param text - text to set inactive
      */
-    setInactiveText(text: Phaser.GameObjects.Text): void {
-        text.setColor(themeColors.inactiveGray);
-        text.setFontStyle('italic');
-        text.disableInteractive();
-    }
+   export function setInactiveText(text: Phaser.GameObjects.Text): void {
+    text.setColor(themeColors.inactiveGray);
+    text.setFontStyle('italic');
+    text.disableInteractive();
+}
 
-    /**
-     * 
-     * @param text - test to set active
-     */
-    setActiveText(text: Phaser.GameObjects.Text): void {
-        text.setColor(themeColors.cyan);
-        text.setFontStyle('normal');
-        text.setInteractive();
-    }
-
-
-
-
+/**
+ * 
+ * @param text - test to set active
+ */
+export function setActiveText(text: Phaser.GameObjects.Text): void {
+    text.setColor(themeColors.cyan);
+    text.setFontStyle('normal');
+    text.setInteractive();
 }
