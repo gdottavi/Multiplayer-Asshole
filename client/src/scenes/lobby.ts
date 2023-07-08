@@ -83,7 +83,7 @@ export default class Lobby extends Phaser.Scene {
         setInactiveText(startButton); 
 
         startButton.on("pointerdown", () => {
-            const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
+            //const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
             this.startGame();
         });
 
@@ -96,7 +96,7 @@ export default class Lobby extends Phaser.Scene {
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
         this.socket.on("startGame", (currentPlayers) => {
-            this.scene.start("Game", {players: currentPlayers, socket: this.socket})
+                this.scene.start("Game", {players: currentPlayers, socket: this.socket})
         })
     }
 
@@ -106,7 +106,7 @@ export default class Lobby extends Phaser.Scene {
     startGame() {
         // Transition to the Game scene and pass the players as a parameter
         const currentPlayers = this.players.players.map(playerData => Player.serialize(playerData));
-        this.socket.emit("startGame", currentPlayers)
+        this.socket.emit("startGame", currentPlayers);
     }
 
     /**

@@ -59,14 +59,15 @@ export default class UIHandler {
      */
     setPlayerNames(scene: Game): void {
         //display initial players names in game
-        let opponentPos = 0;
+        let opponentPos = 0
         scene.currentPlayers.players.forEach(player => {
 
-            if (scene.socket.id !== player.socketId) { opponentPos++ };
+            //if (scene.socket.id !== player.socketId) { opponentPos++ };
             if (scene.socket.id === player.socketId) {
                 scene.add.text(100, 575, [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
+                opponentPos++; 
                 scene.add.text(100, 50 + (opponentPos * 80), [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
             }
 

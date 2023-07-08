@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
     // Handle "joinGame" event
     socket.on("joinGame", (newPlayer) => {
         // Broadcast the player's name and associated socketID to all connected clients
-        io.emit("playerJoined", newPlayer, socket.id);
+        io.emit("playerJoined", newPlayer);
     });
 
     //ready to play the game
