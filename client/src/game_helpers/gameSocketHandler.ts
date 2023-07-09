@@ -2,7 +2,8 @@ import { io } from "socket.io-client";
 import Game from "../scenes/game";
 import { Card } from '../model/card';
 import { Player } from "../model/player";
-import { setActiveText, setInactiveText, themeColors } from "./uiHandler";
+import {  themeColors } from "./gameUIHandler";
+import { setActiveText, setInactiveText } from "../utils/utils";
 
 
 //server is for production deploy local is for testing

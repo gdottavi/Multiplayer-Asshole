@@ -2,7 +2,7 @@ import { GameObjects, Input, Events } from "phaser";
 import Game, { soundKeys } from "../scenes/game";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
-import { themeColors } from "./uiHandler";
+import { themeColors } from "./gameUIHandler";
 
 
 const OFFSET_X = 20;

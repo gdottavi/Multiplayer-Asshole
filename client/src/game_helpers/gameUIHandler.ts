@@ -1,6 +1,7 @@
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
 import Game from "../scenes/game";
+import { setActiveText, setInactiveText } from "../utils/utils";
 
 
 export enum themeColors {
@@ -14,7 +15,7 @@ export enum themeColors {
 /**
  * Basic layout and UI for game
  */
-export default class UIHandler {
+export default class GameUIHandler {
 
     constructor(scene: Game) {
 
@@ -102,22 +103,4 @@ export default class UIHandler {
 
 }
 
-   /**
-     * 
-     * @param text - text to set inactive
-     */
-   export function setInactiveText(text: Phaser.GameObjects.Text): void {
-    text.setColor(themeColors.inactiveGray);
-    text.setFontStyle('italic');
-    text.disableInteractive();
-}
-
-/**
- * 
- * @param text - test to set active
- */
-export function setActiveText(text: Phaser.GameObjects.Text): void {
-    text.setColor(themeColors.cyan);
-    text.setFontStyle('normal');
-    text.setInteractive();
-}
+  

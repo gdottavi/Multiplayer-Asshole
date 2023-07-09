@@ -1,11 +1,11 @@
 import Game from "../scenes/game";
 import { Player } from "../model/player";
-import Utils from "./utils";
-import { themeColors, setInactiveText, setActiveText } from "./uiHandler";
+import { themeColors} from "./gameUIHandler";
 import { Card } from "../model/card";
 import { Players } from "../model/players";
+import { createToast, getAllPlayedCards, findSprite, setInactiveText, setActiveText } from "../utils/utils";
 
-const utils = new Utils();
+
 const four = '4', two = '2';
 
 /**
@@ -51,8 +51,8 @@ export default class GameTurnHandler {
         //set the calculated next player as current
         this.setTurn(nextPlayer);
         //update player name colors to indicate turn
-        await scene.UIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
-        if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId) await scene.UIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
+        await scene.GameUIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
+        if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId) await scene.GameUIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
 
         //check if cards should be cleared after changing turn
         if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
@@ -213,11 +213,11 @@ export default class GameTurnHandler {
         if (currentPlayer.inGame) return Promise.resolve();
 
         //player out - don't remove from game but update UI. TODO - NOT WORKING - Other update player name sets it back immediately
-        await this.scene.UIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
+        await this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
 
         //all players out except 1 - Game over
         if (this.scene.currentPlayers.countPlayersInGame() < 2) {
-            utils.createToast(this.scene, "GAME OVER", 10000);
+            createToast(this.scene, "GAME OVER", 10000);
             this.resetGame();
         }
 
@@ -234,10 +234,10 @@ export default class GameTurnHandler {
         //delay by 1 second
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const allPlayedCards = utils.getAllPlayedCards(scene.currentPlayedCards)
+        const allPlayedCards = getAllPlayedCards(scene.currentPlayedCards)
 
         allPlayedCards.forEach(card => {
-            scene.InteractiveHandler.moveCard(scene, utils.findSprite(scene, card))
+            scene.InteractiveHandler.moveCard(scene, findSprite(scene, card))
         })
 
         scene.currentPlayedCards.forEach(hand => hand.clearDeck())

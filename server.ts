@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import express from 'express'
 import { Player } from "./client/src/model/player";
 import { Card } from "./client/src/model/card";
-import { gameStateEnum } from "./client/src/helpers/gameRuleHandler";
+import { gameStateEnum } from "./client/src/game_helpers/gameRuleHandler";
 
 
 

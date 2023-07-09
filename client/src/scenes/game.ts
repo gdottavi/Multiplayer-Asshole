@@ -1,14 +1,14 @@
 import { GameObjects, Input, Scene } from "phaser";
-import InteractiveHandler from "../helpers/interactiveHandler";
-import SocketHandler from "../helpers/socketHandler";
-import UIHandler from "../helpers/uiHandler";
-import GameRuleHandler from "../helpers/gameRuleHandler";
-import DeckHandler from "../helpers/deckHandler";
+import InteractiveHandler from "../game_helpers/gameInteractiveHandler";
+import SocketHandler from "../game_helpers/gameSocketHandler";
+import GameUIHandler from "../game_helpers/gameUIHandler";
+import GameRuleHandler from "../game_helpers/gameRuleHandler";
+import DeckHandler from "../game_helpers/deckHandler";
 import { Socket } from "socket.io-client";
 import { Deck } from "../model/deck";
 import { Players } from "../model/players";
 import { suites, values } from "../model/card";
-import GameTurnHandler from "../helpers/gameTurnHandler";
+import GameTurnHandler from "../game_helpers/gameTurnHandler";
 import { Player } from "../model/player";
 
 export const soundKeys = {
@@ -20,7 +20,7 @@ export default class Game extends Scene {
     isPlayerA: boolean;
     InteractiveHandler: InteractiveHandler;
     SocketHandler: SocketHandler;
-    UIHandler: UIHandler;
+    GameUIHandler: GameUIHandler;
     GameRuleHandler: GameRuleHandler;
     GameTurnHandler: GameTurnHandler;
     DeckHandler: DeckHandler;
@@ -89,7 +89,7 @@ export default class Game extends Scene {
         this.selectedCardSprites = [];
         this.currentPlayedCards = new Deck();
 
-        this.UIHandler = new UIHandler(this);
+        this.GameUIHandler = new GameUIHandler(this);
         this.GameRuleHandler = new GameRuleHandler(this);
         this.GameTurnHandler = new GameTurnHandler(this);
         this.InteractiveHandler = new InteractiveHandler(this);

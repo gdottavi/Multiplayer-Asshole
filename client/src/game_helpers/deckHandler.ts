@@ -3,11 +3,11 @@ import { Card, suites, testingSuite, values } from "../model/card";
 import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
-import { themeColors, setActiveText, setInactiveText } from "./uiHandler";
-import Utils from "./utils";
+import { themeColors} from "./gameUIHandler";
+import { removeSprite, setActiveText, setInactiveText } from "../utils/utils";
 
 const four = '4', two = '2';
-const utils = new Utils();
+
 
 /**
  * Handles deck operations such as dealing and displaying cards
@@ -90,7 +90,7 @@ createDeck(): Promise<void> {
         setInactiveText(this.scene.readyText); 
         setInactiveText(this.scene.dealText)
         //this.scene.UIHandler.setPlayerNames(this.scene);
-        this.scene.UIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
+        this.scene.GameUIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
     }
 
     /**
@@ -124,7 +124,7 @@ createDeck(): Promise<void> {
         //TODO add some animation here for mixing up cards.  Add sound.
         for(let i=0; i < cardHand.getNumberCards(); i++){
             let currentCard = cardHand.cards[i]; 
-            utils.removeSprite(this.scene, currentCard); 
+            removeSprite(this.scene, currentCard); 
             this.renderCard(currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)
         }
     }

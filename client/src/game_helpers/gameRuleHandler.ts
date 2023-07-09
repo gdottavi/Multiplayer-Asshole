@@ -4,7 +4,7 @@
 import Game from "../scenes/game";
 import { Card } from "../model/card";
 import { Deck } from "../model/deck";
-import Utils from "./utils";
+import { removeSprite, createToast, getAllPlayedCards, areLastXValuesEqual } from "../utils/utils";
 
 
 
@@ -16,7 +16,7 @@ export const enum gameStateEnum {
 }
 
 const four = '4', two = '2';
-const utils = new Utils();
+
 
 /**
  * Handles all rule logic for game
@@ -69,7 +69,7 @@ export default class GameRuleHandler {
                 player?.removeCard(cardPlayed);
 
                 //find sprite associated with the card played and remove it
-                utils.removeSprite(this.scene, cardPlayed);
+                removeSprite(this.scene, cardPlayed);
 
                 //show card played in middle for everyone
                 this.scene.DeckHandler.renderCard(cardPlayed, ((this.scene.dropZone.x - 350) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y), 0.1,
@@ -151,13 +151,13 @@ export default class GameRuleHandler {
 
         //more than 4 cards played
         if (cardsPlayed.length > 4) {
-            utils.createToast(this.scene, "Cannot play " + cardsPlayed.length + " cards at once.")
+            createToast(this.scene, "Cannot play " + cardsPlayed.length + " cards at once.")
             return false;
         }
 
         //multiple cards played with different values
         if (!cardsPlayed.every(card => card.value === cardsPlayed[0].value)) {
-            utils.createToast(this.scene, "Cannot play multiple cards of different values.")
+            createToast(this.scene, "Cannot play multiple cards of different values.")
             return false;
         }
 
@@ -176,7 +176,7 @@ export default class GameRuleHandler {
 
         //single on double or double on triple 
         if (cardsPlayed.length < lastPlayedHand.length) {
-            utils.createToast(this.scene, "Last play was " + lastPlayedHand.length + " of a kind.  You only played " + cardsPlayed.length + " cards.")
+            createToast(this.scene, "Last play was " + lastPlayedHand.length + " of a kind.  You only played " + cardsPlayed.length + " cards.")
             return false
         }
 
@@ -184,7 +184,7 @@ export default class GameRuleHandler {
         //single card played
         if (cardsPlayed.length === 1) {
             if (cardsPlayed[0].rank < lastPlayedHand[0].rank) {
-                utils.createToast(this.scene, "Must play doubles higher than last played double")
+                createToast(this.scene, "Must play doubles higher than last played double")
                 return false;
             }
         }
@@ -193,14 +193,14 @@ export default class GameRuleHandler {
         if (cardsPlayed.length === 2) {
 
             if (cardsPlayed[0].value === two || cardsPlayed[0].value === four) {
-                utils.createToast(this.scene, "Cannot play multiple 2s or 4s")
+                createToast(this.scene, "Cannot play multiple 2s or 4s")
                 return false
             }
 
             if (lastPlayedHand.length < 2) return true;
 
             if (cardsPlayed[0].rank < lastPlayedHand[0].rank) {
-                utils.createToast(this.scene, "Must play doubles higher than last played double")
+                createToast(this.scene, "Must play doubles higher than last played double")
                 return false;
             }
 
@@ -210,14 +210,14 @@ export default class GameRuleHandler {
         if (cardsPlayed.length === 3) {
 
             if (cardsPlayed[0].value === two || cardsPlayed[0].value === four) {
-                utils.createToast(this.scene, "Cannot play multiple 2s or 4s")
+                createToast(this.scene, "Cannot play multiple 2s or 4s")
                 return false
             }
 
             if (lastPlayedHand.length < 3) return true;
 
             if (cardsPlayed[0].rank < lastPlayedHand[0].rank) {
-                utils.createToast(this.scene, "Must play triples higher than last played triple")
+                createToast(this.scene, "Must play triples higher than last played triple")
                 return false;
             }
 
@@ -240,7 +240,7 @@ export default class GameRuleHandler {
         if (cardsPlayed === null || cardsPlayed.length === 0) return false;
 
         //get the cards that have been played by all players this hand in middle.  flatMap takes the hands played and creates single array
-        let playedCards = utils.getAllPlayedCards(this.currentPlayedCards)
+        let playedCards = getAllPlayedCards(this.currentPlayedCards)
 
         //first card played
         if (playedCards == null || playedCards.length === 0) return false;
@@ -265,13 +265,13 @@ export default class GameRuleHandler {
 
         //2 cards played on 2 matches
         if (cardsPlayed.length === 2) {
-            if (!utils.areLastXValuesEqual(playedCards, 2)) return false
+            if (!areLastXValuesEqual(playedCards, 2)) return false
             return true
         }
 
         //1 card played on 3 matches
         if (cardsPlayed.length === 1) {
-            if (!utils.areLastXValuesEqual(playedCards, 3)) return false;
+            if (!areLastXValuesEqual(playedCards, 3)) return false;
             return true;
         }
 
