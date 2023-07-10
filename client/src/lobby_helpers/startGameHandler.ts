@@ -25,7 +25,7 @@ export default class StartGameHandler {
          * @param socket - socket
          * @param playerName - player name entered
          */
-        joinGame(playerName: string): void {
+        joinGame(playerName: string): Player {
             // Create a new player object
             let newPlayer = new Player(this.scene.socket.id, playerName)
       
@@ -33,6 +33,8 @@ export default class StartGameHandler {
             //this.players.addPlayer(newPlayer);
             // Emit "joinGame" event to the server
             this.scene.socket.emit("joinGame", newPlayer);
+
+            return newPlayer
         }
 
 

@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
-import { displayPlayerName } from "./lobbyUIHandler";
+//import { displayPlayerName } from "./lobbyUIHandler";
 
 
 //server is for production deploy local is for testing
@@ -25,7 +25,8 @@ export default class LobbySocketHandler {
          // Listen for "playerJoined" event from the server
          scene.socket.on("playerJoined", (newPlayer: Player) => {
             scene.players.addPlayer(newPlayer);
-            displayPlayerName(scene, newPlayer.name)
+            //displayPlayerName(scene, newPlayer.name)
+            scene.LobbyUIHandler.addPlayerToGrid(newPlayer); 
         });
 
         //Listen for "startGame" event from the server

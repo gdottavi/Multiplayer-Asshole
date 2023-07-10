@@ -9,7 +9,8 @@ export enum themeColors {
     cyan = '#00ffff',
     magenta = '#ff69b4',
     yellow = '#ffff00',
-    inactiveGray = '#888888'
+    inactiveGray = '#888888',
+    white = '#ffffff'
 }
 
 /**

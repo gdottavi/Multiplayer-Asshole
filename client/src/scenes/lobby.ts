@@ -4,10 +4,15 @@ import { Players } from "../model/players";
 import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
 import StartGameHandler from "../lobby_helpers/startGameHandler";
 import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
 
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
 const serverURL = 'https://asshole-server.onrender.com';
+
+const COLOR_PRIMARY = 0x4e342e;
+const COLOR_LIGHT = 0x7b5e57;
+const COLOR_DARK = 0x260e04;
 
 
 export default class Lobby extends Phaser.Scene {
@@ -18,6 +23,7 @@ export default class Lobby extends Phaser.Scene {
     LobbySocketHandler: LobbySocketHandler;
     StartGameHandler: StartGameHandler;
     LobbyUIHandler: LobbyUIHandler;
+
 
 
     constructor() {
@@ -32,19 +38,35 @@ export default class Lobby extends Phaser.Scene {
 
     preload() {
         // Preload any assets needed for the Lobby scene
+        //this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        // this.load.scenePlugin({
+        //     key: 'rexuiplugin',
+        //     url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+        //     sceneKey: 'rexUI'
+        // });      
     }
 
     create() {
-        
+        // Initialize the rexUI plugin
+        //this.rexUI = this.plugins.get('rexUI');
         this.LobbySocketHandler = new LobbySocketHandler(this); 
         this.StartGameHandler = new StartGameHandler(this); 
         this.LobbyUIHandler = new LobbyUIHandler(this); 
     }
+
+    
 
 
     update() {
         // Update the lobby scene logic (e.g., handle user input, check game state)
     }
 
+
+ 
+
     
 }
+
+
+
+
