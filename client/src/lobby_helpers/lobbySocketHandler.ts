@@ -25,9 +25,15 @@ export default class LobbySocketHandler {
          // Listen for "playerJoined" event from the server
          scene.socket.on("playerJoined", (newPlayer: Player) => {
             scene.players.addPlayer(newPlayer);
-            //displayPlayerName(scene, newPlayer.name)
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer); 
         });
+
+        scene.socket.on('updateRank', (player: Player, rank: number) => {
+            let scenePlayer = scene.players.getPlayerById(player.socketId)
+            scenePlayer.rank = rank
+            scene.LobbyUIHandler.updateRank(scenePlayer); 
+            console.log(scene.players.players)
+        })
 
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 

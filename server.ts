@@ -51,6 +51,11 @@ io.on('connection', function (socket) {
         gameState = gameStateEnum.Ready;
     })
 
+    //update player rank
+    socket.on('updateRank', (player: Player, rank: number) => {
+        io.emit('updateRank', player, rank)
+    })
+
     // cards dealt
     socket.on('dealCards', (currentPlayersData: any[]) => {
         const currentPlayers = currentPlayersData.map(playerData => Player.serialize(playerData));

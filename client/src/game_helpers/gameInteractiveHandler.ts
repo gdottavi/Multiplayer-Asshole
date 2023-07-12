@@ -2,7 +2,7 @@ import { GameObjects, Input, Events } from "phaser";
 import Game, { soundKeys } from "../scenes/game";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
-import { themeColors } from "./gameUIHandler";
+import { setHoverColor } from "../utils/utils";
 
 
 const OFFSET_X = 20;
@@ -168,17 +168,7 @@ export default class InteractiveHandler {
      * sets up all menus to change color on hover
      * @param scene 
      */
-    setupMenuOptions(scene: Game): void {
-        const setHoverColor = (text: GameObjects.Text) => {
-            text.on('pointerover', () => {
-                text.setColor(themeColors.magenta);
-            });
-    
-            text.on('pointerout', () => {
-                text.setColor(themeColors.cyan);
-            });
-        };
-    
+    setupMenuOptions(scene: Game): void {   
         setHoverColor(scene.dealText);
         setHoverColor(scene.readyText);
         setHoverColor(scene.resetText);

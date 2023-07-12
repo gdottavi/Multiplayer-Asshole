@@ -5,28 +5,15 @@ import { setActiveText, setInactiveText } from "../utils/utils";
 import { GridSizer, DropDownList } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import Label from "phaser3-rex-plugins/templates/ui/ui-components.js";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
+import { setHoverColor } from "../utils/utils";
+import { generateRankOptions, getRankString } from "./lobbyValidators";
 
 
-const gridConfig = {
-    x: 100, y: 100,
-    width: 300, height: undefined,
-
-    column: 2, row: 2,
-    columnProportions: [.2, .8], rowProportions: 0,
-    space: {
-        left: 10, right: 10, top: 10, bottom: 10,
-        column: 5,
-        row: 5
-    },
-}
-
-const rankOptions = [
-    { label: 'Option 1', value: 'option1' },
-    { label: 'Option 2', value: 'option2' },
-    { label: 'Option 3', value: 'option3' },
-]
-
-
+const COLOR_PRIMARY = 0x4e342e;
+const COLOR_LIGHT = 0x7b5e57;
+const COLOR_DARK = 0x260e04;
+const COLOR_CYAN = 0x00FFFF;
 
 /**
  * Basic layout and UI for game
@@ -36,179 +23,108 @@ export default class LobbyUIHandler {
     scene: Lobby;
     playerGrid: GridSizer;
 
-
-
     constructor(scene: Lobby) {
 
         this.scene = scene;
         // Create lobby UI elements
-        //scene.add.text(100, 60, "Players In Game", { fontSize: "32px", color: "#ffffff" })
-
-        this.playerGrid = new GridSizer(scene, gridConfig).setOrigin(0)
-            .addBackground(scene.rexUI.add.roundRectangle(0, 0, 1, 1, 0, 0x260e04))
-
-        this.addHeadersToGrid();
-        this.addTitleToGrid();
-
-        // Create the input text box with a dropdown selection and spacing
-        const inputBox = scene.add.dom(640, 360).createFromHTML(`
-            <div style="display: flex; align-items: center;">
-                <input type="text" id="nameInput" placeholder="Enter Name" style="font-size: 16px; width: 200px; height: 40px;">
-            </div>
-  `         );
-
-
-        // Add a ready button
-        const joinButton = scene.add.text(640, 420, "Join Game", { fontSize: "32px", color: themeColors.cyan }).setOrigin(0.5).setInteractive().setFontFamily('Trebuchet MS')
-        setActiveText(joinButton);
-        joinButton.on('pointerover', () => {
-            joinButton.setColor(themeColors.magenta);
-        });
-
-        joinButton.on('pointerout', () => {
-            joinButton.setColor(themeColors.cyan);
-        });
-
-        joinButton.on("pointerdown", () => {
-            const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
-            let newPlayer = scene.StartGameHandler.joinGame(playerName);
-
-            setInactiveText(joinButton)
-            setActiveText(startButton)
-            startButton.on('pointerover', () => {
-                startButton.setColor(themeColors.magenta);
-            });
-
-            startButton.on('pointerout', () => {
-                startButton.setColor(themeColors.cyan);
-            });
-
-
-        });
-
-        // Add a start button
-        const startButton = scene.add.text(640, 640, "Start Game", { fontSize: "32px", color: themeColors.inactiveGray }).setOrigin(0.5).setInteractive().setFontFamily('Trebuchet MS')
-        //startButton.setInteractive();
-        setInactiveText(startButton);
-
-        startButton.on("pointerdown", () => {
-            //const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
-            scene.StartGameHandler.startGame();
-        });
-
-
+        this.initialUISetup();
 
     }
 
     /**
-     * Adds player information to player grid
+     * Initial UI setup without data
+     */
+    initialUISetup() {
+        this.setupPlayerGrid();
+        this.addButtons();
+        this.addInputBox();
+    }
+
+    /**
+     * Adds player information to player grid and update rank options for all 
      * @param player - player to add
      */
     addPlayerToGrid(player: Player): void {
         this.playerGrid
-            .add(this.scene.add.text(0, 0, player.name), {})
-            .add(this.createRankSelection(), {})
+            .add(this.scene.add.text(0, 0, player.name), {
+                expand: true
+            })
+            .add(this.createRankSelection(player), {
+            })
             .layout()
+
+        this.updateRankOptionsForAllPlayers()
+    }
+
+    /**
+   * Updates the rank options for all players
+   */
+    updateRankOptionsForAllPlayers(): void {
+        const players = this.scene.players.players;
+        players.forEach(player => {
+            const dropdown = player.rankDropDown
+            if (dropdown) {
+                const rankOptions = generateRankOptions(this.scene, player);
+                dropdown.setOptions(rankOptions);
+            }
+        });
+    }
+
+    /**
+     * Update selected Ranks for all players
+     * @param player - player to update rank for
+     */
+    updateRank(player: Player): void {
+        const rank = player.rank; 
+        if (player) {
+          const dropdownToUpdate = player.rankDropDown;
+          if (dropdownToUpdate) {
+            dropdownToUpdate.value = rank;
+            dropdownToUpdate.text = getRankString(rank);
+          }
+        }
     }
 
     /**
      * 
      * @returns a dropdown list for rank selection
      */
-    createRankSelection(): DropDownList {
-        return new DropDownList(this.scene, {
-            x: 0,
-            y: 0,
-            background: this.scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, 0x4e342e),
-            icon: this.scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0x7b5e57),
-            text: this.scene.add.text(0, 0, "--Select--"),
-
-            space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10,
-                icon: 10
-            },
-            options: rankOptions,
-            list: {
-                createBackgroundCallback: function (scene: Lobby) {
-                    return scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0, 0x260e04);
-                },
-                createButtonCallback: function (scene: Lobby, option, index, options) {
-                    var text = option.label;
-                    var button = scene.rexUI.add.label({
-                        background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0),
-
-                        text: this.scene.add.text(0, 0, text),
-
-                        space: {
-                            left: 10,
-                            right: 10,
-                            top: 10,
-                            bottom: 10,
-                            icon: 10
-                        }
-                    });
-                    button.value = option.value;
-
-                    return button;
-                },
-
-                // scope: dropDownList
-                onButtonClick: function (button: any, index, pointer, event) {
-                    // Set label text, and value
-                    this.text = button.text;
-                    this.value = button.value;
-                    console.log(`Select ${button.text}, value=${button.value}`)
-                },
-
-                // scope: dropDownList
-                onButtonOver: function (button: any, index: number, pointer, event) {
-                    button.getElement('background').setStrokeStyle(1, 0xffffff);
-                },
-
-                // scope: dropDownList
-                onButtonOut: function (button: any, index, pointer, event) {
-                    button.getElement('background').setStrokeStyle();
-                },
-
-                // expandDirection: 'up',
-            },
-
-            setValueCallback: function (dropDownList, value, previousValue) {
-                console.log(value);
-            },
-            value: undefined
-
-        })
-
+    createRankSelection(player: Player): DropDownList {
+        const rankOptions = generateRankOptions(this.scene, player);
+        let rankDropdown = new DropDownList(this.scene, dropDownConfig(this.scene, rankOptions))
+        rankDropdown.setData('player', player);  //need to associate drop down with player so we can save rank to that player 
+        player.rankDropDown = rankDropdown;  //keep track on player so we can update options when new players join
+        return rankDropdown;
     }
 
+    /**
+     * Initial Player Grid setup
+     */
+    setupPlayerGrid() {
+        this.playerGrid = new GridSizer(this.scene, gridConfig()).setOrigin(0)
+        this.addTitleToGrid();
+        this.addHeadersToGrid();
 
-
-    // Define a separate function for the value change callback
-    handleDropdownValueChange(dropDownList: DropDownList, value: string, previousValue: string) {
-        // Handle value change
-        console.log('Selected Value:', value);
     }
 
     /**
      * Adds Headers to player grid
+     * Column 0: Player Name
+     * Column 1: Player Rank
+     * Column 2: Player Socket ID (not shown)
      */
     addHeadersToGrid() {
-        this.playerGrid.add(this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.cyan }), {
-            column: 0,
-            row: 1,
-            align: 'center',
-        })
-
-        this.playerGrid.add(this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.cyan }), {
-            column: 1,
-            row: 1,
-            align: 'center'
-        }).layout();
-
+        this.playerGrid
+            .add(this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.cyan }), {
+                align: 'center',
+                padding: { bottom: 5 },
+                expand: true
+            })
+            .add(this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.cyan }), {
+                align: 'center',
+                padding: { bottom: 5 }
+            })
+            .layout();
     }
 
     /**
@@ -217,34 +133,149 @@ export default class LobbyUIHandler {
     addTitleToGrid() {
         this.playerGrid
             .add(this.scene.add.text(0, 0, "Players In Game", { fontSize: "32px", color: themeColors.white }), {
-                row: 0,
-                align: 'center',
-                expand: true
+                expand: true,
+                padding: { bottom: 5 }
             })
             .add(this.scene.add.text(0, 0, "", {}), {
-                row: 0,
-                expand: false
+                padding: { bottom: 5 }
             })
             .layout();
+    }
+
+    /**
+     * Adds name input box
+     */
+    addInputBox() {
+        const inputBox = this.scene.add.dom(640, 360).createFromHTML(`
+        <div style="display: flex; align-items: center;">
+            <input type="text" id="nameInput" placeholder="Enter Name" style="font-size: 16px; width: 200px; height: 40px;">
+        </div>
+`         );
+    }
+
+    /**
+     * Add buttons to join and start game
+     */
+    addButtons() {
+        // Add a ready/join button
+        const joinButton = this.scene.add.text(640, 420, "Join Game", { fontSize: "32px", color: themeColors.cyan }).setOrigin(0.5).setInteractive()
+        setActiveText(joinButton);
+        setHoverColor(joinButton)
+
+        joinButton.on("pointerdown", () => {
+            const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
+            let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
+
+            setInactiveText(joinButton)
+            setActiveText(startButton)
+            setHoverColor(startButton)
+        });
+
+        // Add a start button
+        const startButton = this.scene.add.text(640, 640, "Start Game", { fontSize: "32px", color: themeColors.inactiveGray }).setOrigin(0.5).setInteractive()
+        //startButton.setInteractive();
+        setInactiveText(startButton);
+
+        startButton.on("pointerdown", () => {
+            //const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
+            this.scene.StartGameHandler.startGame();
+        });
     }
 }
 
 
 
-// /**
-//     * Displays a single player name on the screen
-//     * @param playerName - player name to display
-//     */
-// export function displayPlayerName(scene: Lobby, playerName: string): void {
-//     let yPos = 125 + scene.namePos * 30;
-//     let xPos = 125;
+/**
+ * Configuration for Player Grid
+ * @returns GridSizer Configuration Object
+ */
+function gridConfig(): GridSizer.IConfig {
+    return {
+        x: 100, y: 100,
+        width: 500, height: undefined,
 
-//     scene.add.text(xPos, yPos, playerName, { fontSize: "24px", color: themeColors.cyan })
-//     scene.namePos++;
-// }
+        column: 2, row: 2,
+        columnProportions: 0, rowProportions: 0,
+        space: {
+            left: 10, right: 10, top: 10, bottom: 10,
+            column: 5,
+            row: 5
+        },
+    }
+}
 
+/**
+ * Configuration for rank drop down selection
+ * @param scene 
+ * @returns DropDownList Configuration Object
+ */
+function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig {
+    return {
+        x: 0,
+        y: 0,
+        background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, 0x4e342e),
+        icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0x7b5e57),
+        text: scene.add.text(0, 0, "--Select--"),
 
+        space: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10,
+            icon: 10
+        },
+        options: rankOptions,
+        list: {
+            createBackgroundCallback: function (scene: Lobby) {
+                return scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0, COLOR_DARK);
+            },
+            createButtonCallback: function (scene: Lobby, option, index, options) {
+                var text = option.label;
+                var button = scene.rexUI.add.label({
+                    background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0),
 
+                    text: scene.add.text(0, 0, text),
 
+                    space: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10,
+                        icon: 10
+                    }
+                });
+                button.value = option.value;
+
+                return button;
+            },
+
+            // set the option on click
+            onButtonClick: function (button: any, index, pointer, event) {
+                // Set label text, and value
+                this.text = button.text;
+                this.value = button.value;
+            },
+
+            // scope: dropDownList
+            onButtonOver: function (button: any, index: number, pointer, event) {
+                button.getElement('background').setStrokeStyle(1, 0xffffff);
+            },
+
+            // scope: dropDownList
+            onButtonOut: function (button: any, index, pointer, event) {
+                button.getElement('background').setStrokeStyle();
+            },
+
+            // expandDirection: 'up',
+        },
+
+        setValueCallback: function (dropDownList, value, previousValue) {
+            scene.StartGameHandler.updateRank(dropDownList.getData('player'), value)
+        },
+        value: undefined
+
+    }
+
+}
 
 

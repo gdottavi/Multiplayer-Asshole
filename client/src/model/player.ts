@@ -1,7 +1,9 @@
+import { DropDownList } from "phaser3-rex-plugins/templates/ui/ui-components";
 import {Card} from "./card";
 import { Deck } from "./deck";
 
 //TODO - Change to factory style class
+
 
 export class Player{
     name: string;
@@ -12,6 +14,7 @@ export class Player{
     isPresident: boolean; 
     inGame: boolean;
     isTurn: boolean; 
+    rankDropDown: DropDownList;
 
     public constructor(socketId: string, name: string ){
         this.name = name; 
@@ -97,6 +100,7 @@ export class Player{
     
         return player;
       }
+
     
 
 }
