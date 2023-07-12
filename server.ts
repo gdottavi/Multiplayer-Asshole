@@ -4,6 +4,7 @@ import express from 'express'
 import { Player } from "./client/src/model/player";
 import { Card } from "./client/src/model/card";
 import { gameStateEnum } from "./client/src/game_helpers/gameRuleHandler";
+import { Players } from "./client/src/model/players";
 
 
 
@@ -11,7 +12,7 @@ const server = express();
 const http = createServer(server);
 const PORT = process.env.PORT || 3000;
 let gameState = gameStateEnum.Initializing;
-let players = [];
+let players = new Players()
 
 const io = new Server(http, {
     cors: {
@@ -23,14 +24,18 @@ const io = new Server(http, {
 io.on('connection', function (socket) {
 
     //only allow connections before game state is ready
-    if (gameState !== gameStateEnum.Ready) {
+/*     if (gameState !== gameStateEnum.Ready) {
         console.log('A idiot connected: ' + socket.id);
         players.push(socket.id);
     }
     else {
         console.log("New connection blocked");
         socket.disconnect(true);
-    }
+    } */
+
+    socket.on('getPlayerList', () => {
+        io.to(socket.id).emit('playerList', players)
+    })
 
     /**
      * Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
@@ -41,6 +46,8 @@ io.on('connection', function (socket) {
 
     // Handle "joinGame" event
     socket.on("joinGame", (newPlayer) => {
+        // Keep track of players joined on the server for any new players that join
+        players.addPlayer(newPlayer)
         // Broadcast the player's name and associated socketID to all connected clients
         io.emit("playerJoined", newPlayer);
     });
@@ -90,8 +97,7 @@ io.on('connection', function (socket) {
     //remove players as they disconnect
     socket.on('disconnect', function () {
         console.log('An idiot disconnected: ' + socket.id);
-        players = players.filter(player => player !== socket.id)
-        //TODO - remove player from other clients
+        players.removePlayer(socket.id)
     })
 })
 

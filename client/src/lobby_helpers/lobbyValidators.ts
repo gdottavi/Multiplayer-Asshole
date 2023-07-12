@@ -45,3 +45,20 @@ export function generateRankOptions(scene: Lobby, player: Player): any[] {
 export function getRankString(rank: number): string {
     return `Rank ${rank+1}`; 
 }
+
+/**
+ * Ensures name is valid
+ * @param name - player name to validate
+ * @returns - true if valid, false otherwise
+ */
+export function validateName(name: string): boolean{
+    if(name === ""){
+        return false
+    }
+
+    if(name.length > 20){
+        return false; 
+    }
+
+    return true; 
+}

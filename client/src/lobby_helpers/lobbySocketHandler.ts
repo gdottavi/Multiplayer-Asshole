@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
+import { Players } from "../model/players";
 //import { displayPlayerName } from "./lobbyUIHandler";
 
 
@@ -18,8 +19,17 @@ export default class LobbySocketHandler {
         //server connection
         scene.socket = io(localURL);
 
+        // On connection check for already connected players
         scene.socket.on('connect', () => {
-            console.log("Game Connected!");
+            scene.socket.emit('getPlayerList')
+        })
+
+        // Display all players already in game
+        scene.socket.on('playerList', (players: Players) => {
+            players.players.forEach((player: Player) => {
+                scene.players.addPlayer(player);
+                scene.LobbyUIHandler.addPlayerToGrid(player); 
+            })
         })
 
          // Listen for "playerJoined" event from the server
@@ -28,6 +38,7 @@ export default class LobbySocketHandler {
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer); 
         });
 
+        // Update player ranks 
         scene.socket.on('updateRank', (player: Player, rank: number) => {
             let scenePlayer = scene.players.getPlayerById(player.socketId)
             scenePlayer.rank = rank

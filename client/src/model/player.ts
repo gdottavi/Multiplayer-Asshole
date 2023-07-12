@@ -31,8 +31,8 @@ export class Player{
     getDisplayName(): string {
         if(this.isAsshole) return this.name + " (ASSHOLE)";
         if(this.isPresident) return this.name + " (PRESIDENT)"
-        if(this.rank === 2) return this.name + " (VICE)"
-        if(this.rank === 3) return this.name + " (3rd)"
+        if(this.rank === 1) return this.name + " (VICE)"
+        if(this.rank === 2) return this.name + " (3rd)"
         if(this.rank > 2) return this.name + " (" + this.rank + "th)"
         else return this.name; 
     }

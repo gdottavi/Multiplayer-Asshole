@@ -4,6 +4,7 @@ import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { themeColors } from "../game_helpers/gameUIHandler";
 import { GameObjects, Scene } from "phaser";
+import Lobby from "../scenes/lobby";
 
 /**
  * Checks if last x elements in an array are equal
@@ -85,10 +86,10 @@ export function setActiveText(text: Phaser.GameObjects.Text): void {
  * @param scene - scene to show toast in
  * @param message - message to show
  * @param duration - length to show message (in ms)
- * @param x - x position of toast
- * @param y - y position of toast
+ * @param x - x position of toast.  Default is center.
+ * @param y - y position of toast. Default is center
  */
-export function createToast(scene: Game, message: string, duration: number = 3000, x?: number, y?: number) {
+export function createToast(scene: Game | Lobby, message: string, duration: number = 3000, x?: number, y?: number) {
   const toast = scene.add.text(
     x !== undefined ? x : scene.cameras.main.centerX,
     y !== undefined ? y : scene.cameras.main.centerY,
@@ -128,4 +129,51 @@ export function setHoverColor(text: GameObjects.Text) {
   text.on('pointerout', () => {
     text.setColor(themeColors.cyan);
   });
+}
+
+/**
+ * 
+ * @param scene 
+ * @param x  - x pos
+ * @param y  - y pos
+ * @param text - text to display
+ * @param color - text color.  Default is cyan or grey determined by active flag.
+ * @param fontSize - font size
+ * @param active - sets interactive
+ * @param clickCallback - function to call on button click
+ * @returns - button added to current scene 
+ */
+export function createButton(scene: Lobby | Game, x: number, y: number, text: string, color?: themeColors, fontSize: string = "32px", active?: boolean, clickCallback?: Function): Phaser.GameObjects.Text {
+
+  let button = scene.add.text(x, y, text, {
+    fontSize: fontSize,
+    color: color
+  })
+    .setOrigin(0.5)
+
+  if (active) {
+    setActiveText(button)
+    setHoverColor(button)
+  }
+  else setInactiveText(button)
+
+  if (clickCallback) {
+    button.on("pointerdown", clickCallback)
+  }
+
+  return button;
+
+}
+
+/**
+ * converts string hex color code to phaser number code
+ * @param hexColor - string hex color code
+ * @returns phaser number color code
+ */
+export function convertColorHexToNum(hexColor: string): number {
+
+  const color = Phaser.Display.Color.HexStringToColor(hexColor);
+  const colorNumber = color.color; 
+
+  return colorNumber;
 }

@@ -42,23 +42,15 @@ export class Players {
     }
 
     /**
-     * Builds all players in game.  Sets ranks, including asshole and president.
+     * Builds all players in game.  Sorts by rank set in lobby. Sets asshole and president.
      * Needed after socket.io calls to create Player objects. 
      * @param newPlayers - players to add 
      */
     setPlayers(newPlayers: Player[]): void{
-        this.players = []
-        let rankIndex = 1; 
-        newPlayers.forEach(p => {
-                p.rank = rankIndex; 
-                this.addPlayer(p); 
-                rankIndex++; 
-        })
+        this.players = [...newPlayers].sort((a,b) => a.rank - b.rank); 
         this.players[0].isPresident = true; 
         this.players[this.numberPlayers() - 1].isAsshole = true; 
     }
-
-
 
 
     /**

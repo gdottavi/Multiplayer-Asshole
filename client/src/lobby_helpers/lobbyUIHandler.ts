@@ -1,13 +1,13 @@
 import { themeColors } from "../game_helpers/gameUIHandler";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
-import { setActiveText, setInactiveText } from "../utils/utils";
+import { convertColorHexToNum, createButton, createToast, setActiveText, setInactiveText } from "../utils/utils";
 import { GridSizer, DropDownList } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import Label from "phaser3-rex-plugins/templates/ui/ui-components.js";
-import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
-import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { setHoverColor } from "../utils/utils";
-import { generateRankOptions, getRankString } from "./lobbyValidators";
+import { generateRankOptions, getRankString, validateName } from "./lobbyValidators";
+import InputText from 'phaser3-rex-plugins/plugins/inputtext'
+import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 
 
 const COLOR_PRIMARY = 0x4e342e;
@@ -22,13 +22,14 @@ export default class LobbyUIHandler {
 
     scene: Lobby;
     playerGrid: GridSizer;
+    joinButton: Phaser.GameObjects.Text;
+    startButton: Phaser.GameObjects.Text;
+    inputBox: Phaser.GameObjects.DOMElement;
 
     constructor(scene: Lobby) {
 
         this.scene = scene;
-        // Create lobby UI elements
         this.initialUISetup();
-
     }
 
     /**
@@ -47,9 +48,10 @@ export default class LobbyUIHandler {
     addPlayerToGrid(player: Player): void {
         this.playerGrid
             .add(this.scene.add.text(0, 0, player.name), {
-                expand: true
+                align: "left"
             })
             .add(this.createRankSelection(player), {
+                align: "left"
             })
             .layout()
 
@@ -75,13 +77,13 @@ export default class LobbyUIHandler {
      * @param player - player to update rank for
      */
     updateRank(player: Player): void {
-        const rank = player.rank; 
+        const rank = player.rank;
         if (player) {
-          const dropdownToUpdate = player.rankDropDown;
-          if (dropdownToUpdate) {
-            dropdownToUpdate.value = rank;
-            dropdownToUpdate.text = getRankString(rank);
-          }
+            const dropdownToUpdate = player.rankDropDown;
+            if (dropdownToUpdate) {
+                dropdownToUpdate.value = rank;
+                dropdownToUpdate.text = getRankString(rank);
+            }
         }
     }
 
@@ -111,17 +113,15 @@ export default class LobbyUIHandler {
      * Adds Headers to player grid
      * Column 0: Player Name
      * Column 1: Player Rank
-     * Column 2: Player Socket ID (not shown)
      */
     addHeadersToGrid() {
         this.playerGrid
             .add(this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.cyan }), {
-                align: 'center',
+                align: 'left',
                 padding: { bottom: 5 },
-                expand: true
             })
             .add(this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.cyan }), {
-                align: 'center',
+                align: 'left',
                 padding: { bottom: 5 }
             })
             .layout();
@@ -133,7 +133,7 @@ export default class LobbyUIHandler {
     addTitleToGrid() {
         this.playerGrid
             .add(this.scene.add.text(0, 0, "Players In Game", { fontSize: "32px", color: themeColors.white }), {
-                expand: true,
+
                 padding: { bottom: 5 }
             })
             .add(this.scene.add.text(0, 0, "", {}), {
@@ -146,43 +146,44 @@ export default class LobbyUIHandler {
      * Adds name input box
      */
     addInputBox() {
-        const inputBox = this.scene.add.dom(640, 360).createFromHTML(`
-        <div style="display: flex; align-items: center;">
+        this.inputBox = this.scene.add.dom(640, 360).createFromHTML(
+        `<div style="display: flex; align-items: center;">
             <input type="text" id="nameInput" placeholder="Enter Name" style="font-size: 16px; width: 200px; height: 40px;">
-        </div>
-`         );
+        </div>`
+        );
     }
 
     /**
      * Add buttons to join and start game
      */
     addButtons() {
-        // Add a ready/join button
-        const joinButton = this.scene.add.text(640, 420, "Join Game", { fontSize: "32px", color: themeColors.cyan }).setOrigin(0.5).setInteractive()
-        setActiveText(joinButton);
-        setHoverColor(joinButton)
+        this.joinButton = createButton(this.scene, 640, 420, "Join Game", null, "32px", true, this.joinButtonCallBack)
+        this.startButton = createButton(this.scene, 640, 640, "Start Game", null, "32px", false, this.scene.StartGameHandler.startGame)
+    }
 
-        joinButton.on("pointerdown", () => {
-            const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
-            let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
+    /**
+     * Call back function for join button
+     * @returns - call back function 
+     */
+    joinButtonCallBack = () => {
+        const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
+        if (!validateName(playerName)) {
+            createToast(this.scene, "Must enter a valid name before joining", 5000, 640, 100)
+            return
+        }
+        let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
+        setInactiveText(this.joinButton)
+        setActiveText(this.startButton)
+        setHoverColor(this.startButton)
 
-            setInactiveText(joinButton)
-            setActiveText(startButton)
-            setHoverColor(startButton)
-        });
-
-        // Add a start button
-        const startButton = this.scene.add.text(640, 640, "Start Game", { fontSize: "32px", color: themeColors.inactiveGray }).setOrigin(0.5).setInteractive()
-        //startButton.setInteractive();
-        setInactiveText(startButton);
-
-        startButton.on("pointerdown", () => {
-            //const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
-            this.scene.StartGameHandler.startGame();
-        });
+        // Disable the input box
+            this.inputBox = this.scene.add.dom(640, 360).createFromHTML(`
+            <div style="display: flex; align-items: center;">
+            <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
+            </div>
+        `);
     }
 }
-
 
 
 /**
@@ -191,8 +192,8 @@ export default class LobbyUIHandler {
  */
 function gridConfig(): GridSizer.IConfig {
     return {
-        x: 100, y: 100,
-        width: 500, height: undefined,
+        x: 50, y: 25,
+        width: 400, height: undefined,
 
         column: 2, row: 2,
         columnProportions: 0, rowProportions: 0,
@@ -205,6 +206,30 @@ function gridConfig(): GridSizer.IConfig {
 }
 
 /**
+ * Label config
+ * @param scene 
+ * @param text - text to display
+ * @returns 
+ */
+function labelConfig(scene: Lobby, text: string): any {
+    return {
+        background: scene.add.existing(new RoundRectangle(scene, 0, 0, 2, 2, 0)),
+        text: scene.add.text(0, 0, text, {
+            color: themeColors.black
+        }),
+
+        space: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10,
+            icon: 10
+        }
+    }
+}
+
+
+/**
  * Configuration for rank drop down selection
  * @param scene 
  * @returns DropDownList Configuration Object
@@ -213,8 +238,8 @@ function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig 
     return {
         x: 0,
         y: 0,
-        background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, 0x4e342e),
-        icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0x7b5e57),
+        //background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, 0x4e342e),
+        icon: scene.add.existing(new RoundRectangle(scene, 0, 0, 5, 5, 5, convertColorHexToNum(themeColors.cyan))),
         text: scene.add.text(0, 0, "--Select--"),
 
         space: {
@@ -227,46 +252,30 @@ function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig 
         options: rankOptions,
         list: {
             createBackgroundCallback: function (scene: Lobby) {
-                return scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0, COLOR_DARK);
+                return scene.add.existing(new RoundRectangle(scene, 0, 0, 2, 2, 0, convertColorHexToNum(themeColors.white)))
             },
             createButtonCallback: function (scene: Lobby, option, index, options) {
-                var text = option.label;
-                var button = scene.rexUI.add.label({
-                    background: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 0),
-
-                    text: scene.add.text(0, 0, text),
-
-                    space: {
-                        left: 10,
-                        right: 10,
-                        top: 10,
-                        bottom: 10,
-                        icon: 10
-                    }
-                });
+                var button = scene.rexUI.add.label(labelConfig(scene, option.label))
                 button.value = option.value;
-
                 return button;
             },
 
             // set the option on click
             onButtonClick: function (button: any, index, pointer, event) {
-                // Set label text, and value
                 this.text = button.text;
                 this.value = button.value;
             },
 
-            // scope: dropDownList
+            //highlight option
             onButtonOver: function (button: any, index: number, pointer, event) {
-                button.getElement('background').setStrokeStyle(1, 0xffffff);
+                button.getElement('background').setStrokeStyle(1, convertColorHexToNum(themeColors.magenta));
             },
 
-            // scope: dropDownList
+            //remove highlight of option
             onButtonOut: function (button: any, index, pointer, event) {
                 button.getElement('background').setStrokeStyle();
             },
 
-            // expandDirection: 'up',
         },
 
         setValueCallback: function (dropDownList, value, previousValue) {

@@ -1,6 +1,7 @@
 import { themeColors } from "../game_helpers/gameUIHandler";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
+import { createToast } from "../utils/utils";
 import { validateRanks } from "./lobbyValidators";
 
 
@@ -22,7 +23,7 @@ export default class StartGameHandler {
             this.scene.socket.emit("startGame", currentPlayers);
         }
         else{
-            
+            createToast(this.scene, "Unable to Start. Players must have unique ranks.", 10000,640,100); 
         }
     }
 
@@ -43,12 +44,7 @@ export default class StartGameHandler {
     joinGame(playerName: string): Player {
         // Create a new player object
         let newPlayer = new Player(this.scene.socket.id, playerName)
-
-        // Push the player object into the players array
-        //this.players.addPlayer(newPlayer);
-        // Emit "joinGame" event to the server
         this.scene.socket.emit("joinGame", newPlayer);
-
         return newPlayer
     }
 
