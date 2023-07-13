@@ -23,16 +23,6 @@ const io = new Server(http, {
 
 io.on('connection', function (socket) {
 
-    //only allow connections before game state is ready
-/*     if (gameState !== gameStateEnum.Ready) {
-        console.log('A idiot connected: ' + socket.id);
-        players.push(socket.id);
-    }
-    else {
-        console.log("New connection blocked");
-        socket.disconnect(true);
-    } */
-
     socket.on('getPlayerList', () => {
         io.to(socket.id).emit('playerList', players)
     })
@@ -66,7 +56,7 @@ io.on('connection', function (socket) {
     // cards dealt
     socket.on('dealCards', (currentPlayersData: any[]) => {
         const currentPlayers = currentPlayersData.map(playerData => Player.serialize(playerData));
-        io.emit('dealCards', currentPlayersData);
+        io.emit('dealCards', currentPlayers);
     });
 
     //card played

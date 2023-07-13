@@ -33,7 +33,7 @@ export function generateRankOptions(scene: Lobby, player: Player): any[] {
     const numberOfPlayers = scene.players.numberPlayers();
     const rankOptions = [];
     for (let i = 0; i < numberOfPlayers; i++) {
-      rankOptions.push({ label: `Rank ${i + 1}`, value: i });
+      rankOptions.push({ label: `${i + 1}`, value: i });
     }
     return rankOptions;
 }
@@ -43,7 +43,7 @@ export function generateRankOptions(scene: Lobby, player: Player): any[] {
  * @param rank - number rank
  */
 export function getRankString(rank: number): string {
-    return `Rank ${rank+1}`; 
+    return `${rank+1}`; 
 }
 
 /**

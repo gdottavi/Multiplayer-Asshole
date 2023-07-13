@@ -84,11 +84,11 @@ createDeck(): Promise<void> {
      * @param players - list of serialized players in game
      */
     updateAfterDeal(players: any[]){
-        //const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
-        //this.scene.currentPlayers.setPlayers(deserializedPlayers);
+        const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
+        this.scene.currentPlayers.setPlayers(deserializedPlayers);
         this.displayCards()
-        setInactiveText(this.scene.readyText); 
         setInactiveText(this.scene.dealText)
+        setActiveText(this.scene.sortCardsText)
         //this.scene.UIHandler.setPlayerNames(this.scene);
         this.scene.GameUIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
     }

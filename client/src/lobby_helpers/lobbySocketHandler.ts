@@ -2,6 +2,7 @@ import { io } from "socket.io-client";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
 import { Players } from "../model/players";
+import { soundKeys } from "../scenes/game";
 //import { displayPlayerName } from "./lobbyUIHandler";
 
 
@@ -49,6 +50,7 @@ export default class LobbySocketHandler {
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
         scene.socket.on("startGame", (currentPlayers) => {
+                scene.playSound(soundKeys.crackBeer); 
                 scene.scene.start("Game", {players: currentPlayers, socket: scene.socket})
         })
 

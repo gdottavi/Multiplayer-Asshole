@@ -33,7 +33,6 @@ export default class Game extends Scene {
     deck: Deck;
     currentPlayers: Players;
     currentPlayedCards: Deck[];
-    readyText: GameObjects.Text;
     passText: GameObjects.Text;
     playCardsText: GameObjects.Text;
     selectedCardSprites: any[];
@@ -43,6 +42,7 @@ export default class Game extends Scene {
         super({
             key: 'Game',
         })
+        
     }
 
     /**
@@ -59,7 +59,6 @@ export default class Game extends Scene {
         this.currentPlayers = new Players();
         this.currentPlayers.setPlayers(deserializedPlayers);
         this.socket = socket;
-
     }
 
     //load everything needed for game 

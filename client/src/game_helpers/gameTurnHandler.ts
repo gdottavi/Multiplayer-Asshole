@@ -28,6 +28,9 @@ export default class GameTurnHandler {
         this.shouldClear = false;
         this.lastHandCleared = false;  //used to track if last hand played cleared the middle
         this.scene = scene;
+
+        //set president to be up first
+        this.setTurn(this.currentPlayers.players[0]);
     }
 
     /**
@@ -168,7 +171,6 @@ export default class GameTurnHandler {
      */
     setTurn(nextPlayer: Player): void {
 
-        console.log(nextPlayer);
         this.currentTurnPlayer = nextPlayer;
 
         //determine if current player is this client 

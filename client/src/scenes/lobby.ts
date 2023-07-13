@@ -5,6 +5,7 @@ import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
 import StartGameHandler from "../lobby_helpers/startGameHandler";
 import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
+import { soundKeys } from "./game";
 
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -18,8 +19,8 @@ const COLOR_DARK = 0x260e04;
 export default class Lobby extends Phaser.Scene {
     rexUI: any;
     players: Players;
-    socket: Socket; 
-    namePos: number; 
+    socket: Socket;
+    namePos: number;
     LobbySocketHandler: LobbySocketHandler;
     StartGameHandler: StartGameHandler;
     LobbyUIHandler: LobbyUIHandler;
@@ -28,8 +29,8 @@ export default class Lobby extends Phaser.Scene {
 
     constructor() {
         super("Lobby");
-        this.players = new Players; 
-        this.namePos = 0; 
+        this.players = new Players;
+        this.namePos = 0;
     }
 
     // Add your scene methods and logic here
@@ -37,34 +38,36 @@ export default class Lobby extends Phaser.Scene {
     // See the Phaser documentation for more information: https://photonstorm.github.io/phaser3-docs/
 
     preload() {
-        // Preload any assets needed for the Lobby scene
-        //this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
-        // this.load.scenePlugin({
-        //     key: 'rexuiplugin',
-        //     url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
-        //     sceneKey: 'rexUI'
-        // });      
+      //load sounds
+      this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);      
     }
 
     create() {
         // Initialize the rexUI plugin
         //this.rexUI = this.plugins.get('rexUI');
-        this.LobbySocketHandler = new LobbySocketHandler(this); 
-        this.StartGameHandler = new StartGameHandler(this); 
-        this.LobbyUIHandler = new LobbyUIHandler(this); 
+        this.LobbySocketHandler = new LobbySocketHandler(this);
+        this.StartGameHandler = new StartGameHandler(this);
+        this.LobbyUIHandler = new LobbyUIHandler(this);
     }
 
-    
+
 
 
     update() {
         // Update the lobby scene logic (e.g., handle user input, check game state)
     }
 
+    /**
+      * plays a sound
+      * @param key - sound key to play
+      */
+    playSound(key: string) {
+        var sound = this.sound.add(key);
+        sound.play();
+    }
 
- 
 
-    
+
 }
 
 

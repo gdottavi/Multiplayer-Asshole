@@ -24,6 +24,7 @@ export default class LobbyUIHandler {
     playerGrid: GridSizer;
     joinButton: Phaser.GameObjects.Text;
     startButton: Phaser.GameObjects.Text;
+    dropDownArrow: Phaser.GameObjects.Text;
     inputBox: Phaser.GameObjects.DOMElement;
 
     constructor(scene: Lobby) {
@@ -47,10 +48,10 @@ export default class LobbyUIHandler {
      */
     addPlayerToGrid(player: Player): void {
         this.playerGrid
-            .add(this.scene.add.text(0, 0, player.name), {
+            .add(this.createRankSelection(player), {
                 align: "left"
             })
-            .add(this.createRankSelection(player), {
+            .add(this.scene.add.text(0, 0, player.name), {
                 align: "left"
             })
             .layout()
@@ -115,26 +116,32 @@ export default class LobbyUIHandler {
      * Column 1: Player Rank
      */
     addHeadersToGrid() {
+        const rankHeader = this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.yellow });
+        const nameHeader = this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.yellow });
+        
         this.playerGrid
-            .add(this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.cyan }), {
-                align: 'left',
-                padding: { bottom: 5 },
-            })
-            .add(this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.cyan }), {
-                align: 'left',
-                padding: { bottom: 5 }
-            })
-            .layout();
-    }
+          .add(rankHeader, {
+            align: 'left',
+            padding: { bottom: 5 },
+          })
+          .add(nameHeader, {
+            align: 'left',
+            padding: { bottom: 5 }
+          })
+          .layout();
+      }
+      
+      
+      
 
     /**
      * Adds title to player grid
      */
     addTitleToGrid() {
         this.playerGrid
-            .add(this.scene.add.text(0, 0, "Players In Game", { fontSize: "32px", color: themeColors.white }), {
-
-                padding: { bottom: 5 }
+            .add(this.scene.add.text(0, 0, "Players In Game", { fontSize: "28px", color: themeColors.white }), {
+                padding: { bottom: 5 },
+                align: 'left'
             })
             .add(this.scene.add.text(0, 0, "", {}), {
                 padding: { bottom: 5 }
@@ -147,7 +154,7 @@ export default class LobbyUIHandler {
      */
     addInputBox() {
         this.inputBox = this.scene.add.dom(640, 360).createFromHTML(
-        `<div style="display: flex; align-items: center;">
+            `<div style="display: flex; align-items: center;">
             <input type="text" id="nameInput" placeholder="Enter Name" style="font-size: 16px; width: 200px; height: 40px;">
         </div>`
         );
@@ -177,7 +184,7 @@ export default class LobbyUIHandler {
         setHoverColor(this.startButton)
 
         // Disable the input box
-            this.inputBox = this.scene.add.dom(640, 360).createFromHTML(`
+        this.inputBox = this.scene.add.dom(640, 360).createFromHTML(`
             <div style="display: flex; align-items: center;">
             <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
             </div>
@@ -196,7 +203,7 @@ function gridConfig(): GridSizer.IConfig {
         width: 400, height: undefined,
 
         column: 2, row: 2,
-        columnProportions: 0, rowProportions: 0,
+        columnProportions: [1,3], rowProportions: 0,
         space: {
             left: 10, right: 10, top: 10, bottom: 10,
             column: 5,
@@ -228,7 +235,6 @@ function labelConfig(scene: Lobby, text: string): any {
     }
 }
 
-
 /**
  * Configuration for rank drop down selection
  * @param scene 
@@ -238,9 +244,9 @@ function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig 
     return {
         x: 0,
         y: 0,
-        //background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, 0x4e342e),
-        icon: scene.add.existing(new RoundRectangle(scene, 0, 0, 5, 5, 5, convertColorHexToNum(themeColors.cyan))),
-        text: scene.add.text(0, 0, "--Select--"),
+        //background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, convertColorHexToNum(themeColors.blue)),
+        icon: scene.add.text(0, 0, "▼", { fontSize: "24px", color: themeColors.cyan }),
+        text: scene.add.text(0, 0, "--"),
 
         space: {
             left: 10,
@@ -269,11 +275,13 @@ function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig 
             //highlight option
             onButtonOver: function (button: any, index: number, pointer, event) {
                 button.getElement('background').setStrokeStyle(1, convertColorHexToNum(themeColors.magenta));
+                button.getElement('text').setColor(themeColors.magenta);
             },
 
             //remove highlight of option
             onButtonOut: function (button: any, index, pointer, event) {
                 button.getElement('background').setStrokeStyle();
+                button.getElement('text').setColor(themeColors.black);
             },
 
         },

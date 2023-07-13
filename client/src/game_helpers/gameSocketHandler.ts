@@ -17,29 +17,6 @@ export default class SocketHandler {
 
     constructor(scene: Game) {
 
-        // //server connection
-        // scene.socket = io(localURL);
-
-        // scene.socket.on('connect', () => {
-        //     console.log("Game Connected!");
-        // })
-
-        //Ready - Create Players from array of socket Ids (players)
-        scene.socket.on('ready', (players) => {
-            players.forEach((socketID: string) => {
-                //if player already exists with socketID delete first - TODO
-                let newPlayer = new Player(socketID, "Player " + scene.currentPlayers.numberPlayers());
-                scene.currentPlayers.addPlayer(newPlayer);
-            })
-
-            //set first turn
-            scene.GameTurnHandler.setTurn(scene.currentPlayers.players[0]);
-            //update state of menu options
-            setActiveText(scene.dealText);
-            setInactiveText(scene.readyText);
-            setActiveText(scene.sortCardsText)
-        })
-
         //Deal Cards
         scene.socket.on('dealCards', (playerData: any) => {
             scene.DeckHandler.updateAfterDeal(playerData);

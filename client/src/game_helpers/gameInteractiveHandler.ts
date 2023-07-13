@@ -24,11 +24,6 @@ export default class InteractiveHandler {
             scene.socket.emit('dealCards', currentPlayers);
         })
 
-        //ready on click
-        scene.readyText.on('pointerdown', () => {
-            scene.socket.emit('ready')
-            scene.playSound(soundKeys.crackBeer);
-        })
 
         //reset on click
         scene.resetText.on('pointerdown', () => {
@@ -170,7 +165,6 @@ export default class InteractiveHandler {
      */
     setupMenuOptions(scene: Game): void {   
         setHoverColor(scene.dealText);
-        setHoverColor(scene.readyText);
         setHoverColor(scene.resetText);
         setHoverColor(scene.passText);
         setHoverColor(scene.sortCardsText);

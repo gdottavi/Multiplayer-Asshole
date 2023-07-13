@@ -7,6 +7,7 @@ import { setActiveText, setInactiveText } from "../utils/utils";
 export enum themeColors {
     black = '#000000',
     cyan = '#00ffff',
+    blue = '#3343A7',
     magenta = '#ff69b4',
     yellow = '#ffff00',
     inactiveGray = '#888888',
@@ -41,9 +42,8 @@ export default class GameUIHandler {
 
 
         //menu options for game - TODO Add PLAY AGAIN OPTION
-        scene.readyText = scene.add.text(75, 300, ['Ready']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setInteractive();
-        scene.dealText = scene.add.text(75, 350, ['Deal Cards Doofus']).setFontSize(18).setFontFamily('Trebuchet MS')
-        setInactiveText(scene.dealText);
+        scene.dealText = scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS')
+        setActiveText(scene.dealText);
         scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
         setInactiveText(scene.resetText)
         scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
