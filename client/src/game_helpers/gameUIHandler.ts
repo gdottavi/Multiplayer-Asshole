@@ -14,63 +14,62 @@ export enum themeColors {
     white = '#ffffff'
 }
 
+export const currPlayerXPos = 150;
+export const currPlayerYPos = 575;
+export const opponentStartXPos = 50;
+const playZoneWidth = 900;
+const playZoneHeight = 200;
+
 /**
  * Basic layout and UI for game
  */
 export default class GameUIHandler {
+    scene: Game;
 
     constructor(scene: Game) {
 
+        this.scene = scene;
         //Create drop zone for cards
-        scene.dropZone = scene.add.zone(700, 375, 900, 250).setRectangleDropZone(900, 250);
+        scene.dropZone = scene.add.zone(700, 375, playZoneWidth, playZoneHeight).setRectangleDropZone(playZoneWidth, playZoneHeight);
 
         let dropZoneOutline = scene.add.graphics();
         dropZoneOutline.lineStyle(4, 0xff69b4);
         dropZoneOutline.strokeRect(scene.dropZone.x - scene.dropZone.input.hitArea.width / 2,
             scene.dropZone.y - scene.dropZone.input.hitArea.height / 2, scene.dropZone.input.hitArea.width, scene.dropZone.input.hitArea.height);
 
+        this.setupButtons()
+        this.setPlayerNames();
+    }
 
-        /*  //Create current player card zone - TODO
-         scene.currentPlayerZone = scene.add.zone(650, 625, 1250, 150).setRectangleDropZone(1250, 150);
-         let currentPlayerZoneOutline = scene.add.graphics();
-         currentPlayerZoneOutline.lineStyle(4, 0xff69b4);
-         currentPlayerZoneOutline.strokeRect(scene.currentPlayerZone.x - scene.currentPlayerZone.input.hitArea.width / 2,
-             scene.currentPlayerZone.y - scene.currentPlayerZone.input.hitArea.height / 2, scene.currentPlayerZone.input.hitArea.width, scene.currentPlayerZone.input.hitArea.height);
- 
-  */
-        //TODO - create zones for all opponent hands
-
-
-        //menu options for game - TODO Add PLAY AGAIN OPTION
-        scene.dealText = scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS')
-        setActiveText(scene.dealText);
-        scene.resetText = scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
-        setInactiveText(scene.resetText)
-        scene.passText = scene.add.text(750, 525, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
-        setInactiveText(scene.passText);
-        scene.sortCardsText = scene.add.text(250, 525, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
-        setInactiveText(scene.sortCardsText)
-
-        //add player names to board
-        this.setPlayerNames(scene); 
+    /**
+     * setup for all interactive text buttons in game
+     */
+    setupButtons() {
+        this.scene.dealText = this.scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS')
+        setActiveText(this.scene.dealText);
+        this.scene.resetText = this.scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
+        setInactiveText(this.scene.resetText)
+        this.scene.passText = this.scene.add.text(currPlayerXPos - 125, currPlayerYPos + 40, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        setInactiveText(this.scene.passText);
+        this.scene.sortCardsText = this.scene.add.text(currPlayerXPos - 125, currPlayerYPos + 70, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        setInactiveText(this.scene.sortCardsText)
     }
 
     /**
      * Sets initial player names on board
-     * @param scene 
      */
-    setPlayerNames(scene: Game): void {
+    setPlayerNames(): void {
         //display initial players names in game
         let opponentPos = 0
-        scene.currentPlayers.players.forEach(player => {
+        this.scene.currentPlayers.players.forEach(player => {
 
-            //if (scene.socket.id !== player.socketId) { opponentPos++ };
-            if (scene.socket.id === player.socketId) {
-                scene.add.text(100, 575, [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
+            //if (this.scene.socket.id !== player.socketId) { opponentPos++ };
+            if (this.scene.socket.id === player.socketId) {
+                this.scene.add.text(currPlayerXPos, currPlayerYPos, [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
-                opponentPos++; 
-                scene.add.text(100, 50 + (opponentPos * 80), [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan).setData('id', player.socketId).setData('type', 'playerName');
+                this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(12).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
+                opponentPos++;
             }
 
         })
@@ -84,7 +83,7 @@ export default class GameUIHandler {
      */
     async updatePlayerNameColor(scene: Game, player: Player, color: string): Promise<void> {
 
-       let socketId = player.socketId; 
+        let socketId = player.socketId;
 
         scene.children.each((child) => {
             if (child instanceof Phaser.GameObjects.Text && child.getData('type') === 'playerName') {
@@ -97,11 +96,10 @@ export default class GameUIHandler {
         return Promise.resolve();
     }
 
- 
+
 
 
 
 
 }
 
-  

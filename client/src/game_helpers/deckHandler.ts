@@ -3,10 +3,14 @@ import { Card, suites, testingSuite, values } from "../model/card";
 import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
-import { themeColors} from "./gameUIHandler";
+import { currPlayerXPos, currPlayerYPos, opponentStartXPos, themeColors } from "./gameUIHandler";
 import { removeSprite, setActiveText, setInactiveText } from "../utils/utils";
 
 const four = '4', two = '2';
+const currPlayerCardOffset = 45;
+const opponentCardOffset = 25;
+const currPlayerCardYPos = 75;
+const currPlayerCardRatio = 0.1;
 
 
 /**
@@ -15,12 +19,11 @@ const four = '4', two = '2';
 export default class DeckHandler {
 
 
-    scene: Game; 
+    scene: Game;
 
     constructor(scene: Game) {
 
-        this.scene = scene; 
-
+        this.scene = scene;
 
     }
 
@@ -34,31 +37,31 @@ export default class DeckHandler {
         this.createHands()
     }
 
-  
-/**
- * Creates the initial deck - TODO: change to real suites, not testing suites.
- */
-createDeck(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      testingSuite.forEach((suite) => {
-        values.forEach((value) => {
-          let card = new Card(suite, value);
-          this.scene.deck.addCard(card);
+
+    /**
+     * Creates the initial deck - TODO: change to real suites, not testing suites.
+     */
+    createDeck(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            testingSuite.forEach((suite) => {
+                values.forEach((value) => {
+                    let card = new Card(suite, value);
+                    this.scene.deck.addCard(card);
+                });
+            });
+            resolve();
         });
-      });
-      resolve();
-    });
-  }
-  
-  /**
-   * Shuffles the deck.
-   */
-  shuffleDeck(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.scene.deck.shuffleDeck()
-      resolve();
-    });
-  }
+    }
+
+    /**
+     * Shuffles the deck.
+     */
+    shuffleDeck(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            this.scene.deck.shuffleDeck()
+            resolve();
+        });
+    }
 
 
     /**
@@ -83,9 +86,10 @@ createDeck(): Promise<void> {
      * main tag to update on all clients after dealing is complete
      * @param players - list of serialized players in game
      */
-    updateAfterDeal(players: any[]){
+    updateAfterDeal(players: any[]) {
         const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
         this.scene.currentPlayers.setPlayers(deserializedPlayers);
+        console.log(this.scene.currentPlayers)
         this.displayCards()
         setInactiveText(this.scene.dealText)
         setActiveText(this.scene.sortCardsText)
@@ -97,21 +101,32 @@ createDeck(): Promise<void> {
      * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front. 
      */
     displayCards() {
-        let opponentPos = 0;
+        let opponentXPos = 0;
+        let opponentYPos = 0;
+
         this.scene.currentPlayers.players.forEach(player => {
 
-            if (this.scene.socket.id !== player.socketId) { opponentPos++ };
+            //increment player position for other players
+            //if (this.scene.socket.id !== player.socketId) { opponentPos++ };
 
             for (let i = 0; i < player.getNumberCardsInHand(); i++) {
                 let currentCard = player.cardHand.cards[i];
                 //current player
                 if (this.scene.socket.id === player.socketId) {
-                    this.renderCard(currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)
+                    this.displayThisPlayerCard(i, currentCard)
                 }
+                //other players
                 else {
-                    this.renderCard(currentCard, 100 + (i * 25), 10 + (opponentPos * 80), 0.075, currentCard.backImageSprite, false)
+                    this.renderCard(currentCard, opponentStartXPos + (i * opponentCardOffset) + (opponentXPos * 250), 100 + (opponentYPos * 150), 0.065, currentCard.backImageSprite, false)
                 }
             }
+            //increment player position 
+            if (this.scene.socket.id !== player.socketId) {
+                opponentXPos++
+                if (opponentXPos > 4) {
+                    opponentYPos++;
+                }
+            };
         })
     }
 
@@ -119,14 +134,24 @@ createDeck(): Promise<void> {
      * Clears display of hand and displays for current player
      * @param cardHand - card hand to display for current player
      */
-    redisplayHand(cardHand: Deck){
+    redisplayHand(cardHand: Deck) {
 
         //TODO add some animation here for mixing up cards.  Add sound.
-        for(let i=0; i < cardHand.getNumberCards(); i++){
-            let currentCard = cardHand.cards[i]; 
-            removeSprite(this.scene, currentCard); 
-            this.renderCard(currentCard, 100 + (i * 45), 650, 0.1, currentCard.frontImageSprite, true)
+        for (let i = 0; i < cardHand.getNumberCards(); i++) {
+            let currentCard = cardHand.cards[i];
+            removeSprite(this.scene, currentCard);
+            this.displayThisPlayerCard(i, currentCard)
         }
+    }
+
+    /**
+     * displays a single card for currnt player
+     * @param i - card position in hand
+     * @param currentCard - card to display
+     */
+    displayThisPlayerCard(i: number, currentCard: Card) {
+        this.renderCard(currentCard, currPlayerXPos + (i * currPlayerCardOffset), currPlayerYPos + currPlayerCardYPos, currPlayerCardRatio, currentCard.frontImageSprite, true)
+
     }
 
     /**
@@ -134,7 +159,7 @@ createDeck(): Promise<void> {
      */
     renderCard(card: Card, x: number, y: number, scale: number, image_key: string, interactive: boolean) {
         let cardSprite = new CardSprite(this.scene, card, x, y, image_key).setScale(scale);
-        this.scene.children.bringToTop(cardSprite); 
+        this.scene.children.bringToTop(cardSprite);
         if (interactive) cardSprite.setInteractive();
 
     }
