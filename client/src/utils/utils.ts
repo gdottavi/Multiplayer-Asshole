@@ -6,6 +6,27 @@ import { themeColors } from "../game_helpers/gameUIHandler";
 import { GameObjects, Scene } from "phaser";
 import Lobby from "../scenes/lobby";
 
+
+
+
+/**
+ * 
+ * @param scene 
+ * @returns horizontal center of scene
+ */
+export function getCenterX(scene: Lobby|Game): number {
+  return scene.cameras.main.centerX;
+}
+
+/**
+ * 
+ * @param scene 
+ * @returns vertical center of scene
+ */
+export function getCenterY(scene: Lobby|Game): number {
+  return scene.cameras.main.centerY; 
+}
+
 /**
  * Checks if last x elements in an array are equal
  * @param arr - array to check

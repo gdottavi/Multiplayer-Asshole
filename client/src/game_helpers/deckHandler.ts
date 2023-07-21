@@ -1,16 +1,16 @@
 import Game from "../scenes/game";
 import { Card, suites, testingSuite, values } from "../model/card";
-import CardSprite from "../model/cardSprite";
+import CardSprite, { cardWidth } from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
 import { currPlayerXPos, currPlayerYPos, opponentStartXPos, themeColors } from "./gameUIHandler";
-import { removeSprite, setActiveText, setInactiveText } from "../utils/utils";
+import { convertColorHexToNum, removeSprite, setActiveText, setInactiveText } from "../utils/utils";
 
 const four = '4', two = '2';
-const currPlayerCardOffset = 45;
-const opponentCardOffset = 25;
+const currPlayerCardOffset = 10;
+const opponentCardOffset = 10;
 const currPlayerCardYPos = 75;
-const currPlayerCardRatio = 0.1;
+const currPlayerCardOverlapPercentage = 0.4;
 
 
 /**
@@ -43,7 +43,7 @@ export default class DeckHandler {
      */
     createDeck(): Promise<void> {
         return new Promise<void>((resolve) => {
-            testingSuite.forEach((suite) => {
+            suites.forEach((suite) => {
                 values.forEach((value) => {
                     let card = new Card(suite, value);
                     this.scene.deck.addCard(card);
@@ -93,7 +93,6 @@ export default class DeckHandler {
         this.displayCards()
         setInactiveText(this.scene.dealText)
         setActiveText(this.scene.sortCardsText)
-        //this.scene.UIHandler.setPlayerNames(this.scene);
         this.scene.GameUIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
     }
 
@@ -105,20 +104,17 @@ export default class DeckHandler {
         let opponentYPos = 0;
 
         this.scene.currentPlayers.players.forEach(player => {
+            let numberCards = player.getNumberCardsInHand();
+            let scale = this.getThisPlayerCardsScale(numberCards);
 
-            //increment player position for other players
-            //if (this.scene.socket.id !== player.socketId) { opponentPos++ };
-
-            for (let i = 0; i < player.getNumberCardsInHand(); i++) {
+            for (let i = 0; i < numberCards; i++) {
                 let currentCard = player.cardHand.cards[i];
                 //current player
                 if (this.scene.socket.id === player.socketId) {
-                    this.displayThisPlayerCard(i, currentCard)
+                    this.displayThisPlayerCard(i, currentCard, scale)
                 }
                 //other players
-                else {
-                    this.renderCard(currentCard, opponentStartXPos + (i * opponentCardOffset) + (opponentXPos * 250), 100 + (opponentYPos * 150), 0.065, currentCard.backImageSprite, false)
-                }
+                else this.displayOpponentCard(i, opponentXPos, opponentYPos, currentCard)
             }
             //increment player position 
             if (this.scene.socket.id !== player.socketId) {
@@ -131,16 +127,37 @@ export default class DeckHandler {
     }
 
     /**
+     * Display a single opponent card
+     * @param i - card pos
+     * @param opponentXPos - x pos 
+     * @param opponentYPos - y pos
+     * @param currentCard - card to display
+     */
+    displayOpponentCard(i: number, opponentXPos: number, opponentYPos: number, currentCard: Card) {
+        this.renderCard(
+            currentCard,
+            opponentStartXPos + (i * opponentCardOffset) + (opponentXPos * 250),
+            100 + (opponentYPos * 150),
+            0.065,
+            currentCard.backImageSprite,
+            false
+        );
+
+    }
+
+    /**
      * Clears display of hand and displays for current player
      * @param cardHand - card hand to display for current player
      */
     redisplayHand(cardHand: Deck) {
 
-        //TODO add some animation here for mixing up cards.  Add sound.
-        for (let i = 0; i < cardHand.getNumberCards(); i++) {
+        let numberCards = cardHand.getNumberCards();
+        let scale = this.getThisPlayerCardsScale(numberCards);
+
+        for (let i = 0; i < numberCards; i++) {
             let currentCard = cardHand.cards[i];
             removeSprite(this.scene, currentCard);
-            this.displayThisPlayerCard(i, currentCard)
+            this.displayThisPlayerCard(i, currentCard, scale);
         }
     }
 
@@ -148,9 +165,41 @@ export default class DeckHandler {
      * displays a single card for currnt player
      * @param i - card position in hand
      * @param currentCard - card to display
+     * @param scale - scale factor for image
      */
-    displayThisPlayerCard(i: number, currentCard: Card) {
-        this.renderCard(currentCard, currPlayerXPos + (i * currPlayerCardOffset), currPlayerYPos + currPlayerCardYPos, currPlayerCardRatio, currentCard.frontImageSprite, true)
+    displayThisPlayerCard(i: number, currentCard: Card, scale: number) {
+
+        const totalCardWidth = cardWidth * scale;
+
+        // Calculate the overlap between cards based on a fixed percentage (adjust as needed)
+        const overlapOffset = totalCardWidth * currPlayerCardOverlapPercentage;
+    
+        const xPos = currPlayerXPos + i * (totalCardWidth - overlapOffset);
+        const yPos = this.scene.GameUIHandler.getCurrPlayerYPos() + currPlayerCardYPos;
+    
+        this.renderCard(
+            currentCard,
+            xPos,
+            yPos, 
+            scale,
+            currentCard.frontImageSprite,
+            true
+        )
+
+    }
+
+    getThisPlayerCardsScale(numberCards: number): number {
+        const visibleWidth = this.scene.cameras.main.worldView.width;
+
+        // Calculate the total width of all cards including spacing and overlap
+        const totalCardWidthWithSpacingAndOverlap = (cardWidth + currPlayerCardOffset) * numberCards - currPlayerCardOffset;
+        const overlapOffset = totalCardWidthWithSpacingAndOverlap * currPlayerCardOverlapPercentage;
+        const totalCardsWidthWithSpacing = totalCardWidthWithSpacingAndOverlap - overlapOffset;
+    
+        // Calculate the scale required to fit all the cards within the visible screen width
+        const updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
+    
+        return updatedScale;
 
     }
 
@@ -158,10 +207,9 @@ export default class DeckHandler {
      * Displays card at specified location
      */
     renderCard(card: Card, x: number, y: number, scale: number, image_key: string, interactive: boolean) {
-        let cardSprite = new CardSprite(this.scene, card, x, y, image_key).setScale(scale);
+        let cardSprite = new CardSprite(this.scene, card, x, y, image_key, scale).setScale(scale);
         this.scene.children.bringToTop(cardSprite);
         if (interactive) cardSprite.setInteractive();
-
     }
 
     /**

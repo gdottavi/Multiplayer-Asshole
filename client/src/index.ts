@@ -10,8 +10,8 @@ const height = window.innerHeight * window.devicePixelRatio;
 const config = {
     type: Phaser.AUTO,
     parent: "phaser-container",
-    width: 1280,
-    height: 720,
+    width: width,
+    height: height,
 	dom: {
         createContainer: true
     },

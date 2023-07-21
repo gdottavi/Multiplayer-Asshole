@@ -3,6 +3,7 @@ import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
 import { Players } from "../model/players";
 import { soundKeys } from "../scenes/game";
+import { createToast, getCenterX } from "../utils/utils";
 //import { displayPlayerName } from "./lobbyUIHandler";
 
 
@@ -25,11 +26,14 @@ export default class LobbySocketHandler {
             scene.socket.emit('getPlayerList')
         })
 
+
         // Display all players already in game
         scene.socket.on('playerList', (players: Players) => {
             players.players.forEach((player: Player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player); 
+                console.log('playerList',player)
+                scene.LobbyUIHandler.updateRank(player); 
             })
         })
 
@@ -39,12 +43,32 @@ export default class LobbySocketHandler {
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer); 
         });
 
+        // Listen for playerExited event from the server
+        scene.socket.on("playerExited", (removedPlayerSocketId: string) => {
+            
+            let playerNameExited = scene.players.getPlayerById(removedPlayerSocketId).name
+
+            scene.players.removePlayer(removedPlayerSocketId);
+
+            createToast(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, getCenterX(scene), 100)
+
+            console.log('player left',scene.players)
+
+            scene.LobbyUIHandler.removePlayersFromGrid(); 
+
+            scene.players.players.forEach(player => {
+                player.rank = null; 
+                scene.LobbyUIHandler.addPlayerToGrid(player);
+                scene.LobbyUIHandler.updateRank(player); 
+            })
+            
+        });
+
         // Update player ranks 
         scene.socket.on('updateRank', (player: Player, rank: number) => {
             let scenePlayer = scene.players.getPlayerById(player.socketId)
             scenePlayer.rank = rank
             scene.LobbyUIHandler.updateRank(scenePlayer); 
-            console.log(scene.players.players)
         })
 
         //Listen for "startGame" event from the server

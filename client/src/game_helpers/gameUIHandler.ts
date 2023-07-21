@@ -1,7 +1,7 @@
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
 import Game from "../scenes/game";
-import { setActiveText, setInactiveText } from "../utils/utils";
+import { convertColorHexToNum, getCenterX, getCenterY, setActiveText, setInactiveText } from "../utils/utils";
 
 
 export enum themeColors {
@@ -29,13 +29,13 @@ export default class GameUIHandler {
     constructor(scene: Game) {
 
         this.scene = scene;
-        //Create drop zone for cards
-        scene.dropZone = scene.add.zone(700, 375, playZoneWidth, playZoneHeight).setRectangleDropZone(playZoneWidth, playZoneHeight);
 
+        // Create drop zone for cards in the middle
+        scene.dropZone = scene.add.zone(getCenterX(scene), getCenterY(scene), playZoneWidth, playZoneHeight).setRectangleDropZone(playZoneWidth, playZoneHeight);
         let dropZoneOutline = scene.add.graphics();
-        dropZoneOutline.lineStyle(4, 0xff69b4);
-        dropZoneOutline.strokeRect(scene.dropZone.x - scene.dropZone.input.hitArea.width / 2,
-            scene.dropZone.y - scene.dropZone.input.hitArea.height / 2, scene.dropZone.input.hitArea.width, scene.dropZone.input.hitArea.height);
+        dropZoneOutline.lineStyle(4, convertColorHexToNum(themeColors.magenta));
+        dropZoneOutline.strokeRect(getCenterX(scene) - playZoneWidth / 2, getCenterY(scene) - playZoneHeight / 2, playZoneWidth, playZoneHeight);
+
 
         this.setupButtons()
         this.setPlayerNames();
@@ -45,13 +45,31 @@ export default class GameUIHandler {
      * setup for all interactive text buttons in game
      */
     setupButtons() {
-        this.scene.dealText = this.scene.add.text(75, 350, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS')
+
+        // Get the center of the drop zone
+        const dropZoneCenterX = this.scene.dropZone.x;
+        const dropZoneCenterY = this.scene.dropZone.y;
+
+        // Calculate the vertical position for the buttons based on the drop zone center
+        const verticalOffset = 25;
+        const dealTextY = dropZoneCenterY - verticalOffset;
+        const resetTextY = dropZoneCenterY + verticalOffset;
+
+        // Calculate the horizontal position for the buttons based on the drop zone center and width
+        const horizontalOffset = playZoneWidth / 2 + 125; // Adjust the offset as needed
+        const dealTextX = dropZoneCenterX - horizontalOffset;
+        const resetTextX = dropZoneCenterX - horizontalOffset;
+
+        this.scene.dealText = this.scene.add.text(dealTextX, dealTextY, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS');
         setActiveText(this.scene.dealText);
-        this.scene.resetText = this.scene.add.text(75, 400, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS')
-        setInactiveText(this.scene.resetText)
-        this.scene.passText = this.scene.add.text(currPlayerXPos - 125, currPlayerYPos + 40, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+
+        this.scene.resetText = this.scene.add.text(resetTextX, resetTextY, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS');
+        setInactiveText(this.scene.resetText);
+
+        //Player Options
+        this.scene.passText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 40, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         setInactiveText(this.scene.passText);
-        this.scene.sortCardsText = this.scene.add.text(currPlayerXPos - 125, currPlayerYPos + 70, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        this.scene.sortCardsText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 70, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         setInactiveText(this.scene.sortCardsText)
     }
 
@@ -61,11 +79,14 @@ export default class GameUIHandler {
     setPlayerNames(): void {
         //display initial players names in game
         let opponentPos = 0
+
         this.scene.currentPlayers.players.forEach(player => {
 
             //if (this.scene.socket.id !== player.socketId) { opponentPos++ };
             if (this.scene.socket.id === player.socketId) {
-                this.scene.add.text(currPlayerXPos, currPlayerYPos, [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
+                this.scene.add.text(currPlayerXPos, 
+                    this.getCurrPlayerYPos(),
+                    [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
                 this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(12).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
@@ -73,6 +94,18 @@ export default class GameUIHandler {
             }
 
         })
+    }
+
+    /**
+     * 
+     * @returns current player Y position
+     */
+    getCurrPlayerYPos(): number{
+        const dropZoneCenterY = this.scene.dropZone.y;
+        const dropZoneHeight = playZoneHeight;
+        const verticalOffset = 100;
+
+        return dropZoneCenterY + dropZoneHeight / 2 + verticalOffset
     }
 
     /**

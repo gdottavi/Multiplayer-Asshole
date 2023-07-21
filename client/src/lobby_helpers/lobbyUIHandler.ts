@@ -1,7 +1,7 @@
 import { themeColors } from "../game_helpers/gameUIHandler";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
-import { convertColorHexToNum, createButton, createToast, setActiveText, setInactiveText } from "../utils/utils";
+import { convertColorHexToNum, createButton, createToast, getCenterX, getCenterY, setActiveText, setInactiveText } from "../utils/utils";
 import { GridSizer, DropDownList } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import Label from "phaser3-rex-plugins/templates/ui/ui-components.js";
 import { setHoverColor } from "../utils/utils";
@@ -19,6 +19,7 @@ const COLOR_CYAN = 0x00FFFF;
  * Basic layout and UI for game
  */
 export default class LobbyUIHandler {
+
 
     scene: Lobby;
     playerGrid: GridSizer;
@@ -60,6 +61,13 @@ export default class LobbyUIHandler {
     }
 
     /**
+     * clears the grid of all players
+     */
+    removePlayersFromGrid(): void {
+        this.playerGrid.removeAll();
+    }
+
+    /**
    * Updates the rank options for all players
    */
     updateRankOptionsForAllPlayers(): void {
@@ -82,8 +90,15 @@ export default class LobbyUIHandler {
         if (player) {
             const dropdownToUpdate = player.rankDropDown;
             if (dropdownToUpdate) {
-                dropdownToUpdate.value = rank;
-                dropdownToUpdate.text = getRankString(rank);
+                if (rank === null) {
+
+                    dropdownToUpdate.value = undefined;
+                    dropdownToUpdate.text = '--';
+                }
+                else {
+                    dropdownToUpdate.value = rank;
+                    dropdownToUpdate.text = getRankString(rank);
+                }
             }
         }
     }
@@ -118,21 +133,21 @@ export default class LobbyUIHandler {
     addHeadersToGrid() {
         const rankHeader = this.scene.add.text(0, 0, "Rank", { fontSize: "24px", color: themeColors.yellow });
         const nameHeader = this.scene.add.text(0, 0, "Name", { fontSize: "24px", color: themeColors.yellow });
-        
+
         this.playerGrid
-          .add(rankHeader, {
-            align: 'left',
-            padding: { bottom: 5 },
-          })
-          .add(nameHeader, {
-            align: 'left',
-            padding: { bottom: 5 }
-          })
-          .layout();
-      }
-      
-      
-      
+            .add(rankHeader, {
+                align: 'left',
+                padding: { bottom: 5 },
+            })
+            .add(nameHeader, {
+                align: 'left',
+                padding: { bottom: 5 }
+            })
+            .layout();
+    }
+
+
+
 
     /**
      * Adds title to player grid
@@ -153,7 +168,7 @@ export default class LobbyUIHandler {
      * Adds name input box
      */
     addInputBox() {
-        this.inputBox = this.scene.add.dom(640, 360).createFromHTML(
+        this.inputBox = this.scene.add.dom(getCenterX(this.scene), getCenterY(this.scene)).createFromHTML(
             `<div style="display: flex; align-items: center;">
             <input type="text" id="nameInput" placeholder="Enter Name" style="font-size: 16px; width: 200px; height: 40px;">
         </div>`
@@ -164,8 +179,8 @@ export default class LobbyUIHandler {
      * Add buttons to join and start game
      */
     addButtons() {
-        this.joinButton = createButton(this.scene, 640, 420, "Join Game", null, "32px", true, this.joinButtonCallBack)
-        this.startButton = createButton(this.scene, 640, 640, "Start Game", null, "32px", false, this.scene.StartGameHandler.startGame)
+        this.joinButton = createButton(this.scene, getCenterX(this.scene), getCenterY(this.scene) + 80, "Join Game", null, "32px", true, this.joinButtonCallBack)
+        this.startButton = createButton(this.scene, getCenterX(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame)
     }
 
     /**
@@ -175,7 +190,7 @@ export default class LobbyUIHandler {
     joinButtonCallBack = () => {
         const playerName = (document.getElementById("nameInput") as HTMLInputElement).value;
         if (!validateName(playerName)) {
-            createToast(this.scene, "Must enter a valid name before joining", 5000, 640, 100)
+            createToast(this.scene, "Must enter a valid name before joining", 5000, getCenterX(this.scene), 100)
             return
         }
         let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
@@ -184,7 +199,7 @@ export default class LobbyUIHandler {
         setHoverColor(this.startButton)
 
         // Disable the input box
-        this.inputBox = this.scene.add.dom(640, 360).createFromHTML(`
+        this.inputBox = this.scene.add.dom(getCenterX(this.scene), getCenterY(this.scene)).createFromHTML(`
             <div style="display: flex; align-items: center;">
             <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
             </div>
@@ -203,7 +218,7 @@ function gridConfig(): GridSizer.IConfig {
         width: 400, height: undefined,
 
         column: 2, row: 2,
-        columnProportions: [1,3], rowProportions: 0,
+        columnProportions: [1, 3], rowProportions: 0,
         space: {
             left: 10, right: 10, top: 10, bottom: 10,
             column: 5,
@@ -244,7 +259,6 @@ function dropDownConfig(scene: Lobby, rankOptions: any[]): DropDownList.IConfig 
     return {
         x: 0,
         y: 0,
-        //background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, convertColorHexToNum(themeColors.blue)),
         icon: scene.add.text(0, 0, "▼", { fontSize: "24px", color: themeColors.cyan }),
         text: scene.add.text(0, 0, "--"),
 

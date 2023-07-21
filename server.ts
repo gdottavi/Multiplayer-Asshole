@@ -50,6 +50,10 @@ io.on('connection', function (socket) {
 
     //update player rank
     socket.on('updateRank', (player: Player, rank: number) => {
+
+        if (rank === null || player === null) return
+
+        players.getPlayerById(player.socketId).rank = rank
         io.emit('updateRank', player, rank)
     })
 
@@ -81,13 +85,14 @@ io.on('connection', function (socket) {
 
     //reset game
     socket.on('reset', () => {
-
+        //TODO go back to lobby scene, maintain ranks as read only and players
     })
 
     //remove players as they disconnect
     socket.on('disconnect', function () {
         console.log('An idiot disconnected: ' + socket.id);
         players.removePlayer(socket.id)
+        io.emit('playerExited', socket.id)
     })
 })
 
