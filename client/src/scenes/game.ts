@@ -11,8 +11,9 @@ import { suites, values } from "../model/card";
 import GameTurnHandler from "../game_helpers/gameTurnHandler";
 import { Player } from "../model/player";
 
+
 export const soundKeys = {
-    crackBeer: 'beer-can-open',
+    crackBeer: 'opening-beer-can',
     asshole: 'Drink 45',
     antiFoaming: 'Anti Foaming',
     ballBag: 'Ballbag',
@@ -92,14 +93,29 @@ export default class Game extends Scene {
             })
         })
 
-        //load sounds
-        const soundsFolderPath = '../assets/sounds/';
-        for (const soundKey in soundKeys) {
-            const soundFileName = soundKeys[soundKey];
-            this.load.audio(soundKey, require(`${soundsFolderPath}${soundFileName}.mp3`).default);
-        }
-        //this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
+     
 
+        //load sounds
+       this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
+       this.load.audio(soundKeys.antiFoaming, require('../assets/sounds/Anti Foaming.mp3').default); 
+       this.load.audio(soundKeys.ballBag, require('../assets/sounds/Ballbag.mp3').default); 
+       this.load.audio(soundKeys.betterDrunk, require('../assets/sounds/Better Drunk.mp3').default); 
+       this.load.audio(soundKeys.brainEm, require('../assets/sounds/Brain Em.mp3').default); 
+       this.load.audio(soundKeys.asshole, require('../assets/sounds/Drink 45.mp3').default); 
+       this.load.audio(soundKeys.gameOfSolders, require('../assets/sounds/Game of Soldiers.mp3').default); 
+       this.load.audio(soundKeys.graduatedCylinder, require('../assets/sounds/Graduated Cylinder.mp3').default); 
+       this.load.audio(soundKeys.lookingGood, require('../assets/sounds/lookingood.mp3').default); 
+       this.load.audio(soundKeys.notAgain, require('../assets/sounds/Not Again.mp3').default); 
+       this.load.audio(soundKeys.offspringWhore, require('../assets/sounds/offspring Whore.mp3').default);
+       this.load.audio(soundKeys.oldCountry, require('../assets/sounds/Old Country.mp3').default);  
+       this.load.audio(soundKeys.password, require('../assets/sounds/Password.mp3').default); 
+       this.load.audio(soundKeys.popo, require('../assets/sounds/Popo.mp3').default); 
+       this.load.audio(soundKeys.ramUrine, require('../assets/sounds/Ram Urine.mp3').default); 
+       this.load.audio(soundKeys.sitMiddle, require('../assets/sounds/Sit Middle.mp3').default); 
+       this.load.audio(soundKeys.someoneDied, require('../assets/sounds/Someone Died.mp3').default); 
+       this.load.audio(soundKeys.takethebet, require('../assets/sounds/takethebet.mp3').default); 
+       this.load.audio(soundKeys.unBecks, require('../assets/sounds/Un Becks.mp3').default); 
+       this.load.audio(soundKeys.zj, require('../assets/sounds/ZJ.mp3').default); 
 
     }
 

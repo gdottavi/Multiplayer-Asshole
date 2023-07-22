@@ -180,7 +180,7 @@ class GameTurnHandler {
             //player still in game
             if (currentPlayer.inGame)
                 return Promise.resolve();
-            //player out - don't remove from game but update UI. TODO - NOT WORKING - Other update player name sets it back immediately
+            //player out - don't remove from game but update UI. 
             yield this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, gameUIHandler_1.themeColors.inactiveGray);
             //all players out except 1 - Game over
             if (this.scene.currentPlayers.countPlayersInGame() < 2) {

@@ -16,7 +16,7 @@ const card_1 = require("../model/card");
 const gameTurnHandler_1 = __importDefault(require("../game_helpers/gameTurnHandler"));
 const player_1 = require("../model/player");
 exports.soundKeys = {
-    crackBeer: 'beer-can-open',
+    crackBeer: 'opening-beer-can',
     asshole: 'Drink 45',
     antiFoaming: 'Anti Foaming',
     ballBag: 'Ballbag',
@@ -67,12 +67,26 @@ class Game extends phaser_1.Scene {
             });
         });
         //load sounds
-        const soundsFolderPath = '../assets/sounds/';
-        for (const soundKey in exports.soundKeys) {
-            const soundFileName = exports.soundKeys[soundKey];
-            this.load.audio(soundKey, require(`${soundsFolderPath}${soundFileName}.mp3`).default);
-        }
-        //this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
+        this.load.audio(exports.soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
+        this.load.audio(exports.soundKeys.antiFoaming, require('../assets/sounds/Anti Foaming.mp3').default);
+        this.load.audio(exports.soundKeys.ballBag, require('../assets/sounds/Ballbag.mp3').default);
+        this.load.audio(exports.soundKeys.betterDrunk, require('../assets/sounds/Better Drunk.mp3').default);
+        this.load.audio(exports.soundKeys.brainEm, require('../assets/sounds/Brain Em.mp3').default);
+        this.load.audio(exports.soundKeys.asshole, require('../assets/sounds/Drink 45.mp3').default);
+        this.load.audio(exports.soundKeys.gameOfSolders, require('../assets/sounds/Game of Soldiers.mp3').default);
+        this.load.audio(exports.soundKeys.graduatedCylinder, require('../assets/sounds/Graduated Cylinder.mp3').default);
+        this.load.audio(exports.soundKeys.lookingGood, require('../assets/sounds/lookingood.mp3').default);
+        this.load.audio(exports.soundKeys.notAgain, require('../assets/sounds/Not Again.mp3').default);
+        this.load.audio(exports.soundKeys.offspringWhore, require('../assets/sounds/offspring Whore.mp3').default);
+        this.load.audio(exports.soundKeys.oldCountry, require('../assets/sounds/Old Country.mp3').default);
+        this.load.audio(exports.soundKeys.password, require('../assets/sounds/Password.mp3').default);
+        this.load.audio(exports.soundKeys.popo, require('../assets/sounds/Popo.mp3').default);
+        this.load.audio(exports.soundKeys.ramUrine, require('../assets/sounds/Ram Urine.mp3').default);
+        this.load.audio(exports.soundKeys.sitMiddle, require('../assets/sounds/Sit Middle.mp3').default);
+        this.load.audio(exports.soundKeys.someoneDied, require('../assets/sounds/Someone Died.mp3').default);
+        this.load.audio(exports.soundKeys.takethebet, require('../assets/sounds/takethebet.mp3').default);
+        this.load.audio(exports.soundKeys.unBecks, require('../assets/sounds/Un Becks.mp3').default);
+        this.load.audio(exports.soundKeys.zj, require('../assets/sounds/ZJ.mp3').default);
     }
     //populate needed items for game - "this" is a scene of type Game
     create() {
