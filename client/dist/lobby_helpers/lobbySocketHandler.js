@@ -13,6 +13,7 @@ const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
 export default class LobbySocketHandler {
     constructor(scene) {
         //server connection
+        console.log(baseURL);
         scene.socket = io(baseURL);
         // On connection check for already connected players
         scene.socket.on('connect', () => {

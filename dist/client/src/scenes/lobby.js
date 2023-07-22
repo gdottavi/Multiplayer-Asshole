@@ -9,12 +9,6 @@ const lobbySocketHandler_1 = __importDefault(require("../lobby_helpers/lobbySock
 const startGameHandler_1 = __importDefault(require("../lobby_helpers/startGameHandler"));
 const lobbyUIHandler_1 = __importDefault(require("../lobby_helpers/lobbyUIHandler"));
 const game_1 = require("./game");
-//server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
 class Lobby extends phaser_1.default.Scene {
     constructor() {
         super("Lobby");

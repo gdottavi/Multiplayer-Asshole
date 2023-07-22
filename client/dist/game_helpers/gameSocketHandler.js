@@ -9,9 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { themeColors } from "./gameUIHandler";
 import { setActiveText } from "../utils/utils";
-//server is for production deploy local is for testing
-//const localURL = 'http://localhost:3000';
-//const serverURL = 'https://asshole-server.onrender.com';
 /**
  * Handles socket events for multiplayer functionality
  */

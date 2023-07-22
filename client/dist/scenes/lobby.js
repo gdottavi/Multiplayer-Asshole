@@ -4,12 +4,6 @@ import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
 import StartGameHandler from "../lobby_helpers/startGameHandler";
 import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
 import { soundKeys } from "./game";
-//server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
 export default class Lobby extends Phaser.Scene {
     constructor() {
         super("Lobby");

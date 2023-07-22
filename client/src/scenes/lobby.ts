@@ -7,15 +7,6 @@ import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
 import { soundKeys } from "./game";
 
-//server is for production deploy local is for testing
-const localURL = 'http://localhost:3000';
-const serverURL = 'https://asshole-server.onrender.com';
-
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
-
-
 export default class Lobby extends Phaser.Scene {
     rexUI: any;
     players: Players;

@@ -21,6 +21,7 @@ export default class LobbySocketHandler {
     constructor(scene: Lobby) {
 
         //server connection
+        console.log(baseURL); 
         scene.socket = io(baseURL);
 
         // On connection check for already connected players

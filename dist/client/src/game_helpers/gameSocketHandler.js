@@ -11,9 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameUIHandler_1 = require("./gameUIHandler");
 const utils_1 = require("../utils/utils");
-//server is for production deploy local is for testing
-//const localURL = 'http://localhost:3000';
-//const serverURL = 'https://asshole-server.onrender.com';
 /**
  * Handles socket events for multiplayer functionality
  */
