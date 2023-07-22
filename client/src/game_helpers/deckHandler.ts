@@ -1,6 +1,6 @@
 import Game from "../scenes/game";
 import { Card, suites, testingSuite, values } from "../model/card";
-import CardSprite, { cardWidth } from "../model/cardSprite";
+import CardSprite, { cardHeight, cardWidth } from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
 import { currPlayerXPos, currPlayerYPos, opponentStartXPos, themeColors } from "./gameUIHandler";
@@ -9,7 +9,7 @@ import { convertColorHexToNum, removeSprite, setActiveText, setInactiveText } fr
 const four = '4', two = '2';
 const currPlayerCardOffset = 10;
 const opponentCardOffset = 10;
-const currPlayerCardYPos = 75;
+const currPlayerCardYPosOffset = 25;
 const currPlayerCardOverlapPercentage = 0.4;
 
 
@@ -173,9 +173,11 @@ export default class DeckHandler {
 
         // Calculate the overlap between cards based on a fixed percentage (adjust as needed)
         const overlapOffset = totalCardWidth * currPlayerCardOverlapPercentage;
-    
-        const xPos = currPlayerXPos + i * (totalCardWidth - overlapOffset);
-        const yPos = this.scene.GameUIHandler.getCurrPlayerYPos() + currPlayerCardYPos;
+        const xPos = (currPlayerXPos+25) + i * (totalCardWidth - overlapOffset);
+
+        //calculate Y position based on scale of cards
+        const scaledCardHeight = scale * cardHeight; 
+        const yPos = this.scene.GameUIHandler.getCurrPlayerYPos() + currPlayerCardYPosOffset + scaledCardHeight/2;
     
         this.renderCard(
             currentCard,

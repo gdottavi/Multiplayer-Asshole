@@ -39,7 +39,11 @@ export default class Lobby extends Phaser.Scene {
 
     preload() {
       //load sounds
-      this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);      
+      this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);  
+      this.load.audio(soundKeys.asshole, require('../assets/sounds/Drink 45.mp3').default);  
+      
+      //load images
+      this.load.image('BeerfestAsshole', require('../assets/beerfest/beerfest-asshole-circle.png').default);
     }
 
     create() {

@@ -13,6 +13,25 @@ import { Player } from "../model/player";
 
 export const soundKeys = {
     crackBeer: 'beer-can-open',
+    asshole: 'Drink 45',
+    antiFoaming: 'Anti Foaming',
+    ballBag: 'Ballbag',
+    betterDrunk: 'BetterDrunk',
+    brainEm: 'Brain Em',
+    gameOfSolders: 'Game of Soldiers',
+    graduatedCylinder: 'Graduated Cylinder',
+    lookingGood: 'lookingood',
+    notAgain: 'Not Again',
+    offspringWhore: 'offspring Whore',
+    oldCountry: 'oldCountry',
+    password: 'Password',
+    popo: 'Popo',
+    ramUrine: 'Ram Urine',
+    sitMiddle: 'Sit Middle',
+    someoneDied: 'Someone Died',
+    takethebet: 'takethebet',
+    unBecks: 'Un Becks',
+    zj: 'ZJ'
 }
 
 export default class Game extends Scene {
@@ -74,7 +93,12 @@ export default class Game extends Scene {
         })
 
         //load sounds
-        this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
+        const soundsFolderPath = '../assets/sounds/';
+        for (const soundKey in soundKeys) {
+            const soundFileName = soundKeys[soundKey];
+            this.load.audio(soundKey, require(`${soundsFolderPath}${soundFileName}.mp3`).default);
+        }
+        //this.load.audio(soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);
 
 
     }

@@ -10,6 +10,8 @@ import { createToast, getCenterX } from "../utils/utils";
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
 const serverURL = 'https://asshole-server.onrender.com';
+// Access the Render environment variable directly
+const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
 
 /**
  * Handles socket events for multiplayer functionality
@@ -19,7 +21,7 @@ export default class LobbySocketHandler {
     constructor(scene: Lobby) {
 
         //server connection
-        scene.socket = io(localURL);
+        scene.socket = io(baseURL);
 
         // On connection check for already connected players
         scene.socket.on('connect', () => {

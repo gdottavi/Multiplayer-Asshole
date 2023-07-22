@@ -8,6 +8,7 @@ import { setHoverColor } from "../utils/utils";
 import { generateRankOptions, getRankString, validateName } from "./lobbyValidators";
 import InputText from 'phaser3-rex-plugins/plugins/inputtext'
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
+import { soundKeys } from "../scenes/game";
 
 
 const COLOR_PRIMARY = 0x4e342e;
@@ -41,6 +42,7 @@ export default class LobbyUIHandler {
         this.setupPlayerGrid();
         this.addButtons();
         this.addInputBox();
+        this.showImages(); 
     }
 
     /**
@@ -64,7 +66,9 @@ export default class LobbyUIHandler {
      * clears the grid of all players
      */
     removePlayersFromGrid(): void {
-        this.playerGrid.removeAll();
+        this.playerGrid.removeAll(true);
+        this.addTitleToGrid();
+        this.addHeadersToGrid();
     }
 
     /**
@@ -204,6 +208,34 @@ export default class LobbyUIHandler {
             <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
             </div>
         `);
+    }
+
+    /**
+     * Display images
+     */
+    showImages() {
+
+        //asshole image
+        const image = this.scene.add.image(this.scene.cameras.main.width - 20, 20, 'BeerfestAsshole');
+        image.setOrigin(1, 0); // Set the origin to the top-right corner of the image
+        image.setScale(1.5); // Scale the image if needed
+
+        image.alpha = 0;
+
+        //fade image in
+        this.scene.tweens.add({
+            targets: image,
+            alpha: 1,
+            duration: 5000,
+            ease: Phaser.Math.Easing.Sine.InOut,
+        })
+
+        //add sound on image click
+        image.setInteractive();
+        image.on('pointerdown', () => {
+            const assholeSound = this.scene.sound.add(soundKeys.asshole);
+            assholeSound.play(); 
+        })
     }
 }
 

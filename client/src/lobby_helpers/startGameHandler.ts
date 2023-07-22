@@ -1,7 +1,7 @@
 import { themeColors } from "../game_helpers/gameUIHandler";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
-import { createToast } from "../utils/utils";
+import { createToast, getCenterX } from "../utils/utils";
 import { validateRanks } from "./lobbyValidators";
 
 
@@ -23,7 +23,7 @@ export default class StartGameHandler {
             this.scene.socket.emit("startGame", currentPlayers);
         }
         else{
-            createToast(this.scene, "Unable to Start. Players must have unique ranks.", 10000,640,100); 
+            createToast(this.scene, "Unable to Start. Players must have unique ranks.", 10000,getCenterX(this.scene),100); 
         }
     }
 

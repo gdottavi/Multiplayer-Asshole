@@ -82,14 +82,14 @@ export default class GameUIHandler {
 
         this.scene.currentPlayers.players.forEach(player => {
 
-            //if (this.scene.socket.id !== player.socketId) { opponentPos++ };
+           //current player
             if (this.scene.socket.id === player.socketId) {
                 this.scene.add.text(currPlayerXPos, 
                     this.getCurrPlayerYPos(),
                     [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
-                this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(12).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
+                this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(16).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
                 opponentPos++;
             }
 
