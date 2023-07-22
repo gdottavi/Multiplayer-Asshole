@@ -2,6 +2,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "prestart": "tsc",
     "start": "nodemon dist/server.js"
   },
   "dependencies": {
