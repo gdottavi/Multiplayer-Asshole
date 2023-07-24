@@ -7,7 +7,7 @@ export class Player {
         this.cardHand = new Deck;
         this.inGame = true;
         this.isTurn = false;
-        this.rank = 0;
+        this.rank = null;
         this.isAsshole = false;
         this.isPresident = false;
     }
@@ -80,5 +80,23 @@ export class Player {
         player.cardHand = deck;
         return player;
     }
+}
+/**
+ *
+ * @param rank - number rank
+ * @param numberPlayers - total number of players in game
+ * @returns string representation of player rank in game
+ */
+export function getDisplayRank(rank, numberPlayers) {
+    if (rank === numberPlayers)
+        return "Asshole";
+    if (rank === 1)
+        return "President";
+    if (this.rank === 2)
+        return "Vice";
+    if (rank > 2)
+        return rank + "th";
+    else
+        return rank.toString();
 }
 //# sourceMappingURL=player.js.map

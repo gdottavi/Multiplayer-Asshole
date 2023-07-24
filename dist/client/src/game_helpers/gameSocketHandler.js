@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameUIHandler_1 = require("./gameUIHandler");
-const utils_1 = require("../utils/utils");
 /**
  * Handles socket events for multiplayer functionality
  */
@@ -27,7 +26,6 @@ class SocketHandler {
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame();
-            (0, utils_1.setActiveText)(scene.dealText);
         });
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {

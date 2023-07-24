@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import Lobby from "../scenes/lobby";
 import { soundKeys } from "../scenes/game";
 import { createToast, getCenterX } from "../utils/utils";
 //import { displayPlayerName } from "./lobbyUIHandler";
@@ -13,50 +14,52 @@ const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
 export default class LobbySocketHandler {
     constructor(scene) {
         //server connection
-        console.log('lobby baseURL', baseURL);
-        scene.socket = io(baseURL);
+        if (!Lobby.socket) {
+            Lobby.socket = io(baseURL);
+        }
         // On connection check for already connected players
-        scene.socket.on('connect', () => {
-            scene.socket.emit('getPlayerList');
+        Lobby.socket.on('connect', () => {
+            //Lobby.socket.emit('getPlayerList')
+            console.log("an idiot connected");
         });
         // Display all players already in game
-        scene.socket.on('playerList', (players) => {
+        Lobby.socket.on('playerList', (players) => {
             players.players.forEach((player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player);
-                console.log('playerList', player);
-                scene.LobbyUIHandler.updateRank(player);
+                scene.LobbyUIHandler.updateSelectedRank(player);
             });
+            console.log(scene.players);
         });
         // Listen for "playerJoined" event from the server
-        scene.socket.on("playerJoined", (newPlayer) => {
+        Lobby.socket.on("playerJoined", (newPlayer) => {
             scene.players.addPlayer(newPlayer);
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer);
         });
         // Listen for playerExited event from the server
-        scene.socket.on("playerExited", (removedPlayerSocketId) => {
-            let playerNameExited = scene.players.getPlayerById(removedPlayerSocketId).name;
+        Lobby.socket.on("playerExited", (removedPlayerSocketId) => {
+            var _a, _b;
+            let playerNameExited = (_b = (_a = scene.players.getPlayerById(removedPlayerSocketId)) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : "Someone";
             scene.players.removePlayer(removedPlayerSocketId);
             createToast(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, getCenterX(scene), 100);
-            console.log('player left', scene.players);
             scene.LobbyUIHandler.removePlayersFromGrid();
             scene.players.players.forEach(player => {
                 player.rank = null;
                 scene.LobbyUIHandler.addPlayerToGrid(player);
-                scene.LobbyUIHandler.updateRank(player);
+                scene.LobbyUIHandler.updateSelectedRank(player);
             });
         });
         // Update player ranks 
-        scene.socket.on('updateRank', (player, rank) => {
+        Lobby.socket.on('updateRank', (player, rank) => {
             let scenePlayer = scene.players.getPlayerById(player.socketId);
             scenePlayer.rank = rank;
-            scene.LobbyUIHandler.updateRank(scenePlayer);
+            scene.LobbyUIHandler.updateSelectedRank(scenePlayer);
         });
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
-        scene.socket.on("startGame", (currentPlayers) => {
+        Lobby.socket.on("startGame", (currentPlayers) => {
             scene.playSound(soundKeys.crackBeer);
-            scene.scene.start("Game", { players: currentPlayers, socket: scene.socket });
+            scene.scene.start("Game", { players: currentPlayers, socket: Lobby.socket });
         });
     }
 }

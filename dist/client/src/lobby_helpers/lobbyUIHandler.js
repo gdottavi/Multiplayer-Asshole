@@ -4,16 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const gameUIHandler_1 = require("../game_helpers/gameUIHandler");
+const lobby_1 = __importDefault(require("../scenes/lobby"));
 const utils_1 = require("../utils/utils");
 const ui_components_js_1 = require("phaser3-rex-plugins/templates/ui/ui-components.js");
 const utils_2 = require("../utils/utils");
 const lobbyValidators_1 = require("./lobbyValidators");
 const roundrectangle_js_1 = __importDefault(require("phaser3-rex-plugins/plugins/roundrectangle.js"));
 const game_1 = require("../scenes/game");
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
-const COLOR_CYAN = 0x00FFFF;
 /**
  * Basic layout and UI for game
  */
@@ -30,18 +27,15 @@ class LobbyUIHandler {
                 return;
             }
             let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
-            (0, utils_1.setInactiveText)(this.joinButton);
-            (0, utils_1.setActiveText)(this.startButton);
-            (0, utils_2.setHoverColor)(this.startButton);
-            // Disable the input box
-            this.inputBox = this.scene.add.dom((0, utils_1.getCenterX)(this.scene), (0, utils_1.getCenterY)(this.scene)).createFromHTML(`
-            <div style="display: flex; align-items: center;">
-            <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
-            </div>
-        `);
+            // setInactiveText(this.joinButton)
+            // setActiveText(this.startButton)
+            // setHoverColor(this.startButton)
+            // // Disable the input box
+            // this.disableInputBox()
         };
         this.scene = scene;
         this.initialUISetup();
+        this.playersInGrid = new Set();
     }
     /**
      * Initial UI setup without data
@@ -57,6 +51,11 @@ class LobbyUIHandler {
      * @param player - player to add
      */
     addPlayerToGrid(player) {
+        //TODO - fix this.  Do not allow adding duplicate names to grid
+        if (this.playersInGrid.has(player.name)) {
+            console.warn(`Player with name ${player.name} already exists in the grid.`);
+            return;
+        }
         this.playerGrid
             .add(this.createRankSelection(player), {
             align: "left"
@@ -65,7 +64,21 @@ class LobbyUIHandler {
             align: "left"
         })
             .layout();
+        // Update the Set with the new player name
+        this.playersInGrid.add(player.name);
         this.updateRankOptionsForAllPlayers();
+        if (player.socketId === lobby_1.default.socket.id)
+            this.disableInputs();
+    }
+    /**
+     * disable input box and join game button
+     */
+    disableInputs() {
+        (0, utils_1.setInactiveText)(this.joinButton);
+        (0, utils_1.setActiveText)(this.startButton);
+        (0, utils_2.setHoverColor)(this.startButton);
+        // Disable the input box
+        this.disableInputBox();
     }
     /**
      * clears the grid of all players
@@ -92,7 +105,7 @@ class LobbyUIHandler {
      * Update selected Ranks for all players
      * @param player - player to update rank for
      */
-    updateRank(player) {
+    updateSelectedRank(player) {
         const rank = player.rank;
         if (player) {
             const dropdownToUpdate = player.rankDropDown;
@@ -176,6 +189,16 @@ class LobbyUIHandler {
         this.startButton = (0, utils_1.createButton)(this.scene, (0, utils_1.getCenterX)(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame);
     }
     /**
+     * Disable input box
+     */
+    disableInputBox() {
+        this.inputBox = this.scene.add.dom((0, utils_1.getCenterX)(this.scene), (0, utils_1.getCenterY)(this.scene)).createFromHTML(`
+        <div style="display: flex; align-items: center;">
+        <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
+        </div>
+    `);
+    }
+    /**
      * Display images
      */
     showImages() {
@@ -244,6 +267,7 @@ function labelConfig(scene, text) {
  * @returns DropDownList Configuration Object
  */
 function dropDownConfig(scene, rankOptions) {
+    let isUserAction = false;
     return {
         x: 0,
         y: 0,
@@ -268,6 +292,7 @@ function dropDownConfig(scene, rankOptions) {
             },
             // set the option on click
             onButtonClick: function (button, index, pointer, event) {
+                isUserAction = true;
                 this.text = button.text;
                 this.value = button.value;
             },
@@ -283,7 +308,10 @@ function dropDownConfig(scene, rankOptions) {
             },
         },
         setValueCallback: function (dropDownList, value, previousValue) {
-            scene.StartGameHandler.updateRank(dropDownList.getData('player'), value);
+            if (isUserAction) {
+                scene.StartGameHandler.updateRank(dropDownList.getData('player'), value, previousValue);
+            }
+            isUserAction = false;
         },
         value: undefined
     };

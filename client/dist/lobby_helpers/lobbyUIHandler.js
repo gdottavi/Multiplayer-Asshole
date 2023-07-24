@@ -1,14 +1,11 @@
 import { themeColors } from "../game_helpers/gameUIHandler";
+import Lobby from "../scenes/lobby";
 import { convertColorHexToNum, createButton, createToast, getCenterX, getCenterY, setActiveText, setInactiveText } from "../utils/utils";
 import { GridSizer, DropDownList } from 'phaser3-rex-plugins/templates/ui/ui-components.js';
 import { setHoverColor } from "../utils/utils";
 import { generateRankOptions, getRankString, validateName } from "./lobbyValidators";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { soundKeys } from "../scenes/game";
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
-const COLOR_CYAN = 0x00FFFF;
 /**
  * Basic layout and UI for game
  */
@@ -25,18 +22,15 @@ export default class LobbyUIHandler {
                 return;
             }
             let newPlayer = this.scene.StartGameHandler.joinGame(playerName);
-            setInactiveText(this.joinButton);
-            setActiveText(this.startButton);
-            setHoverColor(this.startButton);
-            // Disable the input box
-            this.inputBox = this.scene.add.dom(getCenterX(this.scene), getCenterY(this.scene)).createFromHTML(`
-            <div style="display: flex; align-items: center;">
-            <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
-            </div>
-        `);
+            // setInactiveText(this.joinButton)
+            // setActiveText(this.startButton)
+            // setHoverColor(this.startButton)
+            // // Disable the input box
+            // this.disableInputBox()
         };
         this.scene = scene;
         this.initialUISetup();
+        this.playersInGrid = new Set();
     }
     /**
      * Initial UI setup without data
@@ -52,6 +46,11 @@ export default class LobbyUIHandler {
      * @param player - player to add
      */
     addPlayerToGrid(player) {
+        //TODO - fix this.  Do not allow adding duplicate names to grid
+        if (this.playersInGrid.has(player.name)) {
+            console.warn(`Player with name ${player.name} already exists in the grid.`);
+            return;
+        }
         this.playerGrid
             .add(this.createRankSelection(player), {
             align: "left"
@@ -60,7 +59,21 @@ export default class LobbyUIHandler {
             align: "left"
         })
             .layout();
+        // Update the Set with the new player name
+        this.playersInGrid.add(player.name);
         this.updateRankOptionsForAllPlayers();
+        if (player.socketId === Lobby.socket.id)
+            this.disableInputs();
+    }
+    /**
+     * disable input box and join game button
+     */
+    disableInputs() {
+        setInactiveText(this.joinButton);
+        setActiveText(this.startButton);
+        setHoverColor(this.startButton);
+        // Disable the input box
+        this.disableInputBox();
     }
     /**
      * clears the grid of all players
@@ -87,7 +100,7 @@ export default class LobbyUIHandler {
      * Update selected Ranks for all players
      * @param player - player to update rank for
      */
-    updateRank(player) {
+    updateSelectedRank(player) {
         const rank = player.rank;
         if (player) {
             const dropdownToUpdate = player.rankDropDown;
@@ -171,6 +184,16 @@ export default class LobbyUIHandler {
         this.startButton = createButton(this.scene, getCenterX(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame);
     }
     /**
+     * Disable input box
+     */
+    disableInputBox() {
+        this.inputBox = this.scene.add.dom(getCenterX(this.scene), getCenterY(this.scene)).createFromHTML(`
+        <div style="display: flex; align-items: center;">
+        <input type="text" id="nameInput" placeholder="" style="font-size: 16px; width: 200px; height: 40px;" disabled>
+        </div>
+    `);
+    }
+    /**
      * Display images
      */
     showImages() {
@@ -238,6 +261,7 @@ function labelConfig(scene, text) {
  * @returns DropDownList Configuration Object
  */
 function dropDownConfig(scene, rankOptions) {
+    let isUserAction = false;
     return {
         x: 0,
         y: 0,
@@ -262,6 +286,7 @@ function dropDownConfig(scene, rankOptions) {
             },
             // set the option on click
             onButtonClick: function (button, index, pointer, event) {
+                isUserAction = true;
                 this.text = button.text;
                 this.value = button.value;
             },
@@ -277,7 +302,10 @@ function dropDownConfig(scene, rankOptions) {
             },
         },
         setValueCallback: function (dropDownList, value, previousValue) {
-            scene.StartGameHandler.updateRank(dropDownList.getData('player'), value);
+            if (isUserAction) {
+                scene.StartGameHandler.updateRank(dropDownList.getData('player'), value, previousValue);
+            }
+            isUserAction = false;
         },
         value: undefined
     };

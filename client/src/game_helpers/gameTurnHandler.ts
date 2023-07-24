@@ -1,5 +1,5 @@
 import Game from "../scenes/game";
-import { Player } from "../model/player";
+import { Player, getDisplayRank } from "../model/player";
 import { themeColors} from "./gameUIHandler";
 import { Card } from "../model/card";
 import { Players } from "../model/players";
@@ -216,14 +216,28 @@ export default class GameTurnHandler {
 
         //player out - don't remove from game but update UI. 
         await this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
+        this.setNextGameRank(currentPlayer); 
+        createToast(this.scene, `${currentPlayer.getDisplayName} is out and will be ${getDisplayRank(currentPlayer.nextGameRank, this.scene.currentPlayers.numberPlayers())}`)
 
         //all players out except 1 - Game over
-        if (this.scene.currentPlayers.countPlayersInGame() < 2) {
+        if (this.scene.currentPlayers.numberPlayersIn() < 2) {
+            //TODO - show ranks when game is complete
             createToast(this.scene, "GAME OVER", 10000);
             this.resetGame();
         }
 
         return Promise.resolve();
+    }
+
+
+    /**
+     * Sets player rank for next game
+     * @param player - player to set next game rank for
+     */
+    setNextGameRank(player: Player) {
+
+        player.nextGameRank = this.scene.currentPlayers.numberPlayersOut();
+
     }
 
 
@@ -260,8 +274,8 @@ export default class GameTurnHandler {
         //clear deck
         this.scene.deck.clearDeck();
 
-        //reset state
-        //this.changeGameState(gameStateEnum.Ready);
+        //Go back to the lobby
+        this.scene.gotToLobbyScene(); 
     }
 
 }

@@ -26,11 +26,13 @@ class Lobby extends phaser_1.default.Scene {
         this.load.image('BeerfestAsshole', require('../assets/beerfest/beerfest-asshole-circle.png').default);
     }
     create() {
-        // Initialize the rexUI plugin
-        //this.rexUI = this.plugins.get('rexUI');
         this.LobbySocketHandler = new lobbySocketHandler_1.default(this);
         this.StartGameHandler = new startGameHandler_1.default(this);
         this.LobbyUIHandler = new lobbyUIHandler_1.default(this);
+        // Request the player list when the scene is created (or when you switch back to it)
+        if (Lobby.socket && Lobby.socket.connected) {
+            Lobby.socket.emit('getPlayerList');
+        }
     }
     update() {
         // Update the lobby scene logic (e.g., handle user input, check game state)
@@ -44,5 +46,6 @@ class Lobby extends phaser_1.default.Scene {
         sound.play();
     }
 }
+Lobby.socket = null;
 exports.default = Lobby;
 //# sourceMappingURL=lobby.js.map

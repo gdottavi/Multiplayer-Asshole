@@ -1,4 +1,5 @@
 import { Player } from "../model/player";
+import Lobby from "../scenes/lobby";
 import { createToast, getCenterX } from "../utils/utils";
 import { validateRanks } from "./lobbyValidators";
 export default class StartGameHandler {
@@ -12,7 +13,7 @@ export default class StartGameHandler {
         if (validateRanks(this.scene.players.players)) {
             // Transition to the Game scene and pass the players as a parameter
             const currentPlayers = this.scene.players.players.map(playerData => Player.serialize(playerData));
-            this.scene.socket.emit("startGame", currentPlayers);
+            Lobby.socket.emit("startGame", currentPlayers);
         }
         else {
             createToast(this.scene, "Unable to Start. Players must have unique ranks.", 10000, getCenterX(this.scene), 100);
@@ -23,8 +24,12 @@ export default class StartGameHandler {
      * @param player - player to update
      * @param newRank - new rank
      */
-    updateRank(player, newRank) {
-        this.scene.socket.emit("updateRank", player, newRank);
+    updateRank(player, newRank, prevRank) {
+        //no need to emit if nothing changed
+        if (prevRank && prevRank === newRank)
+            return;
+        //broadcase to server for other players to know about the new rank
+        Lobby.socket.emit("updateRank", player, newRank);
     }
     /**
      * Add player to game and let other existing players know about the new player
@@ -33,8 +38,8 @@ export default class StartGameHandler {
      */
     joinGame(playerName) {
         // Create a new player object
-        let newPlayer = new Player(this.scene.socket.id, playerName);
-        this.scene.socket.emit("joinGame", newPlayer);
+        let newPlayer = new Player(Lobby.socket.id, playerName);
+        Lobby.socket.emit("joinGame", newPlayer);
         return newPlayer;
     }
 }

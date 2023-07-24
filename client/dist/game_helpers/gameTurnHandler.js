@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { getDisplayRank } from "../model/player";
 import { themeColors } from "./gameUIHandler";
 import { createToast, getAllPlayedCards, findSprite, setInactiveText, setActiveText } from "../utils/utils";
 const four = '4', two = '2';
@@ -180,13 +181,23 @@ export default class GameTurnHandler {
                 return Promise.resolve();
             //player out - don't remove from game but update UI. 
             yield this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
+            this.setNextGameRank(currentPlayer);
+            createToast(this.scene, `${currentPlayer.getDisplayName} is out and will be ${getDisplayRank(currentPlayer.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
             //all players out except 1 - Game over
-            if (this.scene.currentPlayers.countPlayersInGame() < 2) {
+            if (this.scene.currentPlayers.numberPlayersIn() < 2) {
+                //TODO - show ranks when game is complete
                 createToast(this.scene, "GAME OVER", 10000);
                 this.resetGame();
             }
             return Promise.resolve();
         });
+    }
+    /**
+     * Sets player rank for next game
+     * @param player - player to set next game rank for
+     */
+    setNextGameRank(player) {
+        player.nextGameRank = this.scene.currentPlayers.numberPlayersOut();
     }
     /**
  * Clear cards played
@@ -214,8 +225,8 @@ export default class GameTurnHandler {
         this.clearCards(this.scene);
         //clear deck
         this.scene.deck.clearDeck();
-        //reset state
-        //this.changeGameState(gameStateEnum.Ready);
+        //Go back to the lobby
+        this.scene.gotToLobbyScene();
     }
 }
 //# sourceMappingURL=gameTurnHandler.js.map

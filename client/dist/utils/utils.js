@@ -1,3 +1,4 @@
+import { soundKeys } from "../scenes/game";
 import CardSprite from "../model/cardSprite";
 import { themeColors } from "../game_helpers/gameUIHandler";
 /**
@@ -163,5 +164,15 @@ export function convertColorHexToNum(hexColor) {
     const color = Phaser.Display.Color.HexStringToColor(hexColor);
     const colorNumber = color.color;
     return colorNumber;
+}
+/**
+ * Plays a random sound from loaded clips
+ * @param scene
+ */
+export function playRandomSound(scene) {
+    const soundKeysArray = Object.values(soundKeys);
+    const randomIndex = Phaser.Math.Between(0, soundKeysArray.length - 1);
+    const randomSoundKey = soundKeysArray[randomIndex];
+    scene.sound.play(randomSoundKey);
 }
 //# sourceMappingURL=utils.js.map

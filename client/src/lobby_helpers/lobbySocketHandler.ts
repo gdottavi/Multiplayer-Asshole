@@ -21,64 +21,66 @@ export default class LobbySocketHandler {
     constructor(scene: Lobby) {
 
         //server connection
-        console.log('lobby baseURL', baseURL); 
-        scene.socket = io(baseURL);
+        if (!Lobby.socket) {
+            Lobby.socket = io(baseURL); 
+        }
 
         // On connection check for already connected players
-        scene.socket.on('connect', () => {
-            scene.socket.emit('getPlayerList')
+        Lobby.socket.on('connect', () => {
+            //Lobby.socket.emit('getPlayerList')
+            console.log("an idiot connected")
         })
 
 
         // Display all players already in game
-        scene.socket.on('playerList', (players: Players) => {
+        Lobby.socket.on('playerList', (players: Players) => {
             players.players.forEach((player: Player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player); 
-                console.log('playerList',player)
-                scene.LobbyUIHandler.updateRank(player); 
+                scene.LobbyUIHandler.updateSelectedRank(player); 
             })
+            console.log(scene.players)
         })
 
          // Listen for "playerJoined" event from the server
-         scene.socket.on("playerJoined", (newPlayer: Player) => {
+         Lobby.socket.on("playerJoined", (newPlayer: Player) => {
             scene.players.addPlayer(newPlayer);
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer); 
         });
 
         // Listen for playerExited event from the server
-        scene.socket.on("playerExited", (removedPlayerSocketId: string) => {
+        Lobby.socket.on("playerExited", (removedPlayerSocketId: string) => {
             
-            let playerNameExited = scene.players.getPlayerById(removedPlayerSocketId).name
+            let playerNameExited = scene.players.getPlayerById(removedPlayerSocketId)?.name ?? "Someone"
 
             scene.players.removePlayer(removedPlayerSocketId);
 
             createToast(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, getCenterX(scene), 100)
 
-            console.log('player left',scene.players)
 
             scene.LobbyUIHandler.removePlayersFromGrid(); 
 
             scene.players.players.forEach(player => {
                 player.rank = null; 
                 scene.LobbyUIHandler.addPlayerToGrid(player);
-                scene.LobbyUIHandler.updateRank(player); 
+                scene.LobbyUIHandler.updateSelectedRank(player); 
             })
             
         });
 
         // Update player ranks 
-        scene.socket.on('updateRank', (player: Player, rank: number) => {
+        Lobby.socket.on('updateRank', (player: Player, rank: number) => {
             let scenePlayer = scene.players.getPlayerById(player.socketId)
             scenePlayer.rank = rank
-            scene.LobbyUIHandler.updateRank(scenePlayer); 
+            scene.LobbyUIHandler.updateSelectedRank(scenePlayer); 
+            
         })
 
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
-        scene.socket.on("startGame", (currentPlayers) => {
+        Lobby.socket.on("startGame", (currentPlayers) => {
                 scene.playSound(soundKeys.crackBeer); 
-                scene.scene.start("Game", {players: currentPlayers, socket: scene.socket})
+                scene.scene.start("Game", {players: currentPlayers, socket: Lobby.socket})
         })
 
 

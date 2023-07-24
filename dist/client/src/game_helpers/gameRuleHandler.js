@@ -90,6 +90,7 @@ class GameRuleHandler {
         //check if completing square before turn since this can be done out of turn
         if (this.checkSquareCompleted(cardsPlayed)) {
             turnHandler.shouldClear = true;
+            (0, utils_1.playRandomSound)(this.scene);
             return true;
         }
         //not this players turn

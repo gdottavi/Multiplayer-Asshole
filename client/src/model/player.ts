@@ -10,6 +10,7 @@ export class Player{
     readonly socketId: string;
     cardHand: Deck;
     rank: number; 
+    nextGameRank: number; 
     isAsshole: boolean;
     isPresident: boolean; 
     inGame: boolean;
@@ -22,7 +23,7 @@ export class Player{
         this.cardHand = new Deck; 
         this.inGame = true; 
         this.isTurn = false; 
-        this.rank = 0; 
+        this.rank = null; 
         this.isAsshole = false;
         this.isPresident = false; 
     };
@@ -36,6 +37,9 @@ export class Player{
         if(this.rank > 2) return this.name + " (" + this.rank + "th)"
         else return this.name; 
     }
+
+  
+
 
     /**
      * Adds card to players hand and marks as in game
@@ -103,4 +107,18 @@ export class Player{
 
     
 
+}
+
+/**
+ * 
+ * @param rank - number rank
+ * @param numberPlayers - total number of players in game
+ * @returns string representation of player rank in game
+ */
+export function getDisplayRank(rank: number, numberPlayers: number): string {
+    if(rank === numberPlayers) return "Asshole";
+    if(rank === 1) return "President"
+    if(this.rank === 2) return "Vice"
+    if(rank > 2) return rank + "th"
+    else return rank.toString();
 }

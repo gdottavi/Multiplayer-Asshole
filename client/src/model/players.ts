@@ -8,17 +8,52 @@ export class Players {
         this.players = [];
     }
 
+    /**
+     * removes a player from list of players.  Player specified by socketID.
+     * @param socketId - socketID of player to remove
+     */
     removePlayer(socketId: string): void {
         this.players = this.players.filter(player => player.socketId !== socketId);
-      }
-      
-
-    addPlayer(player: Player): void {
-        this.players.push(player); 
     }
 
+
+    /**
+     * Adds player to the list of players.  Does not add duplicates (based on socketID)
+     * @param player player to add
+     */
+    addPlayer(player: Player): void {
+        const existingPlayer = this.players.find(p => p.socketId === player.socketId);
+        if (!existingPlayer) {
+            this.players.push(player);
+        } else {
+            console.warn(`Player with socketId ${player.socketId} already exists.`);
+        }
+    }
+
+    /**
+     * 
+     * @returns total number of players connected to the game
+     */
     numberPlayers(): number {
-        return this.players.length; 
+        return this.players.length;
+    }
+
+    /**
+     * 
+     * @returns number of players out of game
+     */
+    numberPlayersOut(): number {
+        const playersOut = this.players.filter(player => !player.inGame);
+        return playersOut.length;
+    }
+
+    /**
+     * 
+     * @returns number of players in game
+     */
+    numberPlayersIn(): number {
+        const playersIn = this.players.filter(player => player.inGame);
+        return playersIn.length;
     }
 
     /**
@@ -26,8 +61,8 @@ export class Players {
      * @param socketId - socket ID of player 
      * @returns - player with socket ID
      */
-    getPlayerById(socketId: string): Player{
-        return this.players.find(p => p.socketId === socketId )
+    getPlayerById(socketId: string): Player {
+        return this.players.find(p => p.socketId === socketId)
     }
 
     /**
@@ -36,8 +71,8 @@ export class Players {
      * @returns - index of player in players array
      */
     getPlayerIndex(playerToFind: Player): number {
-         //find current player in active players
-         return this.players.findIndex(p => p.socketId === playerToFind.socketId);
+        //find current player in active players
+        return this.players.findIndex(p => p.socketId === playerToFind.socketId);
 
     }
 
@@ -46,26 +81,19 @@ export class Players {
      * Needed after socket.io calls to create Player objects. 
      * @param newPlayers - players to add 
      */
-    setPlayers(newPlayers: Player[]): void{
-        this.players = [...newPlayers].sort((a,b) => a.rank - b.rank); 
-        this.players[0].isPresident = true; 
-        this.players[this.numberPlayers() - 1].isAsshole = true; 
+    setPlayers(newPlayers: Player[]): void {
+        this.players = [...newPlayers].sort((a, b) => a.rank - b.rank);
+        this.players[0].isPresident = true;
+        this.players[this.numberPlayers() - 1].isAsshole = true;
     }
 
 
     /**
      * clears all player hands
      */
-    clearHands(): void{
-        this.players.forEach(player => player.clearHand()); 
+    clearHands(): void {
+        this.players.forEach(player => player.clearHand());
     }
 
-    /**
-     * 
-     * @returns number of players in game
-     */
-    countPlayersInGame(): number{
-        const playersInGame = this.players.filter(player => player.inGame === true)
-        return playersInGame.length
-    }
+
 }

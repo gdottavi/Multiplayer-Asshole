@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_client_1 = require("socket.io-client");
+const lobby_1 = __importDefault(require("../scenes/lobby"));
 const game_1 = require("../scenes/game");
 const utils_1 = require("../utils/utils");
 //import { displayPlayerName } from "./lobbyUIHandler";
@@ -15,50 +19,52 @@ const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
 class LobbySocketHandler {
     constructor(scene) {
         //server connection
-        console.log('lobby baseURL', baseURL);
-        scene.socket = (0, socket_io_client_1.io)(baseURL);
+        if (!lobby_1.default.socket) {
+            lobby_1.default.socket = (0, socket_io_client_1.io)(baseURL);
+        }
         // On connection check for already connected players
-        scene.socket.on('connect', () => {
-            scene.socket.emit('getPlayerList');
+        lobby_1.default.socket.on('connect', () => {
+            //Lobby.socket.emit('getPlayerList')
+            console.log("an idiot connected");
         });
         // Display all players already in game
-        scene.socket.on('playerList', (players) => {
+        lobby_1.default.socket.on('playerList', (players) => {
             players.players.forEach((player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player);
-                console.log('playerList', player);
-                scene.LobbyUIHandler.updateRank(player);
+                scene.LobbyUIHandler.updateSelectedRank(player);
             });
+            console.log(scene.players);
         });
         // Listen for "playerJoined" event from the server
-        scene.socket.on("playerJoined", (newPlayer) => {
+        lobby_1.default.socket.on("playerJoined", (newPlayer) => {
             scene.players.addPlayer(newPlayer);
             scene.LobbyUIHandler.addPlayerToGrid(newPlayer);
         });
         // Listen for playerExited event from the server
-        scene.socket.on("playerExited", (removedPlayerSocketId) => {
-            let playerNameExited = scene.players.getPlayerById(removedPlayerSocketId).name;
+        lobby_1.default.socket.on("playerExited", (removedPlayerSocketId) => {
+            var _a, _b;
+            let playerNameExited = (_b = (_a = scene.players.getPlayerById(removedPlayerSocketId)) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : "Someone";
             scene.players.removePlayer(removedPlayerSocketId);
             (0, utils_1.createToast)(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, (0, utils_1.getCenterX)(scene), 100);
-            console.log('player left', scene.players);
             scene.LobbyUIHandler.removePlayersFromGrid();
             scene.players.players.forEach(player => {
                 player.rank = null;
                 scene.LobbyUIHandler.addPlayerToGrid(player);
-                scene.LobbyUIHandler.updateRank(player);
+                scene.LobbyUIHandler.updateSelectedRank(player);
             });
         });
         // Update player ranks 
-        scene.socket.on('updateRank', (player, rank) => {
+        lobby_1.default.socket.on('updateRank', (player, rank) => {
             let scenePlayer = scene.players.getPlayerById(player.socketId);
             scenePlayer.rank = rank;
-            scene.LobbyUIHandler.updateRank(scenePlayer);
+            scene.LobbyUIHandler.updateSelectedRank(scenePlayer);
         });
         //Listen for "startGame" event from the server
         //Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
-        scene.socket.on("startGame", (currentPlayers) => {
+        lobby_1.default.socket.on("startGame", (currentPlayers) => {
             scene.playSound(game_1.soundKeys.crackBeer);
-            scene.scene.start("Game", { players: currentPlayers, socket: scene.socket });
+            scene.scene.start("Game", { players: currentPlayers, socket: lobby_1.default.socket });
         });
     }
 }

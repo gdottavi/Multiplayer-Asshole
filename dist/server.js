@@ -45,7 +45,9 @@ io.on('connection', function (socket) {
     socket.on('updateRank', (player, rank) => {
         if (rank === null || player === null)
             return;
-        players.getPlayerById(player.socketId).rank = rank;
+        let currentPlayer = players.getPlayerById(player.socketId);
+        //if(currentPlayer.rank === rank) return;
+        currentPlayer.rank = rank;
         io.emit('updateRank', player, rank);
     });
     // cards dealt
@@ -69,9 +71,9 @@ io.on('connection', function (socket) {
     socket.on('passTurn', (currentPlayer, nextPlayer) => {
         io.emit('passTurn', currentPlayer, nextPlayer);
     });
-    //reset game
-    socket.on('reset', () => {
-        //TODO go back to lobby scene, maintain ranks as read only and players
+    //Send back to lobby with current players
+    socket.on('reset', (currentPlayers) => {
+        io.emit('reset', currentPlayers);
     });
     //remove players as they disconnect
     socket.on('disconnect', function () {

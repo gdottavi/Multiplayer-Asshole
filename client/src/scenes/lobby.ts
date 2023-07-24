@@ -10,7 +10,7 @@ import { soundKeys } from "./game";
 export default class Lobby extends Phaser.Scene {
     rexUI: any;
     players: Players;
-    socket: Socket;
+    static socket: Socket | null = null;
     namePos: number;
     LobbySocketHandler: LobbySocketHandler;
     StartGameHandler: StartGameHandler;
@@ -38,11 +38,15 @@ export default class Lobby extends Phaser.Scene {
     }
 
     create() {
-        // Initialize the rexUI plugin
-        //this.rexUI = this.plugins.get('rexUI');
         this.LobbySocketHandler = new LobbySocketHandler(this);
         this.StartGameHandler = new StartGameHandler(this);
         this.LobbyUIHandler = new LobbyUIHandler(this);
+
+         // Request the player list when the scene is created (or when you switch back to it)
+         if (Lobby.socket && Lobby.socket.connected) {
+            Lobby.socket.emit('getPlayerList');
+        }
+
     }
 
 

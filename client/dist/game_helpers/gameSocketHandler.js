@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { themeColors } from "./gameUIHandler";
-import { setActiveText } from "../utils/utils";
 /**
  * Handles socket events for multiplayer functionality
  */
@@ -25,7 +24,6 @@ export default class SocketHandler {
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame();
-            setActiveText(scene.dealText);
         });
         //Change Game State
         scene.socket.on('changeGameState', (gameState) => {

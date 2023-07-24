@@ -4,7 +4,7 @@ import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
 import StartGameHandler from "../lobby_helpers/startGameHandler";
 import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
 import { soundKeys } from "./game";
-export default class Lobby extends Phaser.Scene {
+class Lobby extends Phaser.Scene {
     constructor() {
         super("Lobby");
         this.players = new Players;
@@ -21,11 +21,13 @@ export default class Lobby extends Phaser.Scene {
         this.load.image('BeerfestAsshole', require('../assets/beerfest/beerfest-asshole-circle.png').default);
     }
     create() {
-        // Initialize the rexUI plugin
-        //this.rexUI = this.plugins.get('rexUI');
         this.LobbySocketHandler = new LobbySocketHandler(this);
         this.StartGameHandler = new StartGameHandler(this);
         this.LobbyUIHandler = new LobbyUIHandler(this);
+        // Request the player list when the scene is created (or when you switch back to it)
+        if (Lobby.socket && Lobby.socket.connected) {
+            Lobby.socket.emit('getPlayerList');
+        }
     }
     update() {
         // Update the lobby scene logic (e.g., handle user input, check game state)
@@ -39,4 +41,6 @@ export default class Lobby extends Phaser.Scene {
         sound.play();
     }
 }
+Lobby.socket = null;
+export default Lobby;
 //# sourceMappingURL=lobby.js.map

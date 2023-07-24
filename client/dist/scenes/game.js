@@ -105,5 +105,11 @@ export default class Game extends Scene {
         var sound = this.sound.add(key);
         sound.play();
     }
+    /**
+     * switch back to lobby
+     */
+    gotToLobbyScene() {
+        this.scene.switch('Lobby'); // Switch to the Lobby scene
+    }
 }
 //# sourceMappingURL=game.js.map

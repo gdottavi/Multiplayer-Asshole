@@ -2,14 +2,48 @@ export class Players {
     constructor() {
         this.players = [];
     }
+    /**
+     * removes a player from list of players.  Player specified by socketID.
+     * @param socketId - socketID of player to remove
+     */
     removePlayer(socketId) {
         this.players = this.players.filter(player => player.socketId !== socketId);
     }
+    /**
+     * Adds player to the list of players.  Does not add duplicates (based on socketID)
+     * @param player player to add
+     */
     addPlayer(player) {
-        this.players.push(player);
+        const existingPlayer = this.players.find(p => p.socketId === player.socketId);
+        if (!existingPlayer) {
+            this.players.push(player);
+        }
+        else {
+            console.warn(`Player with socketId ${player.socketId} already exists.`);
+        }
     }
+    /**
+     *
+     * @returns total number of players connected to the game
+     */
     numberPlayers() {
         return this.players.length;
+    }
+    /**
+     *
+     * @returns number of players out of game
+     */
+    numberPlayersOut() {
+        const playersOut = this.players.filter(player => !player.inGame);
+        return playersOut.length;
+    }
+    /**
+     *
+     * @returns number of players in game
+     */
+    numberPlayersIn() {
+        const playersIn = this.players.filter(player => player.inGame);
+        return playersIn.length;
     }
     /**
      * Returns player with given unique socket ID
@@ -43,14 +77,6 @@ export class Players {
      */
     clearHands() {
         this.players.forEach(player => player.clearHand());
-    }
-    /**
-     *
-     * @returns number of players in game
-     */
-    countPlayersInGame() {
-        const playersInGame = this.players.filter(player => player.inGame === true);
-        return playersInGame.length;
     }
 }
 //# sourceMappingURL=players.js.map

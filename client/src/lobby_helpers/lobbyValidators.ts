@@ -1,3 +1,4 @@
+import { GridSizer } from "phaser3-rex-plugins/templates/ui/ui-components";
 import { Player } from "../model/player";
 import { Players } from "../model/players";
 import Lobby from "../scenes/lobby";
@@ -62,3 +63,4 @@ export function validateName(name: string): boolean{
 
     return true; 
 }
+

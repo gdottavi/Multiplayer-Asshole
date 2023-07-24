@@ -63,8 +63,8 @@ export default class GameUIHandler {
         this.scene.dealText = this.scene.add.text(dealTextX, dealTextY, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS');
         setActiveText(this.scene.dealText);
 
-        this.scene.resetText = this.scene.add.text(resetTextX, resetTextY, ['Reset Game']).setFontSize(18).setFontFamily('Trebuchet MS');
-        setInactiveText(this.scene.resetText);
+        this.scene.resetText = this.scene.add.text(resetTextX, resetTextY, ['New Game']).setFontSize(18).setFontFamily('Trebuchet MS');
+        setActiveText(this.scene.resetText);
 
         //Player Options
         this.scene.passText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 40, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)

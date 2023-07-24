@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Player = void 0;
+exports.getDisplayRank = exports.Player = void 0;
 const deck_1 = require("./deck");
 //TODO - Change to factory style class
 class Player {
@@ -10,7 +10,7 @@ class Player {
         this.cardHand = new deck_1.Deck;
         this.inGame = true;
         this.isTurn = false;
-        this.rank = 0;
+        this.rank = null;
         this.isAsshole = false;
         this.isPresident = false;
     }
@@ -85,4 +85,23 @@ class Player {
     }
 }
 exports.Player = Player;
+/**
+ *
+ * @param rank - number rank
+ * @param numberPlayers - total number of players in game
+ * @returns string representation of player rank in game
+ */
+function getDisplayRank(rank, numberPlayers) {
+    if (rank === numberPlayers)
+        return "Asshole";
+    if (rank === 1)
+        return "President";
+    if (this.rank === 2)
+        return "Vice";
+    if (rank > 2)
+        return rank + "th";
+    else
+        return rank.toString();
+}
+exports.getDisplayRank = getDisplayRank;
 //# sourceMappingURL=player.js.map

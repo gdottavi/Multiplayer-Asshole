@@ -26,7 +26,6 @@ export default class SocketHandler {
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame()
-            setActiveText(scene.dealText)
         })
 
         //Change Game State

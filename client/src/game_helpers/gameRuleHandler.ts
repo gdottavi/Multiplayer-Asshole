@@ -4,7 +4,7 @@
 import Game from "../scenes/game";
 import { Card } from "../model/card";
 import { Deck } from "../model/deck";
-import { removeSprite, createToast, getAllPlayedCards, areLastXValuesEqual } from "../utils/utils";
+import { removeSprite, createToast, getAllPlayedCards, areLastXValuesEqual, playRandomSound } from "../utils/utils";
 
 
 
@@ -128,6 +128,7 @@ export default class GameRuleHandler {
         //check if completing square before turn since this can be done out of turn
         if (this.checkSquareCompleted(cardsPlayed)) {
             turnHandler.shouldClear = true;
+            playRandomSound(this.scene); 
             return true
         }
 

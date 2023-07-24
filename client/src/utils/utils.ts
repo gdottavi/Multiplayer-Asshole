@@ -1,4 +1,4 @@
-import Game from "../scenes/game"
+import Game, { soundKeys } from "../scenes/game"
 import { Card } from "../model/card";
 import CardSprite from "../model/cardSprite";
 import { Deck } from "../model/deck";
@@ -197,4 +197,20 @@ export function convertColorHexToNum(hexColor: string): number {
   const colorNumber = color.color; 
 
   return colorNumber;
+}
+
+
+/**
+ * Plays a random sound from loaded clips
+ * @param scene 
+ */
+export function playRandomSound(scene: Game | Lobby): void {
+
+  const soundKeysArray = Object.values(soundKeys)
+
+  const randomIndex = Phaser.Math.Between(0, soundKeysArray.length-1); 
+  const randomSoundKey = soundKeysArray[randomIndex];
+
+  scene.sound.play(randomSoundKey)
+
 }

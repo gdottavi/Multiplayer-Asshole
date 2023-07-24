@@ -3,7 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertColorHexToNum = exports.createButton = exports.setHoverColor = exports.createToast = exports.setActiveText = exports.setInactiveText = exports.getAllPlayedCards = exports.findSprite = exports.removeSprite = exports.areLastXValuesEqual = exports.getCenterY = exports.getCenterX = void 0;
+exports.playRandomSound = exports.convertColorHexToNum = exports.createButton = exports.setHoverColor = exports.createToast = exports.setActiveText = exports.setInactiveText = exports.getAllPlayedCards = exports.findSprite = exports.removeSprite = exports.areLastXValuesEqual = exports.getCenterY = exports.getCenterX = void 0;
+const game_1 = require("../scenes/game");
 const cardSprite_1 = __importDefault(require("../model/cardSprite"));
 const gameUIHandler_1 = require("../game_helpers/gameUIHandler");
 /**
@@ -182,4 +183,15 @@ function convertColorHexToNum(hexColor) {
     return colorNumber;
 }
 exports.convertColorHexToNum = convertColorHexToNum;
+/**
+ * Plays a random sound from loaded clips
+ * @param scene
+ */
+function playRandomSound(scene) {
+    const soundKeysArray = Object.values(game_1.soundKeys);
+    const randomIndex = Phaser.Math.Between(0, soundKeysArray.length - 1);
+    const randomSoundKey = soundKeysArray[randomIndex];
+    scene.sound.play(randomSoundKey);
+}
+exports.playRandomSound = playRandomSound;
 //# sourceMappingURL=utils.js.map

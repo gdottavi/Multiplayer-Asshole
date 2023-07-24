@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const player_1 = require("../model/player");
 const gameUIHandler_1 = require("./gameUIHandler");
 const utils_1 = require("../utils/utils");
 const four = '4', two = '2';
@@ -182,13 +183,23 @@ class GameTurnHandler {
                 return Promise.resolve();
             //player out - don't remove from game but update UI. 
             yield this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, gameUIHandler_1.themeColors.inactiveGray);
+            this.setNextGameRank(currentPlayer);
+            (0, utils_1.createToast)(this.scene, `${currentPlayer.getDisplayName} is out and will be ${(0, player_1.getDisplayRank)(currentPlayer.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
             //all players out except 1 - Game over
-            if (this.scene.currentPlayers.countPlayersInGame() < 2) {
+            if (this.scene.currentPlayers.numberPlayersIn() < 2) {
+                //TODO - show ranks when game is complete
                 (0, utils_1.createToast)(this.scene, "GAME OVER", 10000);
                 this.resetGame();
             }
             return Promise.resolve();
         });
+    }
+    /**
+     * Sets player rank for next game
+     * @param player - player to set next game rank for
+     */
+    setNextGameRank(player) {
+        player.nextGameRank = this.scene.currentPlayers.numberPlayersOut();
     }
     /**
  * Clear cards played
@@ -216,8 +227,8 @@ class GameTurnHandler {
         this.clearCards(this.scene);
         //clear deck
         this.scene.deck.clearDeck();
-        //reset state
-        //this.changeGameState(gameStateEnum.Ready);
+        //Go back to the lobby
+        this.scene.gotToLobbyScene();
     }
 }
 exports.default = GameTurnHandler;
