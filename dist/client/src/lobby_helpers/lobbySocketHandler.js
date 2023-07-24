@@ -24,7 +24,7 @@ class LobbySocketHandler {
         }
         // On connection check for already connected players
         lobby_1.default.socket.on('connect', () => {
-            //Lobby.socket.emit('getPlayerList')
+            lobby_1.default.socket.emit('getPlayerList');
             console.log("an idiot connected");
         });
         // Display all players already in game
