@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import Phaser, { Scene } from "phaser";
 import { Socket } from "socket.io-client";
 import { Players } from "../model/players";
 import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
@@ -15,6 +15,7 @@ export default class Lobby extends Phaser.Scene {
     LobbySocketHandler: LobbySocketHandler;
     StartGameHandler: StartGameHandler;
     LobbyUIHandler: LobbyUIHandler;
+    static currentScene: Scene;
 
 
 
@@ -22,6 +23,7 @@ export default class Lobby extends Phaser.Scene {
         super("Lobby");
         this.players = new Players;
         this.namePos = 0;
+        Lobby.currentScene = this; 
     }
 
     // Add your scene methods and logic here

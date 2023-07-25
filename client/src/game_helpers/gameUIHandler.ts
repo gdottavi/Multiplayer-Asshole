@@ -1,3 +1,4 @@
+import { Scene } from "phaser";
 import CardSprite from "../model/cardSprite";
 import { Player } from "../model/player";
 import Game from "../scenes/game";
@@ -17,24 +18,27 @@ export enum themeColors {
 export const currPlayerXPos = 150;
 export const currPlayerYPos = 575;
 export const opponentStartXPos = 50;
-const playZoneWidth = 900;
-const playZoneHeight = 200;
+
 
 /**
  * Basic layout and UI for game
  */
 export default class GameUIHandler {
     scene: Game;
+    playZoneWidth: number;
+    playZoneHeight: number;
 
     constructor(scene: Game) {
 
         this.scene = scene;
 
         // Create drop zone for cards in the middle
-        scene.dropZone = scene.add.zone(getCenterX(scene), getCenterY(scene), playZoneWidth, playZoneHeight).setRectangleDropZone(playZoneWidth, playZoneHeight);
+        this.playZoneWidth = scene.scale.width * 0.7
+        this.playZoneHeight = scene.scale.height * 0.25
+        scene.dropZone = scene.add.zone(getCenterX(scene), getCenterY(scene), this.playZoneWidth, this.playZoneHeight).setRectangleDropZone(this.playZoneWidth, this.playZoneHeight);
         let dropZoneOutline = scene.add.graphics();
         dropZoneOutline.lineStyle(4, convertColorHexToNum(themeColors.magenta));
-        dropZoneOutline.strokeRect(getCenterX(scene) - playZoneWidth / 2, getCenterY(scene) - playZoneHeight / 2, playZoneWidth, playZoneHeight);
+        dropZoneOutline.strokeRect(getCenterX(scene) - this.playZoneWidth / 2, getCenterY(scene) - this.playZoneHeight / 2, this.playZoneWidth, this.playZoneHeight);
 
 
         this.setupButtons()
@@ -56,7 +60,7 @@ export default class GameUIHandler {
         const resetTextY = dropZoneCenterY + verticalOffset;
 
         // Calculate the horizontal position for the buttons based on the drop zone center and width
-        const horizontalOffset = playZoneWidth / 2 + 125; // Adjust the offset as needed
+        const horizontalOffset = this.playZoneWidth / 2 + 125; // Adjust the offset as needed
         const dealTextX = dropZoneCenterX - horizontalOffset;
         const resetTextX = dropZoneCenterX - horizontalOffset;
 
@@ -82,9 +86,9 @@ export default class GameUIHandler {
 
         this.scene.currentPlayers.players.forEach(player => {
 
-           //current player
+            //current player
             if (this.scene.socket.id === player.socketId) {
-                this.scene.add.text(currPlayerXPos, 
+                this.scene.add.text(currPlayerXPos,
                     this.getCurrPlayerYPos(),
                     [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
             }
@@ -100,9 +104,9 @@ export default class GameUIHandler {
      * 
      * @returns current player Y position
      */
-    getCurrPlayerYPos(): number{
+    getCurrPlayerYPos(): number {
         const dropZoneCenterY = this.scene.dropZone.y;
-        const dropZoneHeight = playZoneHeight;
+        const dropZoneHeight = this.playZoneHeight;
         const verticalOffset = 100;
 
         return dropZoneCenterY + dropZoneHeight / 2 + verticalOffset

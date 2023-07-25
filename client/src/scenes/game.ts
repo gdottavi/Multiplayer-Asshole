@@ -10,6 +10,7 @@ import { Players } from "../model/players";
 import { suites, values } from "../model/card";
 import GameTurnHandler from "../game_helpers/gameTurnHandler";
 import { Player } from "../model/player";
+import Lobby from "./lobby";
 
 
 export const soundKeys = {
@@ -124,6 +125,8 @@ export default class Game extends Scene {
     //populate needed items for game - "this" is a scene of type Game
     create() {
 
+        Lobby.currentScene = this;  //keep track of current scene 
+        
         this.deck = new Deck();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new Deck();

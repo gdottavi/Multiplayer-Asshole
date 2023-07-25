@@ -24,8 +24,6 @@ var themeColors;
 exports.currPlayerXPos = 150;
 exports.currPlayerYPos = 575;
 exports.opponentStartXPos = 50;
-const playZoneWidth = 900;
-const playZoneHeight = 200;
 /**
  * Basic layout and UI for game
  */
@@ -33,10 +31,12 @@ class GameUIHandler {
     constructor(scene) {
         this.scene = scene;
         // Create drop zone for cards in the middle
-        scene.dropZone = scene.add.zone((0, utils_1.getCenterX)(scene), (0, utils_1.getCenterY)(scene), playZoneWidth, playZoneHeight).setRectangleDropZone(playZoneWidth, playZoneHeight);
+        this.playZoneWidth = scene.scale.width * 0.7;
+        this.playZoneHeight = scene.scale.height * 0.25;
+        scene.dropZone = scene.add.zone((0, utils_1.getCenterX)(scene), (0, utils_1.getCenterY)(scene), this.playZoneWidth, this.playZoneHeight).setRectangleDropZone(this.playZoneWidth, this.playZoneHeight);
         let dropZoneOutline = scene.add.graphics();
         dropZoneOutline.lineStyle(4, (0, utils_1.convertColorHexToNum)(themeColors.magenta));
-        dropZoneOutline.strokeRect((0, utils_1.getCenterX)(scene) - playZoneWidth / 2, (0, utils_1.getCenterY)(scene) - playZoneHeight / 2, playZoneWidth, playZoneHeight);
+        dropZoneOutline.strokeRect((0, utils_1.getCenterX)(scene) - this.playZoneWidth / 2, (0, utils_1.getCenterY)(scene) - this.playZoneHeight / 2, this.playZoneWidth, this.playZoneHeight);
         this.setupButtons();
         this.setPlayerNames();
     }
@@ -52,7 +52,7 @@ class GameUIHandler {
         const dealTextY = dropZoneCenterY - verticalOffset;
         const resetTextY = dropZoneCenterY + verticalOffset;
         // Calculate the horizontal position for the buttons based on the drop zone center and width
-        const horizontalOffset = playZoneWidth / 2 + 125; // Adjust the offset as needed
+        const horizontalOffset = this.playZoneWidth / 2 + 125; // Adjust the offset as needed
         const dealTextX = dropZoneCenterX - horizontalOffset;
         const resetTextX = dropZoneCenterX - horizontalOffset;
         this.scene.dealText = this.scene.add.text(dealTextX, dealTextY, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS');
@@ -88,7 +88,7 @@ class GameUIHandler {
      */
     getCurrPlayerYPos() {
         const dropZoneCenterY = this.scene.dropZone.y;
-        const dropZoneHeight = playZoneHeight;
+        const dropZoneHeight = this.playZoneHeight;
         const verticalOffset = 100;
         return dropZoneCenterY + dropZoneHeight / 2 + verticalOffset;
     }

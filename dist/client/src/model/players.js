@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Players = void 0;
+const deck_1 = require("./deck");
 class Players {
     constructor() {
         this.players = [];
@@ -11,6 +12,19 @@ class Players {
      */
     removePlayer(socketId) {
         this.players = this.players.filter(player => player.socketId !== socketId);
+    }
+    /**
+     * resets all players keeping just names and socketIDs
+     */
+    resetPlayers() {
+        this.players.forEach(player => {
+            player.rank = null;
+            player.cardHand = new deck_1.Deck;
+            player.isTurn = false;
+            player.isAsshole = false;
+            player.isPresident = false;
+            player.rankDropDown = null;
+        });
     }
     /**
      * Adds player to the list of players.  Does not add duplicates (based on socketID)

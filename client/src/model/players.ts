@@ -1,3 +1,4 @@
+import { Deck } from "./deck";
 import { Player } from "./player";
 
 export class Players {
@@ -14,6 +15,23 @@ export class Players {
      */
     removePlayer(socketId: string): void {
         this.players = this.players.filter(player => player.socketId !== socketId);
+    }
+
+
+   
+
+    /**
+     * resets all players keeping just names and socketIDs
+     */
+    resetPlayers(){
+        this.players.forEach(player => {
+            player.rank = null; 
+            player.cardHand = new Deck;
+            player.isTurn = false;
+            player.isAsshole = false;
+            player.isPresident = false;
+            player.rankDropDown = null;  
+        })
     }
 
 
@@ -86,6 +104,7 @@ export class Players {
         this.players[0].isPresident = true;
         this.players[this.numberPlayers() - 1].isAsshole = true;
     }
+    
 
 
     /**

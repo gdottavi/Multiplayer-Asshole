@@ -99,7 +99,7 @@ class InteractiveHandler {
                 const currentPlayer = scene.currentPlayers.getPlayerById(scene.socket.id);
                 scene.selectedCardSprites.forEach((cardSprite, i) => {
                     //set position offset by number currently played in middle
-                    cardSprite.x = (dropZone.x - 350) + ((scene.GameRuleHandler.getTotalCountCardsPlayed() + (i + 1)) * 50);
+                    cardSprite.x = (dropZone.x - dropZone.width / 2 + 100) + ((scene.GameRuleHandler.getTotalCountCardsPlayed() + (i + 1)) * 50);
                     cardSprite.y = dropZone.y;
                     //disable the card from being dragged again after play
                     scene.input.setDraggable(cardSprite, false);

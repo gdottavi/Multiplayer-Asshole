@@ -43,16 +43,21 @@ class LobbySocketHandler {
         });
         // Listen for playerExited event from the server
         lobby_1.default.socket.on("playerExited", (removedPlayerSocketId) => {
-            var _a, _b;
-            let playerNameExited = (_b = (_a = scene.players.getPlayerById(removedPlayerSocketId)) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : "Someone";
-            scene.players.removePlayer(removedPlayerSocketId);
-            (0, utils_1.createToast)(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, (0, utils_1.getCenterX)(scene), 100);
-            scene.LobbyUIHandler.removePlayersFromGrid();
-            scene.players.players.forEach(player => {
-                player.rank = null;
-                scene.LobbyUIHandler.addPlayerToGrid(player);
-                scene.LobbyUIHandler.updateSelectedRank(player);
-            });
+            //handle player disconnecting from game scene.  
+            if (scene !== lobby_1.default.currentScene) {
+                scene.players.removePlayer(removedPlayerSocketId);
+                scene.players.resetPlayers(); //if a player drops the ranks will be out of sync
+                //scene.players.players = []; 
+                lobby_1.default.currentScene.scene.start('Lobby');
+                // Add a 3-second delay to allow scene to finish loading before showing message
+                setTimeout(() => {
+                    (0, utils_1.createToast)(scene, `Someone left the game, restarting.`, 5000, (0, utils_1.getCenterX)(scene), 100);
+                }, 2000);
+            }
+            //handle player disconnecting from lobby scene
+            else {
+                this.reloadLobby(scene, removedPlayerSocketId);
+            }
         });
         // Update player ranks 
         lobby_1.default.socket.on('updateRank', (player, rank) => {
@@ -65,6 +70,18 @@ class LobbySocketHandler {
         lobby_1.default.socket.on("startGame", (currentPlayers) => {
             scene.playSound(game_1.soundKeys.crackBeer);
             scene.scene.start("Game", { players: currentPlayers, socket: lobby_1.default.socket });
+        });
+    }
+    reloadLobby(scene, removedPlayerSocketId) {
+        var _a, _b;
+        let playerNameExited = (_b = (_a = scene.players.getPlayerById(removedPlayerSocketId)) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : "Someone";
+        scene.players.removePlayer(removedPlayerSocketId);
+        (0, utils_1.createToast)(scene, `${playerNameExited} left the game. Ranks Reset.`, 5000, (0, utils_1.getCenterX)(scene), 100);
+        scene.LobbyUIHandler.removePlayersFromGrid();
+        scene.players.players.forEach(player => {
+            player.rank = null;
+            scene.LobbyUIHandler.addPlayerToGrid(player);
+            scene.LobbyUIHandler.updateSelectedRank(player);
         });
     }
 }

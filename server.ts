@@ -24,6 +24,7 @@ const io = new Server(http, {
 io.on('connection', function (socket) {
 
     socket.on('getPlayerList', () => {
+        console.log('getplayerlist', players)
         io.to(socket.id).emit('playerList', players)
     })
 
@@ -94,6 +95,7 @@ io.on('connection', function (socket) {
     //remove players as they disconnect
     socket.on('disconnect', function () {
         console.log('An idiot disconnected: ' + socket.id);
+        players.resetPlayers()  //if a player drops ranks will be out of sync so need to clear
         players.removePlayer(socket.id)
         io.emit('playerExited', socket.id)
     })

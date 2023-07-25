@@ -1,3 +1,4 @@
+import { Deck } from "./deck";
 export class Players {
     constructor() {
         this.players = [];
@@ -8,6 +9,19 @@ export class Players {
      */
     removePlayer(socketId) {
         this.players = this.players.filter(player => player.socketId !== socketId);
+    }
+    /**
+     * resets all players keeping just names and socketIDs
+     */
+    resetPlayers() {
+        this.players.forEach(player => {
+            player.rank = null;
+            player.cardHand = new Deck;
+            player.isTurn = false;
+            player.isAsshole = false;
+            player.isPresident = false;
+            player.rankDropDown = null;
+        });
     }
     /**
      * Adds player to the list of players.  Does not add duplicates (based on socketID)

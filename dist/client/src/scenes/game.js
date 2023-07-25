@@ -15,6 +15,7 @@ const players_1 = require("../model/players");
 const card_1 = require("../model/card");
 const gameTurnHandler_1 = __importDefault(require("../game_helpers/gameTurnHandler"));
 const player_1 = require("../model/player");
+const lobby_1 = __importDefault(require("./lobby"));
 exports.soundKeys = {
     crackBeer: 'opening-beer-can',
     asshole: 'Drink 45',
@@ -90,6 +91,7 @@ class Game extends phaser_1.Scene {
     }
     //populate needed items for game - "this" is a scene of type Game
     create() {
+        lobby_1.default.currentScene = this; //keep track of current scene 
         this.deck = new deck_1.Deck();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new deck_1.Deck();

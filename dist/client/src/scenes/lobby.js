@@ -14,6 +14,7 @@ class Lobby extends phaser_1.default.Scene {
         super("Lobby");
         this.players = new players_1.Players;
         this.namePos = 0;
+        Lobby.currentScene = this;
     }
     // Add your scene methods and logic here
     // For example, you can implement the preload, create, and update methods
