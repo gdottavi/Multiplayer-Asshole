@@ -24,7 +24,8 @@ class Lobby extends phaser_1.default.Scene {
         this.load.image('BeerfestAsshole', require('../assets/beerfest/beerfest-asshole-circle.png').default);
     }
     create() {
-        this.LobbySocketHandler = new lobbySocketHandler_1.default(this);
+        this.players.players = [];
+        this.LobbySocketHandler = lobbySocketHandler_1.default.getInstance(this);
         this.StartGameHandler = new startGameHandler_1.default(this);
         this.LobbyUIHandler = new lobbyUIHandler_1.default(this);
         // Request the player list when the scene is created (or when you switch back to it)

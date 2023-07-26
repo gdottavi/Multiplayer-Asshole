@@ -100,7 +100,7 @@ class Game extends phaser_1.Scene {
         this.GameRuleHandler = new gameRuleHandler_1.default(this);
         this.GameTurnHandler = new gameTurnHandler_1.default(this);
         this.InteractiveHandler = new gameInteractiveHandler_1.default(this);
-        this.SocketHandler = new gameSocketHandler_1.default(this);
+        this.SocketHandler = gameSocketHandler_1.default.getInstance(this); // Use the singleton
         this.DeckHandler = new deckHandler_1.default(this);
     }
     //make updates to game
@@ -117,8 +117,9 @@ class Game extends phaser_1.Scene {
     /**
      * switch back to lobby
      */
-    gotToLobbyScene() {
-        this.scene.switch('Lobby'); // Switch to the Lobby scene
+    goToLobbyScene() {
+        //this.scene.switch('Lobby'); // Switch to the Lobby scene
+        this.scene.start("Lobby");
     }
 }
 exports.default = Game;

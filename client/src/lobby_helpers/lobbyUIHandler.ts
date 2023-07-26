@@ -205,8 +205,13 @@ export default class LobbyUIHandler {
      * Add buttons to join and start game
      */
     addButtons() {
+
+
         this.joinButton = createButton(this.scene, getCenterX(this.scene), getCenterY(this.scene) + 80, "Join Game", null, "32px", true, this.joinButtonCallBack)
-        this.startButton = createButton(this.scene, getCenterX(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame)
+
+        if (!this.startButton) {
+            this.startButton = createButton(this.scene, getCenterX(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame)
+        }
     }
 
     /**

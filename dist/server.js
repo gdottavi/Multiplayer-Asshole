@@ -20,14 +20,17 @@ const io = new socket_io_1.Server(http, {
     }
 });
 io.on('connection', function (socket) {
+    console.log('An idiot connected: ' + socket.id);
     //retrieves current player list and sends back to the client requesting it
     socket.on('getPlayerList', () => {
+        console.log('getPlayerList', players);
         io.to(socket.id).emit('playerList', players);
     });
     /**
      * Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization.
      */
     socket.on("startGame", (currentPlayers) => {
+        console.log("start Game", currentPlayers);
         io.emit("startGame", currentPlayers);
     });
     // Handle "joinGame" event
@@ -58,12 +61,11 @@ io.on('connection', function (socket) {
     });
     // cards added to a players hand during game
     socket.on('cardsAdded', (player, cardsToAdd) => {
-        console.log("cards added", cardsToAdd);
-        console.log("cards added", player);
         io.emit('cardsAdded', player, cardsToAdd);
     });
     //card played
     socket.on('playCards', (cardsPlayed, socketId, shouldClear, currentPlayer, nextPlayer) => {
+        console.log('playCards');
         io.emit('playCards', cardsPlayed, socketId, shouldClear, currentPlayer, nextPlayer);
     });
     //Between card played and advancing turn check if player is out and if game is over
@@ -80,7 +82,10 @@ io.on('connection', function (socket) {
     });
     //Send back to lobby with current players
     socket.on('reset', (currentPlayers) => {
-        io.emit('reset', currentPlayers);
+        console.log('reset', currentPlayers);
+        //update ranks of players if game completed
+        updateRanks(currentPlayers);
+        //io.emit('reset', currentPlayers)
     });
     //remove players as they disconnect
     socket.on('disconnect', function () {
@@ -93,4 +98,17 @@ io.on('connection', function (socket) {
 http.listen(PORT, () => {
     console.log(`Asshole server started on port ${PORT}`);
 });
+/**
+ *Updates player ranks on the server
+ * @param currentPlayers - player list to update ranks for
+ */
+function updateRanks(currentPlayers) {
+    if (currentPlayers) {
+        currentPlayers.players.forEach(p => {
+            var _a;
+            let player = players.getPlayerById(p.socketId);
+            player.rank = (_a = p.nextGameRank) !== null && _a !== void 0 ? _a : players.numberPlayers() - 1;
+        });
+    }
+}
 //# sourceMappingURL=server.js.map

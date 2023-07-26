@@ -5,40 +5,63 @@ import { Player } from "../model/player";
 import {  themeColors } from "./gameUIHandler";
 import { createToast, getCenterX, setActiveText, setInactiveText } from "../utils/utils";
 
-
+//TODO - MAKE THIS STATIC - CAUSING ISSUES BY having multiple event listeners for sockets
 /**
  * Handles socket events for multiplayer functionality
  */
 export default class SocketHandler {
 
+    static instance = null;
+    scene: Game;
+    static getInstance(scene: Game) {
+        if (!SocketHandler.instance) {
+            SocketHandler.instance = new SocketHandler(scene);
+        }
+        return SocketHandler.instance;
+    }
+
     constructor(scene: Game) {
 
+        if (SocketHandler.instance) {
+            throw new Error("SocketHandler is a singleton, use getInstance() instead.");
+        }
+
+        this.scene = scene;
+        this.addSocketListeners();
+
+        SocketHandler.instance = this;
+    }
+
+
+    addSocketListeners() {
+
         //Deal Cards
-        scene.socket.on('dealCards', (playerData: any) => {
-            scene.DeckHandler.updateAfterDeal(playerData);
+        this.scene.socket.on('dealCards', (playerData: any) => {
+            this.scene.DeckHandler.updateAfterDeal(playerData);
         })
 
         //Pass Turn 
-        scene.socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
-            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true)
+        this.scene.socket.on('passTurn', (currentPlayer: Player, nextPlayer: Player) => {
+            this.scene.GameTurnHandler.changeTurn(this.scene, currentPlayer, nextPlayer, false, true)
         })
 
         //Cards Added To Player (e.g. tried to end on 2 or 4)
-        scene.socket.on('cardsAdded', (updatedPlayer: Player, cards: Card[]) => {
-            scene.DeckHandler.updateAfterCardAdd(updatedPlayer, cards)
+        this.scene.socket.on('cardsAdded', (updatedPlayer: Player, cards: Card[]) => {
+            this.scene.DeckHandler.updateAfterCardAdd(updatedPlayer, cards)
         })
 
         //Reset Game
-        scene.socket.on('reset', () => {
-            scene.GameTurnHandler.resetGame()
+        this.scene.socket.on('reset', () => {
+            console.log('reset')
+            this.scene.GameTurnHandler.resetGame()
         })
 
         //Change Game State
-        scene.socket.on('changeGameState', (gameState) => {
-            scene.GameRuleHandler.changeGameState(gameState);
+        this.scene.socket.on('changeGameState', (gameState) => {
+            this.scene.GameRuleHandler.changeGameState(gameState);
             if (gameState === "Initializing") {
-                scene.dealText.setInteractive();
-                scene.dealText.setColor(themeColors.cyan);
+                this.scene.dealText.setInteractive();
+                this.scene.dealText.setColor(themeColors.cyan);
             }
         });
 
@@ -50,12 +73,12 @@ export default class SocketHandler {
          *   - handle players winning/exiting game
          *   - handle updating turn
          */
-        scene.socket.on('playCards', async (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
-            await scene.GameRuleHandler.playCards(socketId, cardsPlayed)
-            await scene.GameTurnHandler.handleEndTwoFour(cardsPlayed, currentPlayer); 
-            await scene.GameTurnHandler.handlePlayerOut(scene, currentPlayer)
-            scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear)
-            console.log('socket on play cards', scene.currentPlayers)
+        this.scene.socket.on('playCards', async (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
+            await this.scene.GameRuleHandler.playCards(socketId, cardsPlayed)
+            await this.scene.GameTurnHandler.handleEndTwoFour(cardsPlayed, currentPlayer); 
+            await this.scene.GameTurnHandler.handlePlayerOut(this.scene, currentPlayer)
+            this.scene.GameTurnHandler.changeTurn(this.scene, currentPlayer, nextPlayer, shouldClear)
+            console.log('socket on play cards', this.scene.currentPlayers)
         })
 
      

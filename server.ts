@@ -7,7 +7,6 @@ import { gameStateEnum } from "./client/src/game_helpers/gameRuleHandler";
 import { Players } from "./client/src/model/players";
 
 
-
 const server = express();
 const http = createServer(server);
 const PORT = process.env.PORT || 3000;
@@ -23,8 +22,11 @@ const io = new Server(http, {
 
 io.on('connection', function (socket) {
 
+    console.log('An idiot connected: ' + socket.id);
+
     //retrieves current player list and sends back to the client requesting it
     socket.on('getPlayerList', () => {
+        console.log('getPlayerList', players)
         io.to(socket.id).emit('playerList', players)
     })
 
@@ -32,7 +34,9 @@ io.on('connection', function (socket) {
      * Start Game --> Advances from Lobby Scene to Game Scene.  Sends players and socket to game for intialization. 
      */
     socket.on("startGame", (currentPlayers) => {
+        console.log("start Game", currentPlayers); 
         io.emit("startGame", currentPlayers)
+        
     });
 
     // Handle "joinGame" event
@@ -69,13 +73,12 @@ io.on('connection', function (socket) {
 
     // cards added to a players hand during game
     socket.on('cardsAdded', (player: Player, cardsToAdd: Card[]) => {
-        console.log("cards added", cardsToAdd)
-        console.log("cards added", player)
         io.emit('cardsAdded', player, cardsToAdd); 
     })
 
     //card played
     socket.on('playCards', (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
+        console.log('playCards')
         io.emit('playCards', cardsPlayed, socketId, shouldClear, currentPlayer, nextPlayer);
     })
 
@@ -96,7 +99,10 @@ io.on('connection', function (socket) {
 
     //Send back to lobby with current players
     socket.on('reset', (currentPlayers: Players) => {
-        io.emit('reset', currentPlayers)
+       console.log('reset', currentPlayers)
+        //update ranks of players if game completed
+        updateRanks(currentPlayers);
+        //io.emit('reset', currentPlayers)
     })
 
     //remove players as they disconnect
@@ -111,3 +117,16 @@ io.on('connection', function (socket) {
 http.listen(PORT, () => {
     console.log(`Asshole server started on port ${PORT}`);
 })
+
+/**
+ *Updates player ranks on the server
+ * @param currentPlayers - player list to update ranks for
+ */
+function updateRanks(currentPlayers: Players) {
+    if (currentPlayers) {
+        currentPlayers.players.forEach(p => {
+            let player = players.getPlayerById(p.socketId);
+            player.rank = p.nextGameRank ?? players.numberPlayers()-1;
+        });
+    }
+}

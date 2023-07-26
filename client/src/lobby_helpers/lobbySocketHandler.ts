@@ -19,7 +19,25 @@ const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
  */
 export default class LobbySocketHandler {
 
-    constructor(scene: Lobby) {
+    static instance = null;
+    static getInstance(scene: Lobby) {
+        if (!LobbySocketHandler.instance) {
+            LobbySocketHandler.instance = new LobbySocketHandler(scene);
+        }
+        return LobbySocketHandler.instance;
+    }
+
+    private constructor(scene: Lobby) {
+        if (LobbySocketHandler.instance) {
+            throw new Error("LobbySocketHandler is a singleton, use getInstance() instead.");
+        }
+
+        this.addSocketListeners(scene);
+
+        LobbySocketHandler.instance = this;
+    }
+
+    private addSocketListeners(scene: Lobby) {
 
         //server connection
         if (!Lobby.socket) {
@@ -35,12 +53,14 @@ export default class LobbySocketHandler {
 
         // Display all players already in game
         Lobby.socket.on('playerList', (players: Players) => {
+            console.log('before add', players)
+            console.log('before add', scene.players)
             players.players.forEach((player: Player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player);
                 scene.LobbyUIHandler.updateSelectedRank(player);
             })
-            console.log(scene.players)
+            console.log('after add',scene.players)
         })
 
         // Listen for "playerJoined" event from the server
@@ -55,7 +75,7 @@ export default class LobbySocketHandler {
             //handle player disconnecting from game scene.  
             if (scene !== Lobby.currentScene) {
 
-                if(Lobby.currentScene instanceof Game){
+                if (Lobby.currentScene instanceof Game) {
                     Lobby.currentScene.discardedCards = [];
                     Lobby.currentScene.currentPlayedCards = new Deck();
                 }

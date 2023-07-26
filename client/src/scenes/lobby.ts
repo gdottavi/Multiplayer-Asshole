@@ -36,10 +36,11 @@ export default class Lobby extends Phaser.Scene {
     }
 
     create() {
-        this.LobbySocketHandler = new LobbySocketHandler(this);
+        this.players.players =[]; 
+        this.LobbySocketHandler = LobbySocketHandler.getInstance(this); 
         this.StartGameHandler = new StartGameHandler(this);
         this.LobbyUIHandler = new LobbyUIHandler(this);
-
+        
          // Request the player list when the scene is created (or when you switch back to it)
          if (Lobby.socket && Lobby.socket.connected) {
             Lobby.socket.emit('getPlayerList');

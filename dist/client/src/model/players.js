@@ -95,6 +95,15 @@ class Players {
     clearHands() {
         this.players.forEach(player => player.clearHand());
     }
+    /**
+     * clears all player ranks
+     */
+    clearRanks() {
+        this.players.forEach(player => {
+            player.nextGameRank = null;
+            player.rank = null;
+        });
+    }
 }
 exports.Players = Players;
 //# sourceMappingURL=players.js.map

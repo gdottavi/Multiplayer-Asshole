@@ -18,19 +18,19 @@ export class Players {
     }
 
 
-   
+
 
     /**
      * resets all players keeping just names and socketIDs
      */
-    resetPlayers(){
+    resetPlayers() {
         this.players.forEach(player => {
-            player.rank = null; 
+            player.rank = null;
             player.cardHand = new Deck;
             player.isTurn = false;
             player.isAsshole = false;
             player.isPresident = false;
-            player.rankDropDown = null;  
+            player.rankDropDown = null;
         })
     }
 
@@ -104,7 +104,7 @@ export class Players {
         this.players[0].isPresident = true;
         this.players[this.numberPlayers() - 1].isAsshole = true;
     }
-    
+
 
 
     /**
@@ -112,6 +112,16 @@ export class Players {
      */
     clearHands(): void {
         this.players.forEach(player => player.clearHand());
+    }
+
+    /**
+     * clears all player ranks
+     */
+    clearRanks(): void {
+        this.players.forEach(player => {
+            player.nextGameRank = null
+            player.rank = null
+        })
     }
 
 

@@ -185,13 +185,15 @@ class GameTurnHandler {
             //player out - don't remove from game but update UI. 
             this.scene.GameUIHandler.updatePlayerNameColor(this.scene, player, gameUIHandler_1.themeColors.inactiveGray);
             this.setNextGameRank(player);
-            (0, utils_1.createToast)(this.scene, `${player.getDisplayName} is out and will be ${(0, player_1.getDisplayRank)(player.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
+            (0, utils_1.createToast)(this.scene, `${player.getDisplayName()} is out and will be ${(0, player_1.getDisplayRank)(player.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
             //all players out except 1 - Game over
             if (this.scene.currentPlayers.numberPlayersIn() < 2) {
                 //TODO - show ranks when game is complete
                 (0, utils_1.createToast)(this.scene, "GAME OVER.", 10000);
                 // Delay resetGame for 3 seconds to show message
                 setTimeout(() => {
+                    console.log('player out reset', this.scene.currentPlayers);
+                    this.scene.socket.emit('reset', this.scene.currentPlayers);
                     this.resetGame();
                 }, 3000);
             }
@@ -253,7 +255,7 @@ class GameTurnHandler {
      * @param player - player to set next game rank for
      */
     setNextGameRank(player) {
-        player.nextGameRank = this.scene.currentPlayers.numberPlayersOut();
+        player.nextGameRank = this.scene.currentPlayers.numberPlayersOut() - 1;
     }
     /**
  * Clear cards played
@@ -276,14 +278,18 @@ class GameTurnHandler {
          * @param scene
          */
     resetGame() {
-        //clear players cards
+        //clear players cards and ranks
         this.currentPlayers.clearHands();
+        //this.currentPlayers.clearRanks(); 
         //clear cards played
-        this.clearCards(this.scene);
+        this.scene.currentPlayedCards.forEach(hand => hand.clearDeck());
         //clear deck
         this.scene.deck.clearDeck();
+        //clear discarded cards
+        this.scene.discardedCards = [];
         //Go back to the lobby
-        this.scene.gotToLobbyScene();
+        console.log("got to Lobby scene");
+        this.scene.goToLobbyScene();
     }
 }
 exports.default = GameTurnHandler;

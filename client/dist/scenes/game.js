@@ -94,7 +94,7 @@ export default class Game extends Scene {
         this.GameRuleHandler = new GameRuleHandler(this);
         this.GameTurnHandler = new GameTurnHandler(this);
         this.InteractiveHandler = new InteractiveHandler(this);
-        this.SocketHandler = new SocketHandler(this);
+        this.SocketHandler = SocketHandler.getInstance(this); // Use the singleton
         this.DeckHandler = new DeckHandler(this);
     }
     //make updates to game
@@ -111,8 +111,9 @@ export default class Game extends Scene {
     /**
      * switch back to lobby
      */
-    gotToLobbyScene() {
-        this.scene.switch('Lobby'); // Switch to the Lobby scene
+    goToLobbyScene() {
+        //this.scene.switch('Lobby'); // Switch to the Lobby scene
+        this.scene.start("Lobby");
     }
 }
 //# sourceMappingURL=game.js.map

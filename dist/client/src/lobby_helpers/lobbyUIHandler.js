@@ -186,7 +186,9 @@ class LobbyUIHandler {
      */
     addButtons() {
         this.joinButton = (0, utils_1.createButton)(this.scene, (0, utils_1.getCenterX)(this.scene), (0, utils_1.getCenterY)(this.scene) + 80, "Join Game", null, "32px", true, this.joinButtonCallBack);
-        this.startButton = (0, utils_1.createButton)(this.scene, (0, utils_1.getCenterX)(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame);
+        if (!this.startButton) {
+            this.startButton = (0, utils_1.createButton)(this.scene, (0, utils_1.getCenterX)(this.scene), this.scene.cameras.main.height - 60, "Start Game", null, "48px", false, this.scene.StartGameHandler.startGame);
+        }
     }
     /**
      * Disable input box

@@ -41,7 +41,20 @@ const baseURL = process.env.NODE_ENV === 'production' ? serverURL : localURL;
  * Handles socket events for multiplayer functionality
  */
 class LobbySocketHandler {
+    static getInstance(scene) {
+        if (!LobbySocketHandler.instance) {
+            LobbySocketHandler.instance = new LobbySocketHandler(scene);
+        }
+        return LobbySocketHandler.instance;
+    }
     constructor(scene) {
+        if (LobbySocketHandler.instance) {
+            throw new Error("LobbySocketHandler is a singleton, use getInstance() instead.");
+        }
+        this.addSocketListeners(scene);
+        LobbySocketHandler.instance = this;
+    }
+    addSocketListeners(scene) {
         //server connection
         if (!lobby_1.default.socket) {
             lobby_1.default.socket = (0, socket_io_client_1.io)(baseURL);
@@ -53,12 +66,14 @@ class LobbySocketHandler {
         });
         // Display all players already in game
         lobby_1.default.socket.on('playerList', (players) => {
+            console.log('before add', players);
+            console.log('before add', scene.players);
             players.players.forEach((player) => {
                 scene.players.addPlayer(player);
                 scene.LobbyUIHandler.addPlayerToGrid(player);
                 scene.LobbyUIHandler.updateSelectedRank(player);
             });
-            console.log(scene.players);
+            console.log('after add', scene.players);
         });
         // Listen for "playerJoined" event from the server
         lobby_1.default.socket.on("playerJoined", (newPlayer) => {
@@ -112,5 +127,6 @@ class LobbySocketHandler {
         });
     }
 }
+LobbySocketHandler.instance = null;
 exports.default = LobbySocketHandler;
 //# sourceMappingURL=lobbySocketHandler.js.map
