@@ -2,8 +2,9 @@ import { io } from "socket.io-client";
 import { Player } from "../model/player";
 import Lobby from "../scenes/lobby";
 import { Players } from "../model/players";
-import { soundKeys } from "../scenes/game";
+import Game, { soundKeys } from "../scenes/game";
 import { createToast, getCenterX } from "../utils/utils";
+import { Deck } from "../model/deck";
 //import { displayPlayerName } from "./lobbyUIHandler";
 
 
@@ -54,16 +55,20 @@ export default class LobbySocketHandler {
             //handle player disconnecting from game scene.  
             if (scene !== Lobby.currentScene) {
 
-               scene.players.removePlayer(removedPlayerSocketId);
-               scene.players.resetPlayers(); //if a player drops the ranks will be out of sync
-                //scene.players.players = []; 
+                if(Lobby.currentScene instanceof Game){
+                    Lobby.currentScene.discardedCards = [];
+                    Lobby.currentScene.currentPlayedCards = new Deck();
+                }
+
+                scene.players.removePlayer(removedPlayerSocketId);
+                scene.players.resetPlayers(); //if a player drops the ranks will be out of sync
 
                 Lobby.currentScene.scene.start('Lobby')
 
                 // Add a 3-second delay to allow scene to finish loading before showing message
                 setTimeout(() => {
                     createToast(scene, `Someone left the game, restarting.`, 5000, getCenterX(scene), 100);
-                }, 2000); 
+                }, 2000);
 
             }
             //handle player disconnecting from lobby scene

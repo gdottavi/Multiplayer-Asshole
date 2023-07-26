@@ -14,11 +14,8 @@ class Lobby extends phaser_1.default.Scene {
         super("Lobby");
         this.players = new players_1.Players;
         this.namePos = 0;
-        Lobby.currentScene = this;
+        Lobby.currentScene = this; //keeps track of current scene players are in
     }
-    // Add your scene methods and logic here
-    // For example, you can implement the preload, create, and update methods
-    // See the Phaser documentation for more information: https://photonstorm.github.io/phaser3-docs/
     preload() {
         //load sounds
         this.load.audio(game_1.soundKeys.crackBeer, require('../assets/sounds/opening-beer-can.mp3').default);

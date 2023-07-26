@@ -1,6 +1,6 @@
 import Game from "../scenes/game";
 import { Player, getDisplayRank } from "../model/player";
-import { themeColors} from "./gameUIHandler";
+import { themeColors } from "./gameUIHandler";
 import { Card } from "../model/card";
 import { Players } from "../model/players";
 import { createToast, getAllPlayedCards, findSprite, setInactiveText, setActiveText } from "../utils/utils";
@@ -54,8 +54,8 @@ export default class GameTurnHandler {
         //set the calculated next player as current
         this.setTurn(nextPlayer);
         //update player name colors to indicate turn
-        await scene.GameUIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
-        if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId) await scene.GameUIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
+        scene.GameUIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
+        if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId) scene.GameUIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
 
         //check if cards should be cleared after changing turn
         if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
@@ -136,11 +136,11 @@ export default class GameTurnHandler {
 
         //if card(s) played matched last card(s) skip player
         if (this.checkSkip(cardsPlayed)) {
-            let nextPlayerPosition = this.currentPlayers.getPlayerIndex(nextTurnPlayer); 
+            let nextPlayerPosition = this.currentPlayers.getPlayerIndex(nextTurnPlayer);
             nextTurnPlayer = this.getNextPlayerInGame(nextPlayerPosition)
         }
 
-         return nextTurnPlayer;
+        return nextTurnPlayer;
     }
 
     /**
@@ -148,7 +148,7 @@ export default class GameTurnHandler {
      * @param cardsPlayed - cards played
      * @returns true if player should be skipped false otherwise
      */
-    checkSkip(cardsPlayed: Card[]): boolean{
+    checkSkip(cardsPlayed: Card[]): boolean {
 
         //Skips do not apply to non-single plays
         if (cardsPlayed.length > 1) return false;
@@ -211,22 +211,88 @@ export default class GameTurnHandler {
      */
     async handlePlayerOut(scene: Game, currentPlayer: Player): Promise<void> {
 
+        let player = this.scene.currentPlayers.getPlayerById(currentPlayer.socketId);
         //player still in game
-        if (currentPlayer.inGame) return Promise.resolve();
+        if (player.inGame) return Promise.resolve();
 
         //player out - don't remove from game but update UI. 
-        await this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
-        this.setNextGameRank(currentPlayer); 
-        createToast(this.scene, `${currentPlayer.getDisplayName} is out and will be ${getDisplayRank(currentPlayer.nextGameRank, this.scene.currentPlayers.numberPlayers())}`)
+        this.scene.GameUIHandler.updatePlayerNameColor(this.scene, player, themeColors.inactiveGray);
+        this.setNextGameRank(player);
+        createToast(this.scene, `${player.getDisplayName} is out and will be ${getDisplayRank(player.nextGameRank, this.scene.currentPlayers.numberPlayers())}`)
 
         //all players out except 1 - Game over
         if (this.scene.currentPlayers.numberPlayersIn() < 2) {
             //TODO - show ranks when game is complete
-            createToast(this.scene, "GAME OVER", 10000);
-            this.resetGame();
+            createToast(this.scene, "GAME OVER.", 10000);
+            // Delay resetGame for 3 seconds to show message
+            setTimeout(() => {
+                this.resetGame();
+            }, 3000);
         }
 
         return Promise.resolve();
+    }
+
+    /**
+     * handle player attempting to end on a 2 or 4
+     * @param cardsPlayed cards played
+     * @param player player
+     */
+    async handleEndTwoFour(cardsPlayed: Card[], currentPlayer: Player): Promise<void> {
+
+        let player = this.scene.currentPlayers.getPlayerById(currentPlayer.socketId);
+
+        //add the cards to the player who played them then emit to others
+        if (this.scene.socket.id === player.socketId) {
+
+            //player last play was a 2 or 4 and they are out of cards
+            if (this.checkTwoFour(cardsPlayed) && player.inGame === false) {
+                const cardsToAdd = this.getThreeRandomPlayedCards();
+                player.inGame = true;
+                // cardsToAdd.forEach(card => {
+                //     player.addCard(card)
+                // }) 
+                //let other clients know about these new cards added
+                console.log('handle end 2 4', cardsToAdd)
+                this.scene.socket.emit('cardsAdded', player, cardsToAdd)
+            }
+
+
+
+        }
+
+        return Promise.resolve();
+    }
+
+    /**
+     * 
+     * @param cardsPlayed cards played
+     * @returns true if a 2 or 4 was played
+     */
+    checkTwoFour(cardsPlayed: Card[]): boolean {
+
+        if (cardsPlayed.length === 1 && (cardsPlayed[0].value === two || cardsPlayed[0].value === four)) return true
+
+        return false;
+    }
+
+    /**
+     * 
+     * @returns 3 random cards from the discard pile
+     */
+    getThreeRandomPlayedCards(): Card[] {
+
+        //if less than 3 return empty
+        if (this.scene.discardedCards.length < 3) {
+            return [];
+        }
+
+        //shuffle discard pile
+        Phaser.Utils.Array.Shuffle(this.scene.discardedCards);
+        //remove 3 cards from discard pile
+        const randomCards = this.scene.discardedCards.splice(0, 3)
+
+        return randomCards;
     }
 
 
@@ -254,6 +320,7 @@ export default class GameTurnHandler {
 
         allPlayedCards.forEach(card => {
             scene.InteractiveHandler.moveCard(scene, findSprite(scene, card))
+            scene.discardedCards.push(card);
         })
 
         scene.currentPlayedCards.forEach(hand => hand.clearDeck())
@@ -266,7 +333,7 @@ export default class GameTurnHandler {
     resetGame(): void {
 
         //clear players cards
-        this.currentPlayers.clearHands(); 
+        this.currentPlayers.clearHands();
 
         //clear cards played
         this.clearCards(this.scene);
@@ -275,7 +342,7 @@ export default class GameTurnHandler {
         this.scene.deck.clearDeck();
 
         //Go back to the lobby
-        this.scene.gotToLobbyScene(); 
+        this.scene.gotToLobbyScene();
     }
 
 }

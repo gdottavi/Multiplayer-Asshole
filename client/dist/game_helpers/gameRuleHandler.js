@@ -26,9 +26,9 @@ export default class GameRuleHandler {
     }
     /**
      * Plays a single card for all opponent clients
-     * @param socketId
-     * @param cardsPlayed
-     * @returns - currently played cards deck array. used to update other clients
+     * @param socketId - socket ID of player who played cards
+     * @param cardsPlayed - cards played
+     * @returns - promise that playCards has finished
      */
     playCards(socketId, cardsPlayed) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -41,7 +41,7 @@ export default class GameRuleHandler {
                 if (socketId !== this.scene.socket.id) {
                     //find which player played the card and remove from their hand
                     let player = this.scene.currentPlayers.getPlayerById(socketId);
-                    player === null || player === void 0 ? void 0 : player.removeCard(cardPlayed);
+                    player.removeCard(cardPlayed);
                     //find sprite associated with the card played and remove it
                     removeSprite(this.scene, cardPlayed);
                     //show card played in middle for everyone

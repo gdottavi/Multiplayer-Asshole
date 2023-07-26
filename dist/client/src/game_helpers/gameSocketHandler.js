@@ -23,6 +23,10 @@ class SocketHandler {
         scene.socket.on('passTurn', (currentPlayer, nextPlayer) => {
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true);
         });
+        //Cards Added To Player (e.g. tried to end on 2 or 4)
+        scene.socket.on('cardsAdded', (updatedPlayer, cards) => {
+            scene.DeckHandler.updateAfterCardAdd(updatedPlayer, cards);
+        });
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame();
@@ -45,8 +49,10 @@ class SocketHandler {
          */
         scene.socket.on('playCards', (cardsPlayed, socketId, shouldClear, currentPlayer, nextPlayer) => __awaiter(this, void 0, void 0, function* () {
             yield scene.GameRuleHandler.playCards(socketId, cardsPlayed);
+            yield scene.GameTurnHandler.handleEndTwoFour(cardsPlayed, currentPlayer);
             yield scene.GameTurnHandler.handlePlayerOut(scene, currentPlayer);
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear);
+            console.log('socket on play cards', scene.currentPlayers);
         }));
     }
 }

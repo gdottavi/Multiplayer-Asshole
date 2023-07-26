@@ -1,12 +1,36 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_client_1 = require("socket.io-client");
 const lobby_1 = __importDefault(require("../scenes/lobby"));
-const game_1 = require("../scenes/game");
+const game_1 = __importStar(require("../scenes/game"));
 const utils_1 = require("../utils/utils");
+const deck_1 = require("../model/deck");
 //import { displayPlayerName } from "./lobbyUIHandler";
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -45,9 +69,12 @@ class LobbySocketHandler {
         lobby_1.default.socket.on("playerExited", (removedPlayerSocketId) => {
             //handle player disconnecting from game scene.  
             if (scene !== lobby_1.default.currentScene) {
+                if (lobby_1.default.currentScene instanceof game_1.default) {
+                    lobby_1.default.currentScene.discardedCards = [];
+                    lobby_1.default.currentScene.currentPlayedCards = new deck_1.Deck();
+                }
                 scene.players.removePlayer(removedPlayerSocketId);
                 scene.players.resetPlayers(); //if a player drops the ranks will be out of sync
-                //scene.players.players = []; 
                 lobby_1.default.currentScene.scene.start('Lobby');
                 // Add a 3-second delay to allow scene to finish loading before showing message
                 setTimeout(() => {

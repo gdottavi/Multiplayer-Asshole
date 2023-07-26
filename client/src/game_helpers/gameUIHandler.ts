@@ -118,7 +118,7 @@ export default class GameUIHandler {
      * @param player - player name to update
      * @param color - color to update name to
      */
-    async updatePlayerNameColor(scene: Game, player: Player, color: string): Promise<void> {
+    updatePlayerNameColor(scene: Game, player: Player, color: string): void {
 
         let socketId = player.socketId;
 
@@ -130,7 +130,6 @@ export default class GameUIHandler {
 
         })
 
-        return Promise.resolve();
     }
 
 

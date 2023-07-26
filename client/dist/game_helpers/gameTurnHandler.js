@@ -47,9 +47,9 @@ export default class GameTurnHandler {
             //set the calculated next player as current
             this.setTurn(nextPlayer);
             //update player name colors to indicate turn
-            yield scene.GameUIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
+            scene.GameUIHandler.updatePlayerNameColor(scene, nextPlayer, themeColors.yellow);
             if (currentPlayer.inGame && currentPlayer.socketId !== nextPlayer.socketId)
-                yield scene.GameUIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
+                scene.GameUIHandler.updatePlayerNameColor(scene, currentPlayer, themeColors.cyan);
             //check if cards should be cleared after changing turn
             if (this.checkClear(this.lastTurnPlayer, nextPlayer)) {
                 this.lastHandCleared = true;
@@ -176,21 +176,75 @@ export default class GameTurnHandler {
      */
     handlePlayerOut(scene, currentPlayer) {
         return __awaiter(this, void 0, void 0, function* () {
+            let player = this.scene.currentPlayers.getPlayerById(currentPlayer.socketId);
             //player still in game
-            if (currentPlayer.inGame)
+            if (player.inGame)
                 return Promise.resolve();
             //player out - don't remove from game but update UI. 
-            yield this.scene.GameUIHandler.updatePlayerNameColor(this.scene, currentPlayer, themeColors.inactiveGray);
-            this.setNextGameRank(currentPlayer);
-            createToast(this.scene, `${currentPlayer.getDisplayName} is out and will be ${getDisplayRank(currentPlayer.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
+            this.scene.GameUIHandler.updatePlayerNameColor(this.scene, player, themeColors.inactiveGray);
+            this.setNextGameRank(player);
+            createToast(this.scene, `${player.getDisplayName} is out and will be ${getDisplayRank(player.nextGameRank, this.scene.currentPlayers.numberPlayers())}`);
             //all players out except 1 - Game over
             if (this.scene.currentPlayers.numberPlayersIn() < 2) {
                 //TODO - show ranks when game is complete
-                createToast(this.scene, "GAME OVER", 10000);
-                this.resetGame();
+                createToast(this.scene, "GAME OVER.", 10000);
+                // Delay resetGame for 3 seconds to show message
+                setTimeout(() => {
+                    this.resetGame();
+                }, 3000);
             }
             return Promise.resolve();
         });
+    }
+    /**
+     * handle player attempting to end on a 2 or 4
+     * @param cardsPlayed cards played
+     * @param player player
+     */
+    handleEndTwoFour(cardsPlayed, currentPlayer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let player = this.scene.currentPlayers.getPlayerById(currentPlayer.socketId);
+            //add the cards to the player who played them then emit to others
+            if (this.scene.socket.id === player.socketId) {
+                //player last play was a 2 or 4 and they are out of cards
+                if (this.checkTwoFour(cardsPlayed) && player.inGame === false) {
+                    const cardsToAdd = this.getThreeRandomPlayedCards();
+                    player.inGame = true;
+                    // cardsToAdd.forEach(card => {
+                    //     player.addCard(card)
+                    // }) 
+                    //let other clients know about these new cards added
+                    console.log('handle end 2 4', cardsToAdd);
+                    this.scene.socket.emit('cardsAdded', player, cardsToAdd);
+                }
+            }
+            return Promise.resolve();
+        });
+    }
+    /**
+     *
+     * @param cardsPlayed cards played
+     * @returns true if a 2 or 4 was played
+     */
+    checkTwoFour(cardsPlayed) {
+        if (cardsPlayed.length === 1 && (cardsPlayed[0].value === two || cardsPlayed[0].value === four))
+            return true;
+        return false;
+    }
+    /**
+     *
+     * @returns 3 random cards from the discard pile
+     */
+    getThreeRandomPlayedCards() {
+        //if less than 3 return empty
+        if (this.scene.discardedCards.length < 3) {
+            return [];
+        }
+        //shuffle discard pile
+        Phaser.Utils.Array.Shuffle(this.scene.discardedCards);
+        //remove 3 cards from discard pile
+        const randomCards = this.scene.discardedCards.splice(0, 3);
+        return randomCards;
     }
     /**
      * Sets player rank for next game
@@ -210,6 +264,7 @@ export default class GameTurnHandler {
             const allPlayedCards = getAllPlayedCards(scene.currentPlayedCards);
             allPlayedCards.forEach(card => {
                 scene.InteractiveHandler.moveCard(scene, findSprite(scene, card));
+                scene.discardedCards.push(card);
             });
             scene.currentPlayedCards.forEach(hand => hand.clearDeck());
         });

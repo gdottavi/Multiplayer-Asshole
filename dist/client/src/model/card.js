@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Card = exports.values = exports.suites = exports.testingSuite = void 0;
+exports.Card = exports.values = exports.suites = exports.testingValues = exports.testingSuite = void 0;
 exports.testingSuite = ['H']; //TODO - remove, this was only for creating 1/4 as many cards to test end scenarios
+exports.testingValues = ['2', '4', '5', '6', '7'];
 exports.suites = ['H', 'C', 'D', 'S'];
 exports.values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 class Card {

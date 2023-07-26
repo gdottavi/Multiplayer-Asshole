@@ -23,8 +23,8 @@ const io = new Server(http, {
 
 io.on('connection', function (socket) {
 
+    //retrieves current player list and sends back to the client requesting it
     socket.on('getPlayerList', () => {
-        console.log('getplayerlist', players)
         io.to(socket.id).emit('playerList', players)
     })
 
@@ -66,6 +66,13 @@ io.on('connection', function (socket) {
         const currentPlayers = currentPlayersData.map(playerData => Player.serialize(playerData));
         io.emit('dealCards', currentPlayers);
     });
+
+    // cards added to a players hand during game
+    socket.on('cardsAdded', (player: Player, cardsToAdd: Card[]) => {
+        console.log("cards added", cardsToAdd)
+        console.log("cards added", player)
+        io.emit('cardsAdded', player, cardsToAdd); 
+    })
 
     //card played
     socket.on('playCards', (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {

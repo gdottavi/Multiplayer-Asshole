@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { convertColorHexToNum, getCenterX, getCenterY, setActiveText, setInactiveText } from "../utils/utils";
 export var themeColors;
 (function (themeColors) {
@@ -96,15 +87,12 @@ export default class GameUIHandler {
      * @param color - color to update name to
      */
     updatePlayerNameColor(scene, player, color) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let socketId = player.socketId;
-            scene.children.each((child) => {
-                if (child instanceof Phaser.GameObjects.Text && child.getData('type') === 'playerName') {
-                    if (child.getData('id') === socketId)
-                        child.setColor(color);
-                }
-            });
-            return Promise.resolve();
+        let socketId = player.socketId;
+        scene.children.each((child) => {
+            if (child instanceof Phaser.GameObjects.Text && child.getData('type') === 'playerName') {
+                if (child.getData('id') === socketId)
+                    child.setColor(color);
+            }
         });
     }
 }

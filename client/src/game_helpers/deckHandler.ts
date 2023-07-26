@@ -1,5 +1,5 @@
 import Game from "../scenes/game";
-import { Card, suites, testingSuite, values } from "../model/card";
+import { Card, suites, testingSuite, testingValues, values } from "../model/card";
 import CardSprite, { cardHeight, cardWidth } from "../model/cardSprite";
 import { Deck } from "../model/deck";
 import { Player } from "../model/player";
@@ -43,8 +43,8 @@ export default class DeckHandler {
      */
     createDeck(): Promise<void> {
         return new Promise<void>((resolve) => {
-            suites.forEach((suite) => {
-                values.forEach((value) => {
+            testingSuite.forEach((suite) => {
+                testingValues.forEach((value) => {
                     let card = new Card(suite, value);
                     this.scene.deck.addCard(card);
                 });
@@ -72,7 +72,7 @@ export default class DeckHandler {
 
         for (let i = 0; i < this.scene.deck.cards.length; i++) {
             let card = this.scene.deck.cards[i];
-            this.scene.currentPlayers.players[playerIndex].cardHand.addCard(card)
+            this.scene.currentPlayers.players[playerIndex].addCard(card)
             if (playerIndex < this.scene.currentPlayers.numberPlayers() - 1) {
                 playerIndex++;
             }
@@ -89,11 +89,22 @@ export default class DeckHandler {
     updateAfterDeal(players: any[]) {
         const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
         this.scene.currentPlayers.setPlayers(deserializedPlayers);
-        console.log(this.scene.currentPlayers)
         this.displayCards()
         setInactiveText(this.scene.dealText)
         setActiveText(this.scene.sortCardsText)
         this.scene.GameUIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow)
+    }
+
+    /**
+     * Adds cards to a specified players hand.  
+     * @param playerToUpdate player to update hand for
+     * @param cardsToAdd cards to add to player hand
+     */
+    updateAfterCardAdd(playerToUpdate: Player, cardsToAdd: Card[]) {
+        let player = this.scene.currentPlayers.getPlayerById(playerToUpdate.socketId);
+        cardsToAdd.forEach(card => player.addCard(card))
+        this.displayCards(); 
+   
     }
 
     /**
@@ -173,16 +184,16 @@ export default class DeckHandler {
 
         // Calculate the overlap between cards based on a fixed percentage (adjust as needed)
         const overlapOffset = totalCardWidth * currPlayerCardOverlapPercentage;
-        const xPos = (currPlayerXPos+25) + i * (totalCardWidth - overlapOffset);
+        const xPos = (currPlayerXPos + 25) + i * (totalCardWidth - overlapOffset);
 
         //calculate Y position based on scale of cards
-        const scaledCardHeight = scale * cardHeight; 
-        const yPos = this.scene.GameUIHandler.getCurrPlayerYPos() + currPlayerCardYPosOffset + scaledCardHeight/2;
-    
+        const scaledCardHeight = scale * cardHeight;
+        const yPos = this.scene.GameUIHandler.getCurrPlayerYPos() + currPlayerCardYPosOffset + scaledCardHeight / 2;
+
         this.renderCard(
             currentCard,
             xPos,
-            yPos, 
+            yPos,
             scale,
             currentCard.frontImageSprite,
             true
@@ -192,15 +203,18 @@ export default class DeckHandler {
 
     getThisPlayerCardsScale(numberCards: number): number {
         const visibleWidth = this.scene.cameras.main.worldView.width;
+        const maxScale = .1;  
 
         // Calculate the total width of all cards including spacing and overlap
         const totalCardWidthWithSpacingAndOverlap = (cardWidth + currPlayerCardOffset) * numberCards - currPlayerCardOffset;
         const overlapOffset = totalCardWidthWithSpacingAndOverlap * currPlayerCardOverlapPercentage;
         const totalCardsWidthWithSpacing = totalCardWidthWithSpacingAndOverlap - overlapOffset;
-    
+
         // Calculate the scale required to fit all the cards within the visible screen width
-        const updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
-    
+        let updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
+        // Clamp the scale to the maximum value
+        updatedScale = Math.min(updatedScale, maxScale);
+
         return updatedScale;
 
     }

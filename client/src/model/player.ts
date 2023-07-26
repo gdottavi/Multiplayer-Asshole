@@ -61,11 +61,12 @@ export class Player{
      */
     removeCard(card: Card): void {
         this.cardHand.removeCard(card); 
-
         //no more cards to play
         if(this.getNumberCardsInHand() === 0) this.inGame = false; 
 
     }
+
+ 
 
     /**
      * clears player hand
@@ -118,7 +119,7 @@ export class Player{
 export function getDisplayRank(rank: number, numberPlayers: number): string {
     if(rank === numberPlayers) return "Asshole";
     if(rank === 1) return "President"
-    if(this.rank === 2) return "Vice"
+    if(rank === 2) return "Vice"
     if(rank > 2) return rank + "th"
     else return rank.toString();
 }

@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Card, suites, values } from "../model/card";
+import { Card, testingSuite, testingValues } from "../model/card";
 import CardSprite, { cardHeight, cardWidth } from "../model/cardSprite";
 import { Player } from "../model/player";
 import { currPlayerXPos, opponentStartXPos, themeColors } from "./gameUIHandler";
@@ -39,8 +39,8 @@ export default class DeckHandler {
      */
     createDeck() {
         return new Promise((resolve) => {
-            suites.forEach((suite) => {
-                values.forEach((value) => {
+            testingSuite.forEach((suite) => {
+                testingValues.forEach((value) => {
                     let card = new Card(suite, value);
                     this.scene.deck.addCard(card);
                 });
@@ -64,7 +64,7 @@ export default class DeckHandler {
         let playerIndex = 0;
         for (let i = 0; i < this.scene.deck.cards.length; i++) {
             let card = this.scene.deck.cards[i];
-            this.scene.currentPlayers.players[playerIndex].cardHand.addCard(card);
+            this.scene.currentPlayers.players[playerIndex].addCard(card);
             if (playerIndex < this.scene.currentPlayers.numberPlayers() - 1) {
                 playerIndex++;
             }
@@ -80,11 +80,20 @@ export default class DeckHandler {
     updateAfterDeal(players) {
         const deserializedPlayers = players.map(playerData => Player.deserialize(playerData));
         this.scene.currentPlayers.setPlayers(deserializedPlayers);
-        console.log(this.scene.currentPlayers);
         this.displayCards();
         setInactiveText(this.scene.dealText);
         setActiveText(this.scene.sortCardsText);
         this.scene.GameUIHandler.updatePlayerNameColor(this.scene, this.scene.GameTurnHandler.currentTurnPlayer, themeColors.yellow);
+    }
+    /**
+     * Adds cards to a specified players hand.
+     * @param playerToUpdate player to update hand for
+     * @param cardsToAdd cards to add to player hand
+     */
+    updateAfterCardAdd(playerToUpdate, cardsToAdd) {
+        let player = this.scene.currentPlayers.getPlayerById(playerToUpdate.socketId);
+        cardsToAdd.forEach(card => player.addCard(card));
+        this.displayCards();
     }
     /**
      * Display all cards in player hands currently. Opponent cards display as back.  Own cards display as front.
@@ -156,12 +165,15 @@ export default class DeckHandler {
     }
     getThisPlayerCardsScale(numberCards) {
         const visibleWidth = this.scene.cameras.main.worldView.width;
+        const maxScale = .1;
         // Calculate the total width of all cards including spacing and overlap
         const totalCardWidthWithSpacingAndOverlap = (cardWidth + currPlayerCardOffset) * numberCards - currPlayerCardOffset;
         const overlapOffset = totalCardWidthWithSpacingAndOverlap * currPlayerCardOverlapPercentage;
         const totalCardsWidthWithSpacing = totalCardWidthWithSpacingAndOverlap - overlapOffset;
         // Calculate the scale required to fit all the cards within the visible screen width
-        const updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
+        let updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
+        // Clamp the scale to the maximum value
+        updatedScale = Math.min(updatedScale, maxScale);
         return updatedScale;
     }
     /**

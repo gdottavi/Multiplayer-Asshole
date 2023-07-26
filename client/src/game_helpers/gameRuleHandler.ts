@@ -28,15 +28,15 @@ export default class GameRuleHandler {
     lastPlayedHand: Deck;
     queuedCardsToPlay: Deck;
     currentPlayedCards: Deck[];
-    scene: Game; 
+    scene: Game;
 
 
     constructor(scene: Game) {
         this.gameState = gameStateEnum.Initializing;
         this.queuedCardsToPlay = new Deck();
         this.lastPlayedHand = new Deck();
-        this.currentPlayedCards = scene.currentPlayedCards; 
-        this.scene = scene; 
+        this.currentPlayedCards = scene.currentPlayedCards;
+        this.scene = scene;
 
         this.changeGameState = (gameState) => {
             this.gameState = gameState;
@@ -47,9 +47,9 @@ export default class GameRuleHandler {
 
     /**
      * Plays a single card for all opponent clients
-     * @param socketId 
-     * @param cardsPlayed 
-     * @returns - currently played cards deck array. used to update other clients
+     * @param socketId - socket ID of player who played cards
+     * @param cardsPlayed - cards played
+     * @returns - promise that playCards has finished
      */
     async playCards(socketId: string, cardsPlayed: Card[]): Promise<void> {
 
@@ -63,14 +63,11 @@ export default class GameRuleHandler {
 
             //update for all clients other than current
             if (socketId !== this.scene.socket.id) {
-
                 //find which player played the card and remove from their hand
                 let player = this.scene.currentPlayers.getPlayerById(socketId);
-                player?.removeCard(cardPlayed);
-
+                player.removeCard(cardPlayed);
                 //find sprite associated with the card played and remove it
                 removeSprite(this.scene, cardPlayed);
-
                 //show card played in middle for everyone
                 this.scene.DeckHandler.renderCard(cardPlayed, ((this.scene.dropZone.x - 350) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y), 0.1,
                     cardPlayed.frontImageSprite, false);
@@ -128,7 +125,7 @@ export default class GameRuleHandler {
         //check if completing square before turn since this can be done out of turn
         if (this.checkSquareCompleted(cardsPlayed)) {
             turnHandler.shouldClear = true;
-            playRandomSound(this.scene); 
+            playRandomSound(this.scene);
             return true
         }
 

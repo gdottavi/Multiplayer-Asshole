@@ -92,7 +92,7 @@ export function getDisplayRank(rank, numberPlayers) {
         return "Asshole";
     if (rank === 1)
         return "President";
-    if (this.rank === 2)
+    if (rank === 2)
         return "Vice";
     if (rank > 2)
         return rank + "th";

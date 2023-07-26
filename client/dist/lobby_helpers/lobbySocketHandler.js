@@ -1,7 +1,8 @@
 import { io } from "socket.io-client";
 import Lobby from "../scenes/lobby";
-import { soundKeys } from "../scenes/game";
+import Game, { soundKeys } from "../scenes/game";
 import { createToast, getCenterX } from "../utils/utils";
+import { Deck } from "../model/deck";
 //import { displayPlayerName } from "./lobbyUIHandler";
 //server is for production deploy local is for testing
 const localURL = 'http://localhost:3000';
@@ -40,9 +41,12 @@ export default class LobbySocketHandler {
         Lobby.socket.on("playerExited", (removedPlayerSocketId) => {
             //handle player disconnecting from game scene.  
             if (scene !== Lobby.currentScene) {
+                if (Lobby.currentScene instanceof Game) {
+                    Lobby.currentScene.discardedCards = [];
+                    Lobby.currentScene.currentPlayedCards = new Deck();
+                }
                 scene.players.removePlayer(removedPlayerSocketId);
                 scene.players.resetPlayers(); //if a player drops the ranks will be out of sync
-                //scene.players.players = []; 
                 Lobby.currentScene.scene.start('Lobby');
                 // Add a 3-second delay to allow scene to finish loading before showing message
                 setTimeout(() => {

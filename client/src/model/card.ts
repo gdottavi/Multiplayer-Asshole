@@ -1,4 +1,5 @@
 export const testingSuite = ['H'];  //TODO - remove, this was only for creating 1/4 as many cards to test end scenarios
+export const testingValues = ['2', '4', '5', '6', '7']
 export const suites = ['H', 'C', 'D', 'S'];
 export const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 

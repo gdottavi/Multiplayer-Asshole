@@ -95,6 +95,7 @@ class Game extends phaser_1.Scene {
         this.deck = new deck_1.Deck();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new deck_1.Deck();
+        this.discardedCards = [];
         this.GameUIHandler = new gameUIHandler_1.default(this);
         this.GameRuleHandler = new gameRuleHandler_1.default(this);
         this.GameTurnHandler = new gameTurnHandler_1.default(this);

@@ -5,7 +5,7 @@ import LobbySocketHandler from "../lobby_helpers/lobbySocketHandler";
 import StartGameHandler from "../lobby_helpers/startGameHandler";
 import LobbyUIHandler from "../lobby_helpers/lobbyUIHandler";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin';
-import { soundKeys } from "./game";
+import Game, { soundKeys } from "./game";
 
 export default class Lobby extends Phaser.Scene {
     rexUI: any;
@@ -15,7 +15,7 @@ export default class Lobby extends Phaser.Scene {
     LobbySocketHandler: LobbySocketHandler;
     StartGameHandler: StartGameHandler;
     LobbyUIHandler: LobbyUIHandler;
-    static currentScene: Scene;
+    static currentScene: Game | Lobby;
 
 
 
@@ -23,12 +23,8 @@ export default class Lobby extends Phaser.Scene {
         super("Lobby");
         this.players = new Players;
         this.namePos = 0;
-        Lobby.currentScene = this; 
+        Lobby.currentScene = this;   //keeps track of current scene players are in
     }
-
-    // Add your scene methods and logic here
-    // For example, you can implement the preload, create, and update methods
-    // See the Phaser documentation for more information: https://photonstorm.github.io/phaser3-docs/
 
     preload() {
       //load sounds

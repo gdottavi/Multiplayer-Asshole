@@ -23,6 +23,11 @@ export default class SocketHandler {
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, false, true)
         })
 
+        //Cards Added To Player (e.g. tried to end on 2 or 4)
+        scene.socket.on('cardsAdded', (updatedPlayer: Player, cards: Card[]) => {
+            scene.DeckHandler.updateAfterCardAdd(updatedPlayer, cards)
+        })
+
         //Reset Game
         scene.socket.on('reset', () => {
             scene.GameTurnHandler.resetGame()
@@ -47,8 +52,10 @@ export default class SocketHandler {
          */
         scene.socket.on('playCards', async (cardsPlayed: Card[], socketId: string, shouldClear: boolean, currentPlayer: Player, nextPlayer: Player) => {
             await scene.GameRuleHandler.playCards(socketId, cardsPlayed)
+            await scene.GameTurnHandler.handleEndTwoFour(cardsPlayed, currentPlayer); 
             await scene.GameTurnHandler.handlePlayerOut(scene, currentPlayer)
             scene.GameTurnHandler.changeTurn(scene, currentPlayer, nextPlayer, shouldClear)
+            console.log('socket on play cards', scene.currentPlayers)
         })
 
      

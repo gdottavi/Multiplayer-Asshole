@@ -7,7 +7,7 @@ import DeckHandler from "../game_helpers/deckHandler";
 import { Socket } from "socket.io-client";
 import { Deck } from "../model/deck";
 import { Players } from "../model/players";
-import { suites, values } from "../model/card";
+import { Card, suites, values } from "../model/card";
 import GameTurnHandler from "../game_helpers/gameTurnHandler";
 import { Player } from "../model/player";
 import Lobby from "./lobby";
@@ -58,6 +58,7 @@ export default class Game extends Scene {
     playCardsText: GameObjects.Text;
     selectedCardSprites: any[];
     sortCardsText: GameObjects.Text;
+    discardedCards: Card[];
 
     constructor() {
         super({
@@ -130,6 +131,7 @@ export default class Game extends Scene {
         this.deck = new Deck();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new Deck();
+        this.discardedCards = []; 
 
         this.GameUIHandler = new GameUIHandler(this);
         this.GameRuleHandler = new GameRuleHandler(this);

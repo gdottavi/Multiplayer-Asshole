@@ -89,6 +89,7 @@ export default class Game extends Scene {
         this.deck = new Deck();
         this.selectedCardSprites = [];
         this.currentPlayedCards = new Deck();
+        this.discardedCards = [];
         this.GameUIHandler = new GameUIHandler(this);
         this.GameRuleHandler = new GameRuleHandler(this);
         this.GameTurnHandler = new GameTurnHandler(this);
