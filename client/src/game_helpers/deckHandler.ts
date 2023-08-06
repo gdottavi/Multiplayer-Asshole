@@ -43,8 +43,8 @@ export default class DeckHandler {
      */
     createDeck(): Promise<void> {
         return new Promise<void>((resolve) => {
-            testingSuite.forEach((suite) => {
-                testingValues.forEach((value) => {
+            suites.forEach((suite) => {
+                values.forEach((value) => {
                     let card = new Card(suite, value);
                     this.scene.deck.addCard(card);
                 });
