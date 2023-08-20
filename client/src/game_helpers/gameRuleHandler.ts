@@ -69,7 +69,7 @@ export default class GameRuleHandler {
                 //find sprite associated with the card played and remove it
                 removeSprite(this.scene, cardPlayed);
                 //show card played in middle for everyone
-                this.scene.DeckHandler.renderCard(cardPlayed, ((this.scene.dropZone.x - 350) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y),this.scene.DeckHandler.getThisPlayerCardsScale(),
+                this.scene.DeckHandler.renderCard(cardPlayed, ((this.scene.dropZone.x - this.scene.dropZone.width / 2 + 100) + (this.getTotalCountCardsPlayed() * 50)), (this.scene.dropZone.y),this.scene.DeckHandler.getThisPlayerCardsScale(),
                     cardPlayed.frontImageSprite, false);
 
             }
