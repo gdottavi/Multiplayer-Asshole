@@ -18,6 +18,7 @@ export enum themeColors {
 export const currPlayerXPos = 150;
 export const currPlayerYPos = 575;
 export const opponentStartXPos = 50;
+export const fontSize = 18;
 
 
 /**
@@ -64,16 +65,16 @@ export default class GameUIHandler {
         const dealTextX = dropZoneCenterX - horizontalOffset;
         const resetTextX = dropZoneCenterX - horizontalOffset;
 
-        this.scene.dealText = this.scene.add.text(dealTextX, dealTextY, ['Deal Cards']).setFontSize(18).setFontFamily('Trebuchet MS');
+        this.scene.dealText = this.scene.add.text(dealTextX, dealTextY, ['Deal Cards']).setFontSize(fontSize).setFontFamily('Trebuchet MS');
         setActiveText(this.scene.dealText);
 
-        this.scene.resetText = this.scene.add.text(resetTextX, resetTextY, ['New Game']).setFontSize(18).setFontFamily('Trebuchet MS');
+        this.scene.resetText = this.scene.add.text(resetTextX, resetTextY, ['New Game']).setFontSize(fontSize).setFontFamily('Trebuchet MS');
         setActiveText(this.scene.resetText);
 
         //Player Options
-        this.scene.passText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 40, ['Pass Turn']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        this.scene.passText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 40, ['Pass Turn']).setFontSize(fontSize).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         setInactiveText(this.scene.passText);
-        this.scene.sortCardsText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 70, ['Sort Cards']).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
+        this.scene.sortCardsText = this.scene.add.text(currPlayerXPos - 125, this.getCurrPlayerYPos() + 70, ['Sort Cards']).setFontSize(fontSize).setFontFamily('Trebuchet MS').setColor(themeColors.cyan)
         setInactiveText(this.scene.sortCardsText)
     }
 
@@ -90,10 +91,10 @@ export default class GameUIHandler {
             if (this.scene.socket.id === player.socketId) {
                 this.scene.add.text(currPlayerXPos,
                     this.getCurrPlayerYPos(),
-                    [player.getDisplayName()]).setFontSize(18).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
+                    [player.getDisplayName()]).setFontSize(fontSize).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
             }
             else {
-                this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(16).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
+                this.scene.add.text(opponentStartXPos + (opponentPos * 250), 25, [player.getDisplayName()]).setFontSize(fontSize).setFontFamily('Trebuchet MS').setColor(themeColors.white).setData('id', player.socketId).setData('type', 'playerName');
                 opponentPos++;
             }
 

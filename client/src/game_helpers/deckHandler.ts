@@ -11,6 +11,7 @@ const currPlayerCardOffset = 10;
 const opponentCardOffset = 10;
 const currPlayerCardYPosOffset = 25;
 const currPlayerCardOverlapPercentage = 0.4;
+var thisPlayerCardsScale = null; 
 
 
 /**
@@ -201,9 +202,17 @@ export default class DeckHandler {
 
     }
 
-    getThisPlayerCardsScale(numberCards: number): number {
+    /**
+     * 
+     * @param numberCards - number of cards in player hand
+     * @returns scale for card size
+     */
+    getThisPlayerCardsScale(numberCards?: number): number {
+
+        if(thisPlayerCardsScale) return thisPlayerCardsScale; 
+
         const visibleWidth = this.scene.cameras.main.worldView.width;
-        const maxScale = .1;  
+        const maxScale = .2;  
 
         // Calculate the total width of all cards including spacing and overlap
         const totalCardWidthWithSpacingAndOverlap = (cardWidth + currPlayerCardOffset) * numberCards - currPlayerCardOffset;
@@ -213,9 +222,9 @@ export default class DeckHandler {
         // Calculate the scale required to fit all the cards within the visible screen width
         let updatedScale = (visibleWidth - currPlayerXPos) / totalCardsWidthWithSpacing;
         // Clamp the scale to the maximum value
-        updatedScale = Math.min(updatedScale, maxScale);
+        thisPlayerCardsScale = Math.min(updatedScale, maxScale);
 
-        return updatedScale;
+        return thisPlayerCardsScale;
 
     }
 
