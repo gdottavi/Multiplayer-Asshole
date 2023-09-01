@@ -142,6 +142,7 @@ export default class GameRuleHandler {
         //single 2 played 
         if (cardsPlayed.length === 1 && cardsPlayed[0].value === two) {
             turnHandler.shouldClear = true
+            playRandomSound(this.scene);
             return true
         }
 
